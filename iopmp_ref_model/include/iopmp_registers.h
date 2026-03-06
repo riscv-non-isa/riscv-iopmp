@@ -251,6 +251,15 @@ typedef union {
     uint32_t raw;
 } rridscp_t;
 
+#define RRIDSCP_OP_QUERY                0
+#define RRIDSCP_OP_STALL                1
+#define RRIDSCP_OP_DONT_STALL           2
+#define RRIDSCP_OP_RESERVED             3
+#define RRIDSCP_STAT_NOT_IMPL           0
+#define RRIDSCP_STAT_RRID_STALLED       1
+#define RRIDSCP_STAT_RRID_NOT_STALLED   2
+#define RRIDSCP_STAT_INVALID_RRID       3
+
 // MDLCK is an optional register with a bitmap field to
 // indicate which MDs are locked in SRCMD table.
 typedef union {

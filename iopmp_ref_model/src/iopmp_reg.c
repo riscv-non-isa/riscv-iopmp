@@ -352,6 +352,18 @@ reg_intf_dw read_register(iopmp_dev_t *iopmp, uint64_t offset, uint8_t num_bytes
 
     if (!is_access_valid(iopmp, offset, num_bytes)) return 0;
 
+    if (offset == RRIDSCP_OFFSET && iopmp->reg_file.hwcfg2.stall_en && iopmp->imp_rridscp) {
+        if (iopmp->rridscp_unselectable[iopmp->reg_file.rridscp.rrid]) {
+            // If RRIDSCP.rrid is unselectable, IOPMP returns RRIDSCP.stat as 3 in this case.
+            iopmp->reg_file.rridscp.stat = RRIDSCP_STAT_INVALID_RRID;
+        } else {
+            // The RRIDSCP.stat always indicates the status of RRIDSCP.rrid
+            iopmp->reg_file.rridscp.stat = RRIDSCP_STAT_RRID_NOT_STALLED - iopmp->rrid_stall[iopmp->reg_file.rridscp.rrid];
+        }
+
+        return iopmp->reg_file.rridscp.raw;
+    }
+
     // If the requested offset corresponds to the error MFR (ERR_MFR_OFFSET)
     // handle reading from the error register.
     if (offset == ERR_MFR_OFFSET && iopmp->reg_file.hwcfg2.mfr_en) {
@@ -632,33 +644,29 @@ void write_register(iopmp_dev_t *iopmp, uint64_t offset, reg_intf_dw data, uint8
     case RRIDSCP_OFFSET:
         if (iopmp->imp_rridscp) {
             iopmp->reg_file.rridscp.rsv = 0;
-            iopmp->reg_file.rridscp.op  = rridscp_temp.op;
 
+            // The specification defines RRIDSCP.rrid as WARL field.
+            // In the reference model, only 0 ~ (HWCFG1.rrid_num-1) are allowed
+            // to be written into RRIDSCP.rrid field. Other values are ignored
+            // when being written.
             if (rridscp_temp.rrid < iopmp->reg_file.hwcfg1.rrid_num) {
+                // Update RRIDSCP.rrid field
                 iopmp->reg_file.rridscp.rrid = rridscp_temp.rrid;
+
+                // If written RRID is unselectable, we finish the operation now.
                 if (iopmp->rridscp_unselectable[rridscp_temp.rrid]) {
-                    iopmp->reg_file.rridscp.stat = 3;   // Unselectable RRID
                     break;
                 }
 
-                switch (rridscp_temp.op) {
-                case 0: // Query
-                    // Query stalled state from rrid_stall
-                    iopmp->reg_file.rridscp.stat = 2 - iopmp->rrid_stall[rridscp_temp.rrid];
-                    break;
-                case 1: // Stall transactions associated with selected RRID
+                // Perform operations on selectable RRID based on RRIDSCP.op field.
+                // Note that writing 0x3(reserved) to RRIDSCP.op is ignored.
+                if (rridscp_temp.op == RRIDSCP_OP_STALL) {
+                    // Stall transactions associated with selected RRID
                     iopmp->rrid_stall[rridscp_temp.rrid] = 1;
-                    iopmp->reg_file.rridscp.stat = 1;   // Set stat as stalled
-                    break;
-                case 2: // Don't stall transactions associated with selected RRID
+                } else if (rridscp_temp.op == RRIDSCP_OP_DONT_STALL) {
+                    // Don't stall transactions associated with selected RRID
                     iopmp->rrid_stall[rridscp_temp.rrid] = 0;
-                    iopmp->reg_file.rridscp.stat = 2;   // Set stat as not stalled
-                    break;
-                default:// Write op=3
-                    break;
                 }
-            } else {
-                iopmp->reg_file.rridscp.stat = 3;   // Unimplemented RRID
             }
         }
         break;

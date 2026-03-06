@@ -24,7 +24,7 @@ int main()
 {
     // Create IOPMP instance
     iopmp_dev_t iopmp = {0};
-    iopmp_cfg_t cfg = {0};
+    iopmp_cfg_t cfg = {0}, cfg_saved;
     uint8_t intrpt;
 
     FAIL_IF(create_memory(1) < 0)
@@ -985,6 +985,51 @@ int main()
     FAIL_IF((iopmp_trans_rsp.rrid != 2));
     error_record_chk(&iopmp, ILLEGAL_INSTR_FETCH, INSTR_FETCH, 360, 1);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
+    END_TEST();
+
+    START_TEST("RRIDSCP read/write behaviors");
+    cfg_saved = cfg;
+    cfg.stall_en = true;
+    cfg.imp_rridscp = false;
+    reset_iopmp(&iopmp, &cfg);
+    rridscp_t rridscp_rb;
+    // If RRIDSCP is not implemented, it always returns zero. Software can test
+    // if it is implemented by writing a zero and then reading it back.
+    write_register(&iopmp, RRIDSCP_OFFSET, 0, 4);
+    rridscp_rb.raw = read_register(&iopmp, RRIDSCP_OFFSET, 4);
+    FAIL_IF((rridscp_rb.raw != 0));
+
+    cfg.imp_rridscp = true;
+    cfg.rridscp_unselectable[cfg.rrid_num - 1] = true;  // Choose RRID(rrid_num-1) as unselectable
+    reset_iopmp(&iopmp, &cfg);
+    // Any IOPMP implementing RRIDSCP should not return a zero in RRIDSCP.stat in this case.
+    write_register(&iopmp, RRIDSCP_OFFSET, 0, 4);
+    rridscp_rb.raw = read_register(&iopmp, RRIDSCP_OFFSET, 4);
+    FAIL_IF((rridscp_rb.raw == 0));
+
+    // If an out-of-bounds unimplemented RRID is written into RRIDSCP.rrid,
+    // the written RRID is ignored by the model.
+    rridscp_rb.rrid = cfg.rrid_num;
+    write_register(&iopmp, RRIDSCP_OFFSET, rridscp_rb.raw, 4);
+    rridscp_rb.raw = read_register(&iopmp, RRIDSCP_OFFSET, 4);
+    FAIL_IF((rridscp_rb.rrid == cfg.rrid_num));
+
+    // If an unselectable RRID is written into RRIDSCP.rrid, the model returns RRIDSCP.stat = 3.
+    rridscp_rb.rrid = cfg.rrid_num - 1;
+    write_register(&iopmp, RRIDSCP_OFFSET, rridscp_rb.raw, 4);
+    rridscp_rb.raw = read_register(&iopmp, RRIDSCP_OFFSET, 4);
+    FAIL_IF((rridscp_rb.rrid != (cfg.rrid_num - 1)));
+    FAIL_IF((rridscp_rb.stat != RRIDSCP_STAT_INVALID_RRID));
+
+    // Query valid RRID
+    rridscp_rb.rrid = 0;
+    write_register(&iopmp, RRIDSCP_OFFSET, rridscp_rb.raw, 4);
+    rridscp_rb.raw = read_register(&iopmp, RRIDSCP_OFFSET, 4);
+    FAIL_IF((rridscp_rb.rrid != 0));
+    FAIL_IF((rridscp_rb.stat != RRIDSCP_STAT_RRID_NOT_STALLED));
+
+    // Reset configuration
+    cfg = cfg_saved;
     END_TEST();
 
     START_TEST_IF(iopmp.reg_file.hwcfg2.stall_en && iopmp.imp_rridscp, "Stall MD Feature",
