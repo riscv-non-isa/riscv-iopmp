@@ -382,8 +382,8 @@ enum iopmp_error srcmd_fmt_2_mdcfg_fmt_1_md_entry_num_0_set_entries(
 /******************************************************************************/
 /*
  * One implementation serves every model, so libiopmp calls these by name. A
- * driver that has to replace one installs it in iopmp->ops_generic, which each
- * call site tests first. See struct iopmp_operations_generic.
+ * driver that has to replace one installs it in iopmp->ops_override, which each
+ * call site tests first. See struct iopmp_operations_override.
  */
 /**
  * \brief Capture latest IOPMP error report

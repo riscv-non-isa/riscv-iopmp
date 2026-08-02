@@ -35,10 +35,8 @@ struct iopmp_instance {
     uint32_t granularity;
     /** Implemented bits of ENTRY_ADDR(H) */
     uint64_t entry_addr_bits;
-    /** Per-instance override of the generic operations, NULL for none */
-    struct iopmp_operations_generic *ops_generic;
-    /** Operations for specific model */
-    struct iopmp_operations_specific *ops_specific;
+    /** Per-instance override of libiopmp's operations, NULL for none */
+    struct iopmp_operations_override *ops_override;
 
     /** Base MMIO physical address of IOPMP entries */
     uintptr_t addr_entry_array;

@@ -59,7 +59,7 @@ static void fake_invalidate_error(IOPMP_t *iopmp)
     fake_invalidate_error_hits++;
 }
 
-static struct iopmp_operations_generic fake_ops_generic = {
+static struct iopmp_operations_override fake_ops_override = {
     .set_global_intr = fake_set_global_intr,
     .invalidate_error = fake_invalidate_error,
 };
@@ -3328,7 +3328,7 @@ int main(void)
 
         /* Two instances in one image: one with an override, one without */
         FAIL_IF(libiopmp_setup(&iopmp_ovr, &cfg) != IOPMP_OK);
-        iopmp_ovr.ops_generic = &fake_ops_generic;
+        iopmp_ovr.ops_override = &fake_ops_override;
         FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
 
         /* Member filled in: the override runs and ERR_CFG.ie stays clear */
@@ -3353,7 +3353,7 @@ int main(void)
         IOPMP_t iopmp_ovr;
 
         FAIL_IF(libiopmp_setup(&iopmp_ovr, &cfg) != IOPMP_OK);
-        iopmp_ovr.ops_generic = &fake_ops_generic;
+        iopmp_ovr.ops_override = &fake_ops_override;
         /* RRID 2 is associated with a MD that owns no entry, so the access
          * below hits no rule and leaves a record behind */
         FAIL_IF(iopmp_set_rrid_md_association(&iopmp_ovr, 2, 0x8, 0, &val_u64,

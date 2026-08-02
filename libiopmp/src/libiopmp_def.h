@@ -23,21 +23,22 @@
 /* IOPMP operations                                                           */
 /******************************************************************************/
 /**
- * Structure represents the generic operations for all the models
+ * Structure represents a per-instance override of libiopmp's own operations
  *
- * These act on the registers that chapters 2 to 4 of the specification make
- * mandatory and define the same way for every model, so libiopmp implements
- * each of them once and calls it by name. A driver that needs to replace one
- * fills in the members that differ and points iopmp->ops_generic at the
- * result; a member left NULL, and an instance whose ops_generic is NULL, keep
- * the built-in implementation.
+ * libiopmp implements every operation below and calls it by name, so an
+ * instance whose ops_override is NULL, and a member left NULL, keep the
+ * built-in implementation. A driver fills in only what its hardware does
+ * differently and points iopmp->ops_override at the result.
  *
- * The SRCMD_FMT=2/MDCFG_FMT=1 driver uses it to write SRCMD_PERM(H) alongside
- * each entry when K=1. The other case is silicon built against a specification
- * older than the one libiopmp targets, which can share an image with a
- * conforming instance because the choice is made per instance, not per build.
+ * Two things need that. The SRCMD_FMT=2/MDCFG_FMT=1 driver writes
+ * SRCMD_PERM(H) alongside each entry when K=1. And silicon built against a
+ * specification older than the one libiopmp targets can share an image with a
+ * conforming instance, because the choice is made per instance, not per build.
  */
-struct iopmp_operations_generic {
+struct iopmp_operations_override {
+    /**************************************************************************/
+    /* Operations on the registers chapters 2 to 4 make mandatory             */
+    /**************************************************************************/
     /** Lock the number of priority entries. */
     void (*lock_prio_entry_num)(IOPMP_t *iopmp);
 
@@ -124,10 +125,10 @@ struct iopmp_operations_generic {
     /** Clear the values of entry[@idx_start]~entry[@idx_start+@num_entry-1] */
     void (*clear_entries)(IOPMP_t *iopmp, uint32_t idx_start,
                           uint32_t num_entry);
-};
 
-/** Structure represents the operations for specific model */
-struct iopmp_operations_specific {
+    /**************************************************************************/
+    /* Operations whose implementation depends on SRCMD_FMT and MDCFG_FMT     */
+    /**************************************************************************/
     /** Lock the MDs based on given bitmap @mds. Lock MDLCK if @lock is true. */
     enum iopmp_error (*set_md_lock)(IOPMP_t *iopmp, uint64_t *mds, bool lock);
 
