@@ -18,27 +18,12 @@
 
 #include "iopmp_drv_common.h"
 
-static struct iopmp_operations_specific iopmp_operations_full = {
-    .set_md_lock = srcmd_fmt_0_2_set_md_lock,
-    .lock_mdcfg = mdcfg_fmt_0_lock_mdcfg,
-    .get_md_entry_top = mdcfg_fmt_0_get_md_entry_top,
-    .set_md_entry_top = mdcfg_fmt_0_set_md_entry_top,
-    .set_md_entry_num = NULL,
-    .get_association_rrid_md = srcmd_fmt_0_get_association_rrid_md,
-    .set_association_rrid_md = srcmd_fmt_0_set_association_rrid_md,
-    .set_md_permission = NULL,
-    .set_md_permission_multi = NULL,
-    .lock_srcmd_table = srcmd_fmt_0_lock_srcmd_table,
-};
-
 const struct iopmp_driver iopmp_drv_full;
 
 static enum iopmp_error iopmp_drv_full_init(IOPMP_t *iopmp, uintptr_t addr)
 {
-    return iopmp_drv_init_common(iopmp, addr,
-                                 iopmp_drv_full.srcmd_fmt,
-                                 iopmp_drv_full.mdcfg_fmt,
-                                 &iopmp_operations_full);
+    return iopmp_drv_init_common(iopmp, addr, iopmp_drv_full.srcmd_fmt,
+                                 iopmp_drv_full.mdcfg_fmt);
 }
 
 const struct iopmp_driver iopmp_drv_full = {

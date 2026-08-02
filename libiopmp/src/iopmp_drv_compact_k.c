@@ -18,27 +18,12 @@
 
 #include "iopmp_drv_common.h"
 
-static struct iopmp_operations_specific iopmp_operations_compact_k = {
-    .set_md_lock = NULL,
-    .lock_mdcfg = NULL,
-    .get_md_entry_top = mdcfg_fmt_1_2_get_md_entry_top,
-    .set_md_entry_top = NULL,
-    .set_md_entry_num = NULL,
-    .get_association_rrid_md = NULL,
-    .set_association_rrid_md = NULL,
-    .set_md_permission = NULL,
-    .set_md_permission_multi = NULL,
-    .lock_srcmd_table = NULL,
-};
-
 const struct iopmp_driver iopmp_drv_compact_k;
 
 static enum iopmp_error iopmp_drv_compact_k_init(IOPMP_t *iopmp, uintptr_t addr)
 {
-    return iopmp_drv_init_common(iopmp, addr,
-                                 iopmp_drv_compact_k.srcmd_fmt,
-                                 iopmp_drv_compact_k.mdcfg_fmt,
-                                 &iopmp_operations_compact_k);
+    return iopmp_drv_init_common(iopmp, addr, iopmp_drv_compact_k.srcmd_fmt,
+                                 iopmp_drv_compact_k.mdcfg_fmt);
 }
 
 const struct iopmp_driver iopmp_drv_compact_k = {

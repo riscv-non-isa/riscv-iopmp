@@ -530,8 +530,11 @@ enum iopmp_error iopmp_lock_md(IOPMP_t *iopmp, uint64_t *mds, bool mdlck_lock)
             return IOPMP_ERR_REG_IS_LOCKED;
     }
 
-    assert(iopmp->ops_specific->set_md_lock);
-    ret = iopmp->ops_specific->set_md_lock(iopmp, mds, mdlck_lock);
+    if (iopmp->ops_specific && iopmp->ops_specific->set_md_lock) {
+        ret = iopmp->ops_specific->set_md_lock(iopmp, mds, mdlck_lock);
+    } else {
+        ret = srcmd_fmt_0_2_set_md_lock(iopmp, mds, mdlck_lock);
+    }
     /*
      * MDLCK.md and MDLCKH.mdh are WARL fields. We always update local data
      * cache for them.
@@ -570,9 +573,11 @@ enum iopmp_error iopmp_lock_mdcfg(IOPMP_t *iopmp, uint32_t *md_num, bool lock)
         return IOPMP_ERR_NOT_ALLOWED;   /* Should be monotonically increased */
 
     /* MDCFGLCK is mandatory register in MDCFG_FMT=0 */
-    assert(iopmp->ops_specific->lock_mdcfg);
-
-    ret = iopmp->ops_specific->lock_mdcfg(iopmp, md_num, lock);
+    if (iopmp->ops_specific && iopmp->ops_specific->lock_mdcfg) {
+        ret = iopmp->ops_specific->lock_mdcfg(iopmp, md_num, lock);
+    } else {
+        ret = mdcfg_fmt_0_lock_mdcfg(iopmp, md_num, lock);
+    }
     /* Update local data cache */
     iopmp->mdcfglck_lock = lock;
     iopmp->mdcfglck_f = *md_num;
@@ -955,8 +960,11 @@ enum iopmp_error iopmp_lock_srcmd_table_fmt_0(IOPMP_t *iopmp, uint32_t rrid)
     if (rrid >= iopmp->rrid_num)
         return IOPMP_ERR_OUT_OF_BOUNDS;
 
-    assert(iopmp->ops_specific->lock_srcmd_table);
-    return iopmp->ops_specific->lock_srcmd_table(iopmp, rrid, 0);
+    if (iopmp->ops_specific && iopmp->ops_specific->lock_srcmd_table) {
+        return iopmp->ops_specific->lock_srcmd_table(iopmp, rrid, 0);
+    } else {
+        return srcmd_fmt_0_lock_srcmd_table(iopmp, rrid, 0);
+    }
 }
 
 enum iopmp_error iopmp_is_srcmd_table_fmt_0_locked(IOPMP_t *iopmp,
@@ -977,8 +985,12 @@ enum iopmp_error iopmp_is_srcmd_table_fmt_0_locked(IOPMP_t *iopmp,
         return IOPMP_ERR_INVALID_PARAMETER;
 
     /* Get current SRCMD_EN(rrid) */
-    assert(iopmp->ops_specific->get_association_rrid_md);
-    iopmp->ops_specific->get_association_rrid_md(iopmp, rrid, &mds, locked);
+    if (iopmp->ops_specific && iopmp->ops_specific->get_association_rrid_md) {
+        iopmp->ops_specific->get_association_rrid_md(iopmp, rrid, &mds,
+                                                     locked);
+    } else {
+        srcmd_fmt_0_get_association_rrid_md(iopmp, rrid, &mds, locked);
+    }
 
     return IOPMP_OK;
 }
@@ -1003,8 +1015,11 @@ enum iopmp_error iopmp_lock_srcmd_table_fmt_2(IOPMP_t *iopmp, uint32_t mdidx)
     if (iopmp->mdlck_lock)
         return IOPMP_ERR_REG_IS_LOCKED;
 
-    assert(iopmp->ops_specific->lock_srcmd_table);
-    ret = iopmp->ops_specific->lock_srcmd_table(iopmp, 0, mdidx);
+    if (iopmp->ops_specific && iopmp->ops_specific->lock_srcmd_table) {
+        ret = iopmp->ops_specific->lock_srcmd_table(iopmp, 0, mdidx);
+    } else {
+        ret = srcmd_fmt_2_lock_srcmd_table(iopmp, 0, mdidx);
+    }
     if (ret == IOPMP_OK)
         iopmp->mdlck_md |= mds;
 
@@ -1048,8 +1063,13 @@ enum iopmp_error iopmp_get_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
 
     if (iopmp->srcmd_fmt == IOPMP_SRCMD_FMT_0) {
         /* Check SRCMD table */
-        assert(iopmp->ops_specific->get_association_rrid_md);
-        iopmp->ops_specific->get_association_rrid_md(iopmp, rrid, mds, lock);
+        if (iopmp->ops_specific &&
+            iopmp->ops_specific->get_association_rrid_md) {
+            iopmp->ops_specific->get_association_rrid_md(iopmp, rrid, mds,
+                                                         lock);
+        } else {
+            srcmd_fmt_0_get_association_rrid_md(iopmp, rrid, mds, lock);
+        }
     } else if (iopmp->srcmd_fmt == IOPMP_SRCMD_FMT_1) {
         /* Each RRID is exactly associated with a single MD */
         *mds = (uint64_t)1 << rrid;
@@ -1092,9 +1112,13 @@ enum iopmp_error iopmp_set_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_REG_IS_LOCKED;
 
     /* Get current SRCMD_EN(rrid) */
-    assert(iopmp->ops_specific->get_association_rrid_md);
-    iopmp->ops_specific->get_association_rrid_md(iopmp, rrid, mds,
-                                                 &is_srcmd_en_locked);
+    if (iopmp->ops_specific && iopmp->ops_specific->get_association_rrid_md) {
+        iopmp->ops_specific->get_association_rrid_md(iopmp, rrid, mds,
+                                                     &is_srcmd_en_locked);
+    } else {
+        srcmd_fmt_0_get_association_rrid_md(iopmp, rrid, mds,
+                                            &is_srcmd_en_locked);
+    }
 
     if (is_srcmd_en_locked)
         return IOPMP_ERR_REG_IS_LOCKED;
@@ -1104,8 +1128,12 @@ enum iopmp_error iopmp_set_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
     /* Clear new MD bitmap */
     *mds &= ~mds_clr;
 
-    assert(iopmp->ops_specific->set_association_rrid_md);
-    return iopmp->ops_specific->set_association_rrid_md(iopmp, rrid, mds, lock);
+    if (iopmp->ops_specific && iopmp->ops_specific->set_association_rrid_md) {
+        return iopmp->ops_specific->set_association_rrid_md(iopmp, rrid, mds,
+                                                            lock);
+    } else {
+        return srcmd_fmt_0_set_association_rrid_md(iopmp, rrid, mds, lock);
+    }
 }
 
 enum iopmp_error iopmp_set_md_permission(IOPMP_t *iopmp, uint32_t rrid,
@@ -1123,8 +1151,12 @@ enum iopmp_error iopmp_set_md_permission(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_REG_IS_LOCKED;
 
     /* This operation is mandatory for SRCMD_FMT_2 */
-    assert(iopmp->ops_specific->set_md_permission);
-    return iopmp->ops_specific->set_md_permission(iopmp, rrid, mdidx, r, w);
+    if (iopmp->ops_specific && iopmp->ops_specific->set_md_permission) {
+        return iopmp->ops_specific->set_md_permission(iopmp, rrid, mdidx, r,
+                                                      w);
+    } else {
+        return srcmd_fmt_2_set_md_permission(iopmp, rrid, mdidx, r, w);
+    }
 }
 
 enum iopmp_error iopmp_set_md_permission_multi(IOPMP_t *iopmp, uint32_t mdidx,
@@ -1145,8 +1177,11 @@ enum iopmp_error iopmp_set_md_permission_multi(IOPMP_t *iopmp, uint32_t mdidx,
         return IOPMP_ERR_REG_IS_LOCKED;
 
     /* This operation is mandatory for SRCMD_FMT_2 */
-    assert(iopmp->ops_specific->set_md_permission_multi);
-    return iopmp->ops_specific->set_md_permission_multi(iopmp, mdidx, cfg);
+    if (iopmp->ops_specific && iopmp->ops_specific->set_md_permission_multi) {
+        return iopmp->ops_specific->set_md_permission_multi(iopmp, mdidx, cfg);
+    } else {
+        return srcmd_fmt_2_set_md_permission_multi(iopmp, mdidx, cfg);
+    }
 }
 
 void iopmp_set_srcmd_perm_cfg_nocheck(IOPMP_SRCMD_PERM_CFG_t *cfg,
@@ -1207,9 +1242,13 @@ static enum iopmp_error __sps_check(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_REG_IS_LOCKED;
 
     /* Get current SRCMD_EN(rrid) */
-    assert(iopmp->ops_specific->get_association_rrid_md);
-    iopmp->ops_specific->get_association_rrid_md(iopmp, rrid, &srcmd_mds,
-                                                 &is_srcmd_en_locked);
+    if (iopmp->ops_specific && iopmp->ops_specific->get_association_rrid_md) {
+        iopmp->ops_specific->get_association_rrid_md(iopmp, rrid, &srcmd_mds,
+                                                     &is_srcmd_en_locked);
+    } else {
+        srcmd_fmt_0_get_association_rrid_md(iopmp, rrid, &srcmd_mds,
+                                            &is_srcmd_en_locked);
+    }
 
     return is_srcmd_en_locked ? IOPMP_ERR_REG_IS_LOCKED : IOPMP_OK;
 }
@@ -1483,6 +1522,20 @@ enum iopmp_error iopmp_sps_get_rrid_md_rwx(IOPMP_t *iopmp, uint32_t rrid,
     return __sps_get(iopmp, rrid, mds_x, IOPMP_SPS_PERM_X);
 }
 
+/* The only operation with more than one implementation, and the only one
+ * called for every MD in a loop, so the choice is resolved here once */
+static void get_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
+                             uint32_t *entry_top)
+{
+    if (iopmp->ops_specific && iopmp->ops_specific->get_md_entry_top) {
+        iopmp->ops_specific->get_md_entry_top(iopmp, mdidx, entry_top);
+    } else if (iopmp->mdcfg_fmt == IOPMP_MDCFG_FMT_0) {
+        mdcfg_fmt_0_get_md_entry_top(iopmp, mdidx, entry_top);
+    } else {
+        mdcfg_fmt_1_2_get_md_entry_top(iopmp, mdidx, entry_top);
+    }
+}
+
 static inline void __get_md_entry_association_nocheck(IOPMP_t *iopmp,
                                                       uint32_t mdidx,
                                                       uint32_t *entry_idx_start,
@@ -1490,14 +1543,12 @@ static inline void __get_md_entry_association_nocheck(IOPMP_t *iopmp,
 {
     uint32_t md_entry_top_prev, md_entry_top;
 
-    assert(iopmp->ops_specific->get_md_entry_top);
     if (mdidx) {
-        iopmp->ops_specific->get_md_entry_top(iopmp, mdidx - 1,
-                                              &md_entry_top_prev);
+        get_md_entry_top(iopmp, mdidx - 1, &md_entry_top_prev);
     } else {
         md_entry_top_prev = 0;
     }
-    iopmp->ops_specific->get_md_entry_top(iopmp, mdidx, &md_entry_top);
+    get_md_entry_top(iopmp, mdidx, &md_entry_top);
 
     *entry_idx_start = md_entry_top_prev;
     /* An improperly set MDCFG table is not monotonic. Report no entry for such
@@ -1563,9 +1614,7 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
         return IOPMP_ERR_REG_IS_LOCKED;
 
     if (mdidx_start) {
-        assert(iopmp->ops_specific->get_md_entry_top);
-        iopmp->ops_specific->get_md_entry_top(iopmp, mdidx_start - 1,
-                                              &prev_top);
+        get_md_entry_top(iopmp, mdidx_start - 1, &prev_top);
     } else {
         prev_top = 0;
     }
@@ -1575,9 +1624,14 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
         if (this_top > iopmp->entry_num)
             return IOPMP_ERR_OUT_OF_BOUNDS;
         /* This operation is mandatory for MDCFG_FMT_0 */
-        assert(iopmp->ops_specific->set_md_entry_top);
-        ret = iopmp->ops_specific->set_md_entry_top(iopmp, mdidx_start + m,
-                                                    &this_top);
+        if (iopmp->ops_specific && iopmp->ops_specific->set_md_entry_top) {
+            ret = iopmp->ops_specific->set_md_entry_top(iopmp,
+                                                        mdidx_start + m,
+                                                        &this_top);
+        } else {
+            ret = mdcfg_fmt_0_set_md_entry_top(iopmp, mdidx_start + m,
+                                               &this_top);
+        }
         /* Return actual number of entries */
         num_entries[m] = this_top - prev_top;
         if (ret != IOPMP_OK)
@@ -1629,8 +1683,11 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
         return IOPMP_ERR_OUT_OF_BOUNDS;
 
     /* Try to write new md_entry_num into IOPMP */
-    assert(iopmp->ops_specific->set_md_entry_num);
-    ret = iopmp->ops_specific->set_md_entry_num(iopmp, md_entry_num);
+    if (iopmp->ops_specific && iopmp->ops_specific->set_md_entry_num) {
+        ret = iopmp->ops_specific->set_md_entry_num(iopmp, md_entry_num);
+    } else {
+        ret = mdcfg_fmt_2_set_md_entry_num(iopmp, md_entry_num);
+    }
     iopmp->md_entry_num = *md_entry_num;    /* Update local cache */
 
     return ret;
@@ -2054,14 +2111,13 @@ enum iopmp_error iopmp_entries_get_belong_md(IOPMP_t *iopmp, uint32_t idx_start,
         return IOPMP_OK;
     }
 
-    assert(iopmp->ops_specific->get_md_entry_top);
     idx_end = idx_start + num_entry;
     md_base = 0;
     __mds = 0;
     /* The tops are monotonically increasing, so the top of MD(m-1) is the base
      * of MD(m) and a single walk reads each top exactly once */
     for (uint32_t m = 0; m < iopmp->md_num; m++) {
-        iopmp->ops_specific->get_md_entry_top(iopmp, m, &md_top);
+        get_md_entry_top(iopmp, m, &md_top);
         /* [md_base, md_top) overlaps [idx_start, idx_end). An MD owning no
          * entry can not be hit */
         if (md_base < md_top && md_base < idx_end && idx_start < md_top)

@@ -150,7 +150,6 @@ struct iopmp_driver {
  * \param[in] addr              The base memory-mapped address of IOPMP
  * \param[in] srcmd_fmt         The SRCMD_FMT of this IOPMP instance
  * \param[in] mdcfg_fmt         The MDCFG_FMT of this IOPMP instance
- * \param[in] ops_specific      The pointer to specific operations of this model
  *
  * \retval IOPMP_OK if successes
  * \retval IOPMP_ERR_NOT_SUPPORTED if some features are not supported
@@ -161,8 +160,7 @@ struct iopmp_driver {
  */
 enum iopmp_error
 iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
-                      uint8_t srcmd_fmt, uint8_t mdcfg_fmt,
-                      struct iopmp_operations_specific *ops_specific);
+                      uint8_t srcmd_fmt, uint8_t mdcfg_fmt);
 
 /**
  * \brief Get the associated MD bitmap and lock bit of given RRID

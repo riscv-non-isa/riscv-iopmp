@@ -18,20 +18,6 @@
 
 #include "iopmp_drv_common.h"
 
-static
-struct iopmp_operations_specific iopmp_operations_srcmd_fmt_2_mdcfg_fmt_1 = {
-    .set_md_lock = srcmd_fmt_0_2_set_md_lock,
-    .lock_mdcfg = NULL,
-    .get_md_entry_top = mdcfg_fmt_1_2_get_md_entry_top,
-    .set_md_entry_top = NULL,
-    .set_md_entry_num = NULL,
-    .get_association_rrid_md = NULL,
-    .set_association_rrid_md = NULL,
-    .set_md_permission = srcmd_fmt_2_set_md_permission,
-    .set_md_permission_multi = srcmd_fmt_2_set_md_permission_multi,
-    .lock_srcmd_table = srcmd_fmt_2_lock_srcmd_table,
-};
-
 /* K=1 makes every entry its own MD, so SRCMD_PERM(H) is written with it */
 static struct iopmp_operations_generic srcmd_fmt_2_mdcfg_fmt_1_k1_ops = {
     .set_entries = srcmd_fmt_2_mdcfg_fmt_1_md_entry_num_0_set_entries,
@@ -46,8 +32,7 @@ iopmp_drv_srcmd_fmt_2_mdcfg_fmt_1_init(IOPMP_t *iopmp, uintptr_t addr)
 
     ret = iopmp_drv_init_common(iopmp, addr,
                                 iopmp_drv_srcmd_fmt_2_mdcfg_fmt_1.srcmd_fmt,
-                                iopmp_drv_srcmd_fmt_2_mdcfg_fmt_1.mdcfg_fmt,
-                                &iopmp_operations_srcmd_fmt_2_mdcfg_fmt_1);
+                                iopmp_drv_srcmd_fmt_2_mdcfg_fmt_1.mdcfg_fmt);
     if (ret == IOPMP_OK && iopmp->md_entry_num == 0) {
         iopmp->ops_generic = &srcmd_fmt_2_mdcfg_fmt_1_k1_ops;
     }

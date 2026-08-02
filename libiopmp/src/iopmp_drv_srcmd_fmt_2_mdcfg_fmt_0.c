@@ -18,20 +18,6 @@
 
 #include "iopmp_drv_common.h"
 
-static
-struct iopmp_operations_specific iopmp_operations_srcmd_fmt_2_mdcfg_fmt_0 = {
-    .set_md_lock = srcmd_fmt_0_2_set_md_lock,
-    .lock_mdcfg = mdcfg_fmt_0_lock_mdcfg,
-    .get_md_entry_top = mdcfg_fmt_0_get_md_entry_top,
-    .set_md_entry_top = mdcfg_fmt_0_set_md_entry_top,
-    .set_md_entry_num = NULL,
-    .get_association_rrid_md = NULL,
-    .set_association_rrid_md = NULL,
-    .set_md_permission = srcmd_fmt_2_set_md_permission,
-    .set_md_permission_multi = srcmd_fmt_2_set_md_permission_multi,
-    .lock_srcmd_table = srcmd_fmt_2_lock_srcmd_table,
-};
-
 const struct iopmp_driver iopmp_drv_srcmd_fmt_2_mdcfg_fmt_0;
 
 static enum iopmp_error
@@ -39,8 +25,7 @@ iopmp_drv_srcmd_fmt_2_mdcfg_fmt_0_init(IOPMP_t *iopmp, uintptr_t addr)
 {
     return iopmp_drv_init_common(iopmp, addr,
                                  iopmp_drv_srcmd_fmt_2_mdcfg_fmt_0.srcmd_fmt,
-                                 iopmp_drv_srcmd_fmt_2_mdcfg_fmt_0.mdcfg_fmt,
-                                 &iopmp_operations_srcmd_fmt_2_mdcfg_fmt_0);
+                                 iopmp_drv_srcmd_fmt_2_mdcfg_fmt_0.mdcfg_fmt);
 }
 
 const struct iopmp_driver iopmp_drv_srcmd_fmt_2_mdcfg_fmt_0 = {
