@@ -205,6 +205,11 @@ int main(void)
     FAIL_IF(iopmp_set_md_entry_num(&iopmp, &val_u32) != IOPMP_ERR_NOT_ALLOWED);
     END_TEST();
 
+    START_TEST("Only K=1 takes entries carrying a permission");
+    FAIL_IF(iopmp_set_entries_with_md_permission(&iopmp, &entry, 0, 1) !=
+            IOPMP_ERR_NOT_SUPPORTED);
+    END_TEST();
+
     START_TEST("K>1 writes the entry without touching SRCMD_PERM(H)");
     entry.addr = 0x80000000 >> 2;
     entry.cfg = IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R;
@@ -236,10 +241,15 @@ int main(void)
     /* RRID 0 gets read and write, RRID 1 gets read only */
     entry.private_data = 0x3 | ((uint64_t)0x1 << 2);
     FAIL_IF(read_srcmd_perm_64(5) != 0);
-    FAIL_IF(iopmp_set_entry(&iopmp, &entry, 5) != IOPMP_OK);
+    FAIL_IF(iopmp_set_entries_with_md_permission(&iopmp, &entry, 5, 1)
+            != IOPMP_OK);
     FAIL_IF(read_srcmd_perm_64(5) != entry.private_data);
     FAIL_IF(iopmp_get_entry(&iopmp, &rb_entry, 5) != IOPMP_OK);
     FAIL_IF(rb_entry.addr != entry.addr || rb_entry.cfg != entry.cfg);
+    /* The plain entry API leaves SRCMD_PERM(H) where it is */
+    entry.private_data = 0;
+    FAIL_IF(iopmp_set_entry(&iopmp, &entry, 5) != IOPMP_OK);
+    FAIL_IF(read_srcmd_perm_64(5) != (0x3 | ((uint64_t)0x1 << 2)));
     END_TEST();
 
     START_TEST("K=1 writes SRCMD_PERM(H) for every entry of a range");
@@ -249,9 +259,52 @@ int main(void)
         entries[i].cfg = IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R;
         entries[i].private_data = 0x1 << (i << 1);
     }
-    FAIL_IF(iopmp_set_entries(&iopmp, entries, 16, 3) != IOPMP_OK);
+    FAIL_IF(iopmp_set_entries_with_md_permission(&iopmp, entries, 16, 3)
+            != IOPMP_OK);
     for (uint32_t i = 0; i < 3; i++) {
         FAIL_IF(read_srcmd_perm_64(16 + i) != entries[i].private_data);
+    }
+    END_TEST();
+
+    START_TEST("A refused range leaves SRCMD_PERM(H) untouched");
+    {
+        struct iopmp_entry bad = {0};
+        uint32_t idx = 40;
+
+        bad.addr = 0xB0000000 >> 2;
+        bad.cfg = IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R;
+        bad.private_data = 0x3;
+
+        /* Past the last MD: entry 40 exists but MD 63 and beyond do not */
+        FAIL_IF(read_srcmd_perm_64(CFG_MD_NUM - 1) != 0);
+        FAIL_IF(iopmp_set_entries_with_md_permission(&iopmp, &bad,
+                                                     CFG_MD_NUM - 1, 2) !=
+                IOPMP_ERR_OUT_OF_BOUNDS);
+        FAIL_IF(read_srcmd_perm_64(CFG_MD_NUM - 1) != 0);
+
+        /* Locked by MDLCK */
+        val_u64 = (uint64_t)0x1 << idx;
+        FAIL_IF(iopmp_lock_md(&iopmp, &val_u64, false) != IOPMP_OK);
+        FAIL_IF(read_srcmd_perm_64(idx) != 0);
+        FAIL_IF(iopmp_set_entries_with_md_permission(&iopmp, &bad, idx, 1) !=
+                IOPMP_ERR_REG_IS_LOCKED);
+        FAIL_IF(read_srcmd_perm_64(idx) != 0);
+
+        /* Locked by ENTRYLCK.f, which only iopmp_set_entries() used to catch */
+        val_u32 = 45;
+        FAIL_IF(iopmp_lock_entries(&iopmp, &val_u32, false) != IOPMP_OK);
+        FAIL_IF(read_srcmd_perm_64(44) != 0);
+        FAIL_IF(iopmp_set_entries_with_md_permission(&iopmp, &bad, 44, 1) !=
+                IOPMP_ERR_REG_IS_LOCKED);
+        FAIL_IF(read_srcmd_perm_64(44) != 0);
+
+        /* A priority entry above HWCFG2.prio_entry, likewise. The priority
+         * rule is checked before the lock, so this reports the priority */
+        bad.prient_flag = IOPMP_PRIENT_PRIORITY;
+        FAIL_IF(read_srcmd_perm_64(46) != 0);
+        FAIL_IF(iopmp_set_entries_with_md_permission(&iopmp, &bad, 46, 1) !=
+                IOPMP_ERR_INVALID_PRIORITY);
+        FAIL_IF(read_srcmd_perm_64(46) != 0);
     }
     END_TEST();
 #endif

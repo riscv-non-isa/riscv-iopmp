@@ -1162,49 +1162,6 @@ srcmd_fmt_2_set_md_permission_multi(IOPMP_t *iopmp, uint32_t mdidx,
     return IOPMP_OK;
 }
 
-/**
- * \brief Set a global entry into IOPMP for SRCMD_FMT=2 and MDCFG_FMT=1 and
- * HWCFG3.md_entry_num=0 (K=1)
- *
- * \param[in] iopmp             The IOPMP instance to be written
- * \param[in] entry             The pointer to the entry
- * \param[in] entry_idx         The global index of target entry
- *
- * \retval IOPMP_OK if successes
- * \retval IOPMP_ERR_ILLEGAL_VALUE if the written SRCMD_PERM(H) does not match
- *         the actual value
- *
- * \note This operation is only supported by SRCMD_FMT=2 and MDCFG_FMT=1 and
- *       HWCFG3.md_entry_num=0 (K=1)
- */
-static enum iopmp_error srcmd_fmt_2_mdcfg_fmt_1_md_entry_num_0_set_entry(
-    IOPMP_t *iopmp, const struct iopmp_entry *entry, uint32_t entry_idx)
-{
-    /* The "private_data" member in the entry encodes SRCMD_PERM(H) */
-    write_srcmd_perm_64(iopmp, entry_idx, entry->private_data);
-    /* SRCMD_PERM(H).perm is WARL field. Read it back to check value */
-    if (read_srcmd_perm_64(iopmp, entry_idx) != entry->private_data)
-        return IOPMP_ERR_ILLEGAL_VALUE;
-
-    return generic_set_entries(iopmp, entry, entry_idx, 1);
-}
-
-enum iopmp_error srcmd_fmt_2_mdcfg_fmt_1_md_entry_num_0_set_entries(
-    IOPMP_t *iopmp, const struct iopmp_entry *entry_array,
-    uint32_t idx_start, uint32_t num_entry)
-{
-    enum iopmp_error ret;
-
-    for (uint32_t i = 0; i < num_entry; i++) {
-        ret = srcmd_fmt_2_mdcfg_fmt_1_md_entry_num_0_set_entry(
-                iopmp, &entry_array[i], idx_start + i);
-        if (ret != IOPMP_OK)
-            return ret;
-    }
-
-    return IOPMP_OK;
-}
-
 /******************************************************************************/
 /* Functions specific to IOPMP/SPS (Secondary Permission Setting) extension   */
 /******************************************************************************/

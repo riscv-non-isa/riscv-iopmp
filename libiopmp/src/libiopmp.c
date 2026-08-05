@@ -1158,6 +1158,33 @@ enum iopmp_error iopmp_set_md_permission(IOPMP_t *iopmp, uint32_t rrid,
     }
 }
 
+/**
+ * \brief Write a MD's SRCMD_PERM(H) without checking the MD first
+ *
+ * \param[in] iopmp             The IOPMP instance to be written
+ * \param[in] mdidx             The MD whose permissions are written
+ * \param[in,out] cfg           The desired permissions. On
+ *                              IOPMP_ERR_ILLEGAL_VALUE its srcmd_perm_val
+ *                              holds the actual value
+ *
+ * \retval IOPMP_OK if successes
+ * \retval IOPMP_ERR_ILLEGAL_VALUE if the written value does not match the
+ *         actual value
+ *
+ * \note The caller has to have checked SRCMD_FMT, \p mdidx and MDLCK
+ *       already. A driver replacing set_md_permission_multi reaches the write
+ *       from here
+ */
+static enum iopmp_error set_md_permission_multi_nocheck(
+    IOPMP_t *iopmp, uint32_t mdidx, IOPMP_SRCMD_PERM_CFG_t *cfg)
+{
+    if (iopmp->ops_override && iopmp->ops_override->set_md_permission_multi) {
+        return iopmp->ops_override->set_md_permission_multi(iopmp, mdidx, cfg);
+    } else {
+        return srcmd_fmt_2_set_md_permission_multi(iopmp, mdidx, cfg);
+    }
+}
+
 enum iopmp_error iopmp_set_md_permission_multi(IOPMP_t *iopmp, uint32_t mdidx,
                                                IOPMP_SRCMD_PERM_CFG_t *cfg)
 {
@@ -1175,12 +1202,7 @@ enum iopmp_error iopmp_set_md_permission_multi(IOPMP_t *iopmp, uint32_t mdidx,
     if (iopmp->mdlck_md & ((uint64_t)1 << mdidx))
         return IOPMP_ERR_REG_IS_LOCKED;
 
-    /* This operation is mandatory for SRCMD_FMT_2 */
-    if (iopmp->ops_override && iopmp->ops_override->set_md_permission_multi) {
-        return iopmp->ops_override->set_md_permission_multi(iopmp, mdidx, cfg);
-    } else {
-        return srcmd_fmt_2_set_md_permission_multi(iopmp, mdidx, cfg);
-    }
+    return set_md_permission_multi_nocheck(iopmp, mdidx, cfg);
 }
 
 void iopmp_set_srcmd_perm_cfg_nocheck(IOPMP_SRCMD_PERM_CFG_t *cfg,
@@ -1947,32 +1969,144 @@ static bool __check_entry_idx_range(IOPMP_t *iopmp, uint32_t idx_start,
            num_entry <= (iopmp->entry_num - idx_start);
 }
 
-enum iopmp_error iopmp_set_entries(IOPMP_t *iopmp,
-                                   const struct iopmp_entry *entry_array,
-                                   uint32_t idx_start, uint32_t num_entry)
+/**
+ * \brief Check everything iopmp_set_entries() refuses a range for
+ *
+ * \param[in] iopmp             The IOPMP instance to be written
+ * \param[in] entry_array       The pointer to the entry array
+ * \param[in] idx_start         The global index of the first entry
+ * \param[in] num_entry         The number of entries to be written
+ *
+ * \retval IOPMP_OK if the range can be written
+ * \retval IOPMP_ERR_INVALID_PARAMETER if \p entry_array is NULL or
+ *         \p num_entry is zero
+ * \retval IOPMP_ERR_OUT_OF_BOUNDS if the range exceeds the implemented
+ *         entries
+ * \retval IOPMP_ERR_INVALID_PRIORITY if an entry is on the wrong side of
+ *         HWCFG2.prio_entry
+ * \retval IOPMP_ERR_REG_IS_LOCKED if an entry has been locked by ENTRYLCK.f
+ *
+ * \note Separate from the write so that a caller with more to write, such as
+ *       iopmp_set_entries_with_md_permission(), can refuse the whole range
+ *       before it writes any part of it
+ */
+static enum iopmp_error check_set_entries(
+    IOPMP_t *iopmp, const struct iopmp_entry *entry_array,
+    uint32_t idx_start, uint32_t num_entry)
 {
-    assert(iopmp_is_initialized(iopmp));
-
-    if (!entry_array || !num_entry)
+    if (!entry_array || !num_entry) {
         return IOPMP_ERR_INVALID_PARAMETER;
+    }
 
-    if (!__check_entry_idx_range(iopmp, idx_start, num_entry))
+    if (!__check_entry_idx_range(iopmp, idx_start, num_entry)) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
+    }
 
     /* Sanity check priority entries */
-    if (!__check_entry_priority(iopmp, entry_array, idx_start, num_entry))
+    if (!__check_entry_priority(iopmp, entry_array, idx_start, num_entry)) {
         return IOPMP_ERR_INVALID_PRIORITY;
+    }
 
     /* Check if desired entries have been locked by ENTRYLCK.f */
-    if (idx_start < iopmp->entrylck_f)
+    if (idx_start < iopmp->entrylck_f) {
         return IOPMP_ERR_REG_IS_LOCKED;
+    }
 
+    return IOPMP_OK;
+}
+
+/**
+ * \brief Write IOPMP entries without checking the range first
+ *
+ * \param[in] iopmp             The IOPMP instance to be written
+ * \param[in] entry_array       The pointer to the entry array
+ * \param[in] idx_start         The global index of the first entry
+ * \param[in] num_entry         The number of entries to be written
+ *
+ * \retval IOPMP_OK if successes
+ * \retval IOPMP_ERR_ILLEGAL_VALUE if a written entry does not match the
+ *         actual value
+ *
+ * \note The caller has to have passed the range through check_set_entries()
+ *       already.
+ */
+static enum iopmp_error set_entries_nocheck(
+    IOPMP_t *iopmp, const struct iopmp_entry *entry_array,
+    uint32_t idx_start, uint32_t num_entry)
+{
     if (iopmp->ops_override && iopmp->ops_override->set_entries) {
         return iopmp->ops_override->set_entries(iopmp, entry_array,
                                                 idx_start, num_entry);
     } else {
         return generic_set_entries(iopmp, entry_array, idx_start, num_entry);
     }
+}
+
+enum iopmp_error iopmp_set_entries(IOPMP_t *iopmp,
+                                   const struct iopmp_entry *entry_array,
+                                   uint32_t idx_start, uint32_t num_entry)
+{
+    enum iopmp_error ret;
+
+    assert(iopmp_is_initialized(iopmp));
+
+    ret = check_set_entries(iopmp, entry_array, idx_start, num_entry);
+    if (ret != IOPMP_OK) {
+        return ret;
+    }
+
+    return set_entries_nocheck(iopmp, entry_array, idx_start, num_entry);
+}
+
+enum iopmp_error iopmp_set_entries_with_md_permission(
+    IOPMP_t *iopmp, const struct iopmp_entry *entry_array,
+    uint32_t idx_start, uint32_t num_entry)
+{
+    enum iopmp_error ret;
+    uint64_t md_mask;
+
+    assert(iopmp_is_initialized(iopmp));
+
+    /* Only K=1 gives every entry a MD whose SRCMD_PERM(H) it can carry */
+    if (iopmp->srcmd_fmt != IOPMP_SRCMD_FMT_2 ||
+        iopmp->mdcfg_fmt != IOPMP_MDCFG_FMT_1 ||
+        iopmp->md_entry_num != 0) {
+        return IOPMP_ERR_NOT_SUPPORTED;
+    }
+
+    /*
+     * Nothing may be written until every rule both halves apply has passed.
+     * Otherwise a range that iopmp_set_entries() goes on to refuse would have
+     * left SRCMD_PERM(H) granting permissions on entries never written.
+     */
+    ret = check_set_entries(iopmp, entry_array, idx_start, num_entry);
+    if (ret != IOPMP_OK) {
+        return ret;
+    }
+
+    /* Entry i is the only entry of MD i, so it needs a MD to belong to */
+    if (idx_start + num_entry > iopmp->md_num) {
+        return IOPMP_ERR_OUT_OF_BOUNDS;
+    }
+
+    /* MDLCK locks the SRCMD_PERM(H) of a MD */
+    md_mask = (((uint64_t)1 << num_entry) - 1) << idx_start;
+    if (iopmp->mdlck_md & md_mask) {
+        return IOPMP_ERR_REG_IS_LOCKED;
+    }
+
+    for (uint32_t i = 0; i < num_entry; i++) {
+        IOPMP_SRCMD_PERM_CFG_t cfg;
+
+        IOPMP_SRCMD_PERM_CFG_SET_DIRECT(&cfg, UINT64_MAX,
+                                        entry_array[i].private_data);
+        ret = set_md_permission_multi_nocheck(iopmp, idx_start + i, &cfg);
+        if (ret != IOPMP_OK) {
+            return ret;
+        }
+    }
+
+    return set_entries_nocheck(iopmp, entry_array, idx_start, num_entry);
 }
 
 enum iopmp_error iopmp_set_entries_to_md(IOPMP_t *iopmp, uint32_t mdidx,

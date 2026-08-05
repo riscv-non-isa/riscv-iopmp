@@ -18,26 +18,14 @@
 
 #include "iopmp_drv_common.h"
 
-/* K=1 makes every entry its own MD, so SRCMD_PERM(H) is written with it */
-static struct iopmp_operations_override srcmd_fmt_2_mdcfg_fmt_1_k1_ops = {
-    .set_entries = srcmd_fmt_2_mdcfg_fmt_1_md_entry_num_0_set_entries,
-};
-
 const struct iopmp_driver iopmp_drv_srcmd_fmt_2_mdcfg_fmt_1;
 
 static enum iopmp_error
 iopmp_drv_srcmd_fmt_2_mdcfg_fmt_1_init(IOPMP_t *iopmp, uintptr_t addr)
 {
-    enum iopmp_error ret;
-
-    ret = iopmp_drv_init_common(iopmp, addr,
-                                iopmp_drv_srcmd_fmt_2_mdcfg_fmt_1.srcmd_fmt,
-                                iopmp_drv_srcmd_fmt_2_mdcfg_fmt_1.mdcfg_fmt);
-    if (ret == IOPMP_OK && iopmp->md_entry_num == 0) {
-        iopmp->ops_override = &srcmd_fmt_2_mdcfg_fmt_1_k1_ops;
-    }
-
-    return ret;
+    return iopmp_drv_init_common(iopmp, addr,
+                                 iopmp_drv_srcmd_fmt_2_mdcfg_fmt_1.srcmd_fmt,
+                                 iopmp_drv_srcmd_fmt_2_mdcfg_fmt_1.mdcfg_fmt);
 }
 
 const struct iopmp_driver iopmp_drv_srcmd_fmt_2_mdcfg_fmt_1 = {

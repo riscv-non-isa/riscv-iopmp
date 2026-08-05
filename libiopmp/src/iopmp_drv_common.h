@@ -357,26 +357,6 @@ enum iopmp_error
 srcmd_fmt_2_set_md_permission_multi(IOPMP_t *iopmp, uint32_t mdidx,
                                     IOPMP_SRCMD_PERM_CFG_t *cfg);
 
-/**
- * \brief Set the global entries into IOPMP for SRCMD_FMT=2 and MDCFG_FMT=1
- * and HWCFG3.md_entry_num=0 (K=1)
- *
- * \param[in] iopmp             The IOPMP instance to be written
- * \param[in] entry_array       The array of entries
- * \param[in] idx_start         The global start index of target entries
- * \param[in] num_entry         The number of entries to be written
- *
- * \retval IOPMP_OK if successes
- * \retval IOPMP_ERR_ILLEGAL_VALUE if the written SRCMD_PERM(H) does not match
- *         the actual value
- *
- * \note This operation is only supported by SRCMD_FMT=2 and MDCFG_FMT=1 and
- *       HWCFG3.md_entry_num=0 (K=1)
- */
-enum iopmp_error srcmd_fmt_2_mdcfg_fmt_1_md_entry_num_0_set_entries(
-    IOPMP_t *iopmp, const struct iopmp_entry *entry_array,
-    uint32_t idx_start, uint32_t num_entry);
-
 /******************************************************************************/
 /* Generic operations, shared by every IOPMP model                            */
 /******************************************************************************/

@@ -244,6 +244,9 @@ struct iopmp_entry {
      * and HWCFG3.md_entry_num=0 (K=1). In this configuration, each MD has
      * exactly single entry. User can set SRCMD_PERM(H) and entry in single
      * entry API call.
+     *
+     * \note Only iopmp_set_entries_with_md_permission() writes it;
+     *       iopmp_set_entries() leaves SRCMD_PERM(H) alone
      */
     uint64_t private_data;
 };
@@ -2278,6 +2281,42 @@ enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
                                     uint64_t size,
                                     enum iopmp_entry_flags flags,
                                     uint64_t private_data);
+
+/**
+ * \brief Set IOPMP entries together with the MD permissions that go with them
+ *
+ * \param[in] iopmp             The IOPMP instance to be set
+ * \param[in] entry_array       The pointer to the entry array
+ * \param[in] idx_start         The global index of the first entry
+ * \param[in] num_entry         The number of entries to be set
+ *
+ * \retval IOPMP_OK if successes
+ * \retval IOPMP_ERR_NOT_SUPPORTED if \p iopmp is not SRCMD_FMT=2 &
+ *         MDCFG_FMT=1 with HWCFG3.md_entry_num=0 (K=1)
+ * \retval IOPMP_ERR_INVALID_PARAMETER if \p entry_array is NULL or
+ *         \p num_entry is zero
+ * \retval IOPMP_ERR_OUT_OF_BOUNDS if the range exceeds the implemented
+ *         entries, or reaches past the MD each of them belongs to
+ * \retval IOPMP_ERR_INVALID_PRIORITY if an entry is on the wrong side of
+ *         HWCFG2.prio_entry
+ * \retval IOPMP_ERR_REG_IS_LOCKED if an entry has been locked by ENTRYLCK.f,
+ *         or its MD by MDLCK
+ * \retval IOPMP_ERR_ILLEGAL_VALUE if a written SRCMD_PERM(H) does not match
+ *         the actual value
+ *
+ * \note At K=1 entry i is the only entry of MD i, so the permissions of that
+ *       MD can be written with the entry. entry->private_data holds
+ *       SRCMD_PERM(H); iopmp_set_entries() writes the entry alone and leaves
+ *       SRCMD_PERM(H) to iopmp_set_md_permission()
+ * \note Nothing is written unless the whole range passes every check both
+ *       halves make, so a refused call leaves SRCMD_PERM(H) untouched. The
+ *       permissions go through the same path as
+ *       iopmp_set_md_permission_multi(), so a driver overriding that reaches
+ *       them here too
+ */
+enum iopmp_error iopmp_set_entries_with_md_permission(
+    IOPMP_t *iopmp, const struct iopmp_entry *entry_array,
+    uint32_t idx_start, uint32_t num_entry);
 
 /**
  * \brief Set the entries belong to given MD to IOPMP
