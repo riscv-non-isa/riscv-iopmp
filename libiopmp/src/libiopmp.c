@@ -80,21 +80,29 @@ enum iopmp_error iopmp_init(IOPMP_t *iopmp, uintptr_t addr, uint8_t srcmd_fmt,
 {
     const struct iopmp_driver *drv;
 
-    /* Scan each driver to find appropriate one for initialization */
+    if (srcmd_fmt > IOPMP_SRCMD_FMT_2 || mdcfg_fmt > IOPMP_MDCFG_FMT_2) {
+        return IOPMP_ERR_NOT_SUPPORTED;
+    }
+
+    /* A vendor driver claims an implementation ID of its own */
     for (int i = 0; iopmp_drivers[i]; i++) {
         drv = iopmp_drivers[i];
         if (srcmd_fmt == drv->srcmd_fmt && mdcfg_fmt == drv->mdcfg_fmt &&
-            impid == drv->impid)
-            goto found_driver;
+            impid == drv->impid) {
+            memset(iopmp, 0, sizeof(*iopmp));
+            assert(drv->init != NULL);
+            return drv->init(iopmp, addr);
+        }
     }
 
-    return IOPMP_ERR_NOT_SUPPORTED;
+    if (impid != IOPMP_IMPID_NOT_SPECIFIED) {
+        return IOPMP_ERR_NOT_SUPPORTED;
+    }
 
-found_driver:
+    /* Every model the specification defines initializes the same way */
     memset(iopmp, 0, sizeof(*iopmp));
 
-    assert(drv->init != NULL);
-    return drv->init(iopmp, addr);
+    return iopmp_drv_init_common(iopmp, addr, srcmd_fmt, mdcfg_fmt, NULL);
 }
 
 enum iopmp_error iopmp_get_vendor_id(IOPMP_t *iopmp, uint32_t *vendor)

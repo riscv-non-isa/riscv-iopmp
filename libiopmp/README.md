@@ -21,24 +21,9 @@ and assert() macro will be enabled
 read/write interface as weak functions. This is useful if the IOPMP you operate
 is simulated by the reference model. If you want to control real IOPMP you just
 turn off this option.
-* `CFG_IOPMP_DRV_FULL`: Turn on this option to enable compiling of driver for
-full model
-* `CFG_IOPMP_DRV_RAPID_K`: Turn on this option to enable compiling of driver for
-rapid-k model
-* `CFG_IOPMP_DRV_DYNAMIC_K`: Turn on this option to enable compiling of driver
-for dynamic-k model
-* `CFG_IOPMP_DRV_ISOLATION`: Turn on this option to enable compiling of driver
-for isolation model
-* `CFG_IOPMP_DRV_COMPACT_K`: Turn on this option to enable compiling of driver
-for compact-k model
-* `CFG_IOPMP_DRV_SRCMD_FMT_1_MDCFG_FMT_2`: Turn on this option to enable
-compiling of driver for SRCMD_FMT=1 & MDCFG_FMT=2
-* `CFG_IOPMP_DRV_SRCMD_FMT_2_MDCFG_FMT_0`: Turn on this option to enable
-compiling of driver for SRCMD_FMT=2 & MDCFG_FMT=0
-* `CFG_IOPMP_DRV_SRCMD_FMT_2_MDCFG_FMT_1`: Turn on this option to enable
-compiling of driver for SRCMD_FMT=2 & MDCFG_FMT=1
-* `CFG_IOPMP_DRV_SRCMD_FMT_2_MDCFG_FMT_2`: Turn on this option to enable
-compiling of driver for SRCMD_FMT=2 & MDCFG_FMT=2
+* `CFG_IOPMP_DRV_VENDOR_EXAMPLE`: Turn on this option to build the worked
+example of a vendor driver in `src/iopmp_drv_vendor_example.c`. It is not part
+of the default build; see [Vendor drivers](#vendor-drivers) below
 
 ## Compilation
 
@@ -54,15 +39,6 @@ necessary if you want to use `libiopmp` on RISC-V platforms.
  CC        iopmp_drv_common.o
  CARRAY    iopmp_drivers.carray.c
  CC        iopmp_drivers.carray.o
- CC        iopmp_drv_full.o
- CC        iopmp_drv_rapid_k.o
- CC        iopmp_drv_dynamic_k.o
- CC        iopmp_drv_isolation.o
- CC        iopmp_drv_compact_k.o
- CC        iopmp_drv_srcmd_fmt_1_mdcfg_fmt_2.o
- CC        iopmp_drv_srcmd_fmt_2_mdcfg_fmt_0.o
- CC        iopmp_drv_srcmd_fmt_2_mdcfg_fmt_1.o
- CC        iopmp_drv_srcmd_fmt_2_mdcfg_fmt_2.o
  AR        lib/libiopmp.a
 ```
 
@@ -110,3 +86,47 @@ operate your IOPMP:
 ## Documentation
 
 Please check the `libiopmp.pdf` under `docs` folder. 
+
+## Vendor drivers
+
+`libiopmp` implements every operation itself and calls it by name, so the nine
+models the specification defines need no driver: pass their `SRCMD_FMT` and
+`MDCFG_FMT` to `iopmp_init()` and it initializes them directly.
+
+Write a driver when the hardware disagrees with the specification `libiopmp`
+targets, which in practice means silicon built against an older draft of it. A
+driver is a `struct iopmp_driver` that claims an implementation ID, plus a
+table holding only the operations that differ:
+
+```c
+static const struct iopmp_operations_override vendor_example_ops = {
+    .lock_entries = vendor_example_lock_entries,
+};
+
+static enum iopmp_error vendor_example_init(IOPMP_t *iopmp, uintptr_t addr)
+{
+    return iopmp_drv_init_common(iopmp, addr,
+                                 iopmp_drv_vendor_example.srcmd_fmt,
+                                 iopmp_drv_vendor_example.mdcfg_fmt,
+                                 &vendor_example_ops);
+}
+
+const struct iopmp_driver iopmp_drv_vendor_example = {
+    .srcmd_fmt = IOPMP_SRCMD_FMT_0,
+    .mdcfg_fmt = IOPMP_MDCFG_FMT_0,
+    .impid = VENDOR_EXAMPLE_IMPID,
+    .init = vendor_example_init,
+};
+```
+
+An operation left `NULL`, and an instance whose `ops_override` is `NULL`, keep
+the built-in implementation, so the table names what differs and nothing else.
+The choice is made per instance, so a conforming IOPMP elsewhere in the same
+system still reaches the built-in operations.
+
+`iopmp_init()` matches the driver on the implementation ID the application
+passes, so an application drives both by passing `VENDOR_EXAMPLE_IMPID` for one
+instance and `IOPMP_IMPID_NOT_SPECIFIED` for the other.
+
+`src/iopmp_drv_vendor_example.c` is the whole of the above as compilable code.
+Copy it, rename it, and register it in `src/objects.mk` the way that one is.

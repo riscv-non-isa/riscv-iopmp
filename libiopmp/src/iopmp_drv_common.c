@@ -1227,7 +1227,8 @@ enum iopmp_error ext_sps_set_srcmd_x_64_md(IOPMP_t *iopmp, uint32_t rrid,
 /******************************************************************************/
 enum iopmp_error
 iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
-                      uint8_t srcmd_fmt, uint8_t mdcfg_fmt)
+                      uint8_t srcmd_fmt, uint8_t mdcfg_fmt,
+                      const struct iopmp_operations_override *ops_override)
 {
     uint32_t data, hwcfg0, hwcfg3;
     uint8_t hwcfg3_srcmd_fmt, hwcfg3_mdcfg_fmt;
@@ -1255,6 +1256,8 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
 
     /* Set base address and address width of IOPMP */
     iopmp->addr = addr;
+    /* Set overriden operations */
+    iopmp->ops_override = ops_override;
 
     /* Read VERSION */
     data = io_read32(iopmp->addr + IOPMP_VERSION_BASE);

@@ -36,7 +36,7 @@ struct iopmp_instance {
     /** Implemented bits of ENTRY_ADDR(H) */
     uint64_t entry_addr_bits;
     /** Per-instance override of libiopmp's operations, NULL for none */
-    struct iopmp_operations_override *ops_override;
+    const struct iopmp_operations_override *ops_override;
 
     /** Base MMIO physical address of IOPMP entries */
     uintptr_t addr_entry_array;
