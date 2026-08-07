@@ -761,6 +761,7 @@ int main()
     FAIL_IF((iopmp_trans_rsp.status != IOPMP_SUCCESS));
     FAIL_IF((iopmp_trans_rsp.rrid != 2));
     FAIL_IF((iopmp_trans_rsp.user != USER));
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
     error_record_chk(&iopmp, NO_ERROR, INSTR_FETCH, 360, 0);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
     END_TEST();)
@@ -780,6 +781,7 @@ int main()
     FAIL_IF((iopmp_trans_rsp.status != IOPMP_SUCCESS));
     FAIL_IF((iopmp_trans_rsp.rrid != 2));
     FAIL_IF((iopmp_trans_rsp.user != USER));
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
     error_record_chk(&iopmp, NO_ERROR, INSTR_FETCH, 360, 0);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
     END_TEST();)
@@ -798,6 +800,7 @@ int main()
     FAIL_IF((iopmp_trans_rsp.status != IOPMP_ERROR));
     FAIL_IF((iopmp_trans_rsp.rrid != 2));
     FAIL_IF((iopmp_trans_rsp.user != 0));
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
     error_record_chk(&iopmp, ILLEGAL_INSTR_FETCH, INSTR_FETCH, 360, 1);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
     END_TEST();
@@ -819,6 +822,7 @@ int main()
     FAIL_IF((iopmp_trans_rsp.status != IOPMP_SUCCESS));
     FAIL_IF((iopmp_trans_rsp.rrid != 2));
     FAIL_IF((iopmp_trans_rsp.user != USER));
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
     error_record_chk(&iopmp, ILLEGAL_INSTR_FETCH, INSTR_FETCH, 360, 0);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
     END_TEST();)
@@ -838,6 +842,7 @@ int main()
     FAIL_IF((intrpt != 1));
     FAIL_IF((iopmp_trans_rsp.status != IOPMP_ERROR));
     FAIL_IF((iopmp_trans_rsp.rrid != 2));
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
     error_record_chk(&iopmp, ILLEGAL_INSTR_FETCH, INSTR_FETCH, 360, 1);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
     END_TEST();

@@ -101,6 +101,7 @@ extern void set_hwcfg0_enable(iopmp_dev_t *iopmp);
     FAIL_IF((iopmp_trans_rsp.status != (RSP_STATUS)));                                                                      \
     err_info_temp.raw = read_register(iopmp, ERR_INFO_OFFSET, 4);                                                           \
     if (iopmp_trans_rsp.status == IOPMP_ERROR) {                                                                            \
+        FAIL_IF((iopmp_trans_rsp.violation != 1));                                                                          \
         FAIL_IF((err_info_temp.v != 1));                                                                                    \
         FAIL_IF((err_info_temp.ttype != iopmp_trans_req.perm));                                                             \
         FAIL_IF((err_info_temp.etype != (ERR_TYPE)));                                                                       \
@@ -109,5 +110,6 @@ extern void set_hwcfg0_enable(iopmp_dev_t *iopmp);
         if (bus_error == 0) { FAIL_IF((err_info_temp.msi_werr != 0)); }                                                     \
         else { FAIL_IF((err_info_temp.msi_werr != 1)); }                                                                    \
     } else {                                                                                                                \
+        FAIL_IF((iopmp_trans_rsp.violation != 0));                                                                          \
         FAIL_IF((err_info_temp.v != 0));                                                                                    \
     }

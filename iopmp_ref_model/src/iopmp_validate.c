@@ -35,6 +35,9 @@ static iopmpErrorType_t perm_to_etype(perm_type_e perm)
   *
   * @param iopmp The IOPMP instance.
   * @param trans_req The transaction request with required address, permissions, etc.
+  * @param iopmp_trans_rsp Pointer to the protocol-independent transaction
+  *               result, containing the response status after suppression and
+  *               optional check-result metadata.
   * @param intrpt Pointer to the variable to store wired interrupt flag.
   *               This flag is set to 1 if the following conditions are true:
   *                 - the transaction fails
@@ -46,7 +49,6 @@ static iopmpErrorType_t perm_to_etype(perm_type_e perm)
   *                 - a primary error capture occurs
   *                 - the interrupts are suppressed, or IOPMP implements MSI extension
   *                   and triggers MSI instead of wired interrupt
-  * @return iopmp_trans_rsp_t Response structure with transaction status.
  **/
 void iopmp_validate_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iopmp_trans_rsp_t* iopmp_trans_rsp, uint8_t *intrpt) {
     // No wired interrupt until an error capture below raises one
@@ -58,6 +60,7 @@ void iopmp_validate_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iop
     iopmp_trans_rsp->user         = 0;
     iopmp_trans_rsp->status       = IOPMP_ERROR;
     iopmp_trans_rsp->rrid_transl  = trans_req->rrid;
+    iopmp_trans_rsp->violation    = 0;
 
     // Check to block invalid combination
     if (trans_req->perm == INSTR_FETCH && trans_req->is_amo) {
@@ -344,6 +347,8 @@ pass_checks:
     return;
 
 stop_and_report_fault:
+    iopmp_trans_rsp->violation = 1;
+
     // If IOPMP implements error capture feature, IOPMP triggers error capture
     // to log the error information into the registers.
     if (!iopmp->reg_file.hwcfg0.no_err_rec) {

@@ -52,6 +52,8 @@ typedef struct __attribute__((__packed__)) {
     uint8_t  rrid_stalled_no_available_buffer;  // Requester ID stall status due to no available stall buffer
     uint16_t rrid_transl;   // The RRID tagged to outgoing transactions
     status_e status;        // Transaction status (success or error)
+    uint8_t  violation;     // The checker failed this transaction, even if
+                            // error suppression answered it with IOPMP_SUCCESS
 } iopmp_trans_rsp_t;
 
 #endif

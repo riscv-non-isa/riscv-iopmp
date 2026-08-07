@@ -920,6 +920,7 @@ int main()
     FAIL_IF((iopmp_trans_rsp.status != IOPMP_SUCCESS));
     FAIL_IF((iopmp_trans_rsp.rrid != 2));
     FAIL_IF((iopmp_trans_rsp.user != USER));
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
     error_record_chk(&iopmp, NO_ERROR, INSTR_FETCH, 360, 0);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
     END_TEST();)
@@ -940,6 +941,7 @@ int main()
     FAIL_IF((iopmp_trans_rsp.status != IOPMP_SUCCESS));
     FAIL_IF((iopmp_trans_rsp.rrid != 2));
     FAIL_IF((iopmp_trans_rsp.user != USER));
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
     error_record_chk(&iopmp, NO_ERROR, INSTR_FETCH, 360, 0);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
     END_TEST();)
@@ -959,6 +961,7 @@ int main()
     FAIL_IF((iopmp_trans_rsp.status != IOPMP_ERROR));
     FAIL_IF((iopmp_trans_rsp.rrid != 2));
     FAIL_IF((iopmp_trans_rsp.user != 0));
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
     error_record_chk(&iopmp, ILLEGAL_INSTR_FETCH, INSTR_FETCH, 360, 1);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
     END_TEST();
@@ -981,6 +984,7 @@ int main()
     FAIL_IF((iopmp_trans_rsp.status != IOPMP_SUCCESS));
     FAIL_IF((iopmp_trans_rsp.rrid != 2));
     FAIL_IF((iopmp_trans_rsp.user != USER));
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
     error_record_chk(&iopmp, ILLEGAL_INSTR_FETCH, INSTR_FETCH, 360, 0);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
     END_TEST();)
@@ -1001,9 +1005,37 @@ int main()
     FAIL_IF((intrpt != 1));
     FAIL_IF((iopmp_trans_rsp.status != IOPMP_ERROR));
     FAIL_IF((iopmp_trans_rsp.rrid != 2));
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
     error_record_chk(&iopmp, ILLEGAL_INSTR_FETCH, INSTR_FETCH, 360, 1);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
     END_TEST();
+
+    START_TEST_IF(iopmp.reg_file.hwcfg2.peis && iopmp.reg_file.hwcfg2.pees,
+                  "A fully suppressed violation is still reported",
+    cfg_saved = cfg;
+    cfg.no_err_rec = true;
+    cfg.mfr_en = false;
+    cfg.imp_err_reqid_eid = false;
+    reset_iopmp(&iopmp, &cfg);
+    write_register(&iopmp, ERR_CFG_OFFSET, 0x6, 4);
+    configure_srcmd_n(&iopmp, SRCMD_ENH, 2, 0x1, 4);
+    configure_srcmd_n(&iopmp, SRCMD_XH, 2, 0x1, 4);
+    configure_mdcfg_n(&iopmp, 31, 2, 4);
+    configure_entry_n(&iopmp, ENTRY_ADDR, 1, 90, 4);                       // (364 >> 2) and keeping lsb 0
+    configure_entry_n(&iopmp, ENTRY_CFG, 1, (SEXE | SIXE | NAPOT | R), 4); // Address Mode is NAPOT, with read permission and both suppressions
+    set_hwcfg0_enable(&iopmp);
+    receiver_port(2, 360, 0, 3, INSTR_FETCH, 0, &iopmp_trans_req);
+    // Requestor Port Signals
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    // Nothing outside the response says the transaction was refused
+    FAIL_IF((intrpt != 0));
+    FAIL_IF((iopmp_trans_rsp.status != IOPMP_SUCCESS));
+    FAIL_IF((read_register(&iopmp, ERR_INFO_OFFSET, 4) != 0));
+    // The response does
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
+    // Reset configuration
+    cfg = cfg_saved;
+    END_TEST();)
 
     START_TEST("RRIDSCP read/write behaviors");
     cfg_saved = cfg;
