@@ -1,13 +1,8 @@
 [[intro]]
 == Introduction
 
-This document outlines a mechanism to enhance platform security. In a platform, bus requesters (initiators) can access target devices, similar to a RISC-V hart. Introducing I/O agents like DMA (Direct Memory Access) units improves performance, but also exposes the system to vulnerabilities such as DMA attacks. In the RISC-V ecosystem, the PMP/ePMP cite:[PrivISA] provides a standard protection scheme for accesses from a RISC-V hart to the physical address space. However, there is no equivalent standard for safeguarding non-RISC-V CPU requesters. The Physical Memory Protection Unit for Input/Output Devices (IOPMP) addresses this by controlling accesses issued by bus requesters.
+On a RISC-V platform, there may be requesters other than RISC-V harts that are able to initiate bus transactions. While the PMP/ePMP ISA extensions cite:[PrivISA] provide a standardized interface for a RISC-V hart to configure its own access control at the physical address layer, an equivalent function is often required at the system level too, in order to protect systems against DMA (direct memory access) attacks and related vulnerabilities. This specification defines the interfaces and behaviors of a Physical Memory Protection Unit for Input/Output Devices, or "IOPMP", to address this requirement. IOPMP units apply access control at the physical address layer to all transactions passing through them, irrespective of their (hart or non-hart) origin.
 
-IOPMP is a hardware component within a bus fabric to address situations where pure-software solutions are insufficient. For a RISC-V-based platform, a software solution typically involves a security monitor, a program running in M-mode that handles security-related requests. When a request for a DMA transfer is made, the security monitor checks if it meets all security rules and decides if it is legal.
-Only legal requests are executed.
-However, this check introduces significant latency overhead, which may violate real-time constraints,
-especially for high-throughput requests like those from a GPU (Graphics Processing Unit).
-A hardware component that can check accesses in real-time is a more practical solution. This document focuses on IOPMP.
 <<IOPMP_SYSTEM_POSITION>> conceptually illustrates the integration of IOPMP into a system as an example.
 
 [#IOPMP_SYSTEM_POSITION]
