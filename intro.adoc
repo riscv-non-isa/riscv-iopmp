@@ -16,8 +16,18 @@ This scale motivates the two-stage mapping hierarchy described in this specifica
 
 The same scaling goal also motivates optional mechanisms that reduce lookup latency or implementation cost in larger systems, such as non-priority entries, table-reduction formats, and implementation-specific caching of protection checks.
 
-Both IOMMU and IOPMP have their own useful applications, and they can coexist and collaborate within a bus matrix.
-The Input-Output Memory Management Unit (IOMMU) cite:[IOMMU] is another hardware component in a bus matrix that translates a device's virtual address to a physical address in the bus matrix using one or more stages of page tables.
-It can operate in both trusted and untrusted environments and is typically used by a hypervisor or an OS. It offers excellent flexibility and reduces external memory fragmentation. However, it may not be ideal for security software running in M-mode because it requires relatively large memory and complex software compared to a typical security monitor. Additionally, the tables are usually stored in DRAM, which is outside the chip and may need external signal protection.
-For resource-constrained embedded systems, the silicon area and memory footprint required for an IOMMU may be prohibitive.
-In contrast, the IOPMP consumes much less memory and stores rules inside the chip. IOPMP can be used by the security monitor to check access from devices controlled by other software, while IOMMU can be used by software with richer resources.
+=== Relationship to IOMMU
+
+The RISC-V IOMMU (cite:[IOMMU], Input-Output Memory Management Unit) is a system-level generalization of the ISA's MMU mechanism, in much the same way that the IOPMP is a system-level generalization of the PMP, so comparing the two ISA mechanisms can help draw comparisons between the corresponding system-level mechanisms. For example, though the PMP and MMU both provide a form of isolation, they are very different mechanisms with very different usage, benefits, and complexity of implementation, and so they are typically seen as complementary concepts (rather than alternatives). The same general observation is also true of IOPMP and IOMMU. Some other ISA-to-system comparisons:
+
+* PMP and IOPMP implement fixed-sized rule tables, whereas MMU and IOMMU use dynamic data structures stored in main memory. As such, PMP and IOPMP more readily propose real-time capabilities (including the possibility of deterministic latency bounds) than MMU and IOMMU.
+* PMP and IOPMP both provide basic access-control at the physical address layer, whereas MMU and IOMMU implement virtual address mapping (which provides more than just access-control). As such, PMP and IOPMP are both likely to have a significantly lower implementation complexity than their MMU/IOMMU counterparts.
+
+The analogy between ISA mechanisms and their system-level counterparts is less useful when considering trust boundaries. In the ISA, the PMP lets M-mode impose constraints on access to the physical address space, whereas the MMU lets S-mode impose a virtual address map - the mechanisms straddle different privilege boundaries. At the system-level there is no equivalent concept to straddle - the trust boundary is between whichever domain configures the IOPMP/IOMMU and whichever domains influence the I/O requests that pass through that mechanism.
+
+To illustrate, consider an operating system in S-mode using an MMU to manage user-space applications, including one that reads and writes I/O buffers that are produced and consumed by a DMA-capable device, and consider whether IOMMU and/or IOPMP are required to control that device's transactions:
+
+* If the device driver runs in the OS kernel and manages device I/O on the application's behalf, it can provide physical addresses directly to the device, without needing an IOMMU to mimic the virtual address mapping of the MMU.
+* Conversely, if the application provides I/O buffer descriptors directly to the device, then an IOMMU may be required to ensure the application can't use that I/O to circumvent its virtual address space. Some optimized data-path solutions use this approach.
+* In both cases, an IOPMP is probably required at the system level if a PMP is used within the hart to constrain the OS as a whole, otherwise the OS might use device I/O to escape its constraints. (Here we see that the IOPMP requirement is largely orthogonal to the IOMMU requirement.)
+
