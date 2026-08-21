@@ -649,7 +649,7 @@ bool libiopmp_check_version(int major, int minor, int extra);
  */
 static inline bool iopmp_is_initialized(IOPMP_t *iopmp)
 {
-    return iopmp && iopmp->init;
+    return (iopmp != NULL) && iopmp->init;
 }
 
 /**

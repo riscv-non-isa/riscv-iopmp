@@ -875,7 +875,8 @@ enum iopmp_error generic_capture_error(IOPMP_t *iopmp,
 
     /* A driver may have replaced only invalidate_error, so honour it here */
     if (invalidate) {
-        if (iopmp->ops_override && iopmp->ops_override->invalidate_error) {
+        if ((iopmp->ops_override != NULL) &&
+            (iopmp->ops_override->invalidate_error != NULL)) {
             iopmp->ops_override->invalidate_error(iopmp);
         } else {
             generic_invalidate_error(iopmp);

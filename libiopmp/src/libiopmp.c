@@ -112,7 +112,7 @@ enum iopmp_error iopmp_get_vendor_id(IOPMP_t *iopmp, uint32_t *vendor)
 {
     assert(iopmp_is_initialized(iopmp));
 
-    if (!vendor) {
+    if (vendor == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -124,7 +124,7 @@ enum iopmp_error iopmp_get_specver(IOPMP_t *iopmp, uint32_t *specver)
 {
     assert(iopmp_is_initialized(iopmp));
 
-    if (!specver) {
+    if (specver == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -136,7 +136,7 @@ enum iopmp_error iopmp_get_impid(IOPMP_t *iopmp, uint32_t *impid)
 {
     assert(iopmp_is_initialized(iopmp));
 
-    if (!impid) {
+    if (impid == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -157,7 +157,8 @@ enum iopmp_error iopmp_lock_prio_entry_num(IOPMP_t *iopmp)
     }
 
     /* If HWCFG2.prio_ent_prog is not wired to 0, this operation is mandatory */
-    if (iopmp->ops_override && iopmp->ops_override->lock_prio_entry_num) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->lock_prio_entry_num != NULL)) {
         iopmp->ops_override->lock_prio_entry_num(iopmp);
     } else {
         generic_lock_prio_entry_num(iopmp);
@@ -182,7 +183,8 @@ enum iopmp_error iopmp_lock_rrid_transl(IOPMP_t *iopmp)
     /*
      * If HWCFG3.rrid_transl_prog is not wired to 0, this operation is mandatory
      */
-    if (iopmp->ops_override && iopmp->ops_override->lock_rrid_transl) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->lock_rrid_transl != NULL)) {
         iopmp->ops_override->lock_rrid_transl(iopmp);
     } else {
         generic_lock_rrid_transl(iopmp);
@@ -202,7 +204,8 @@ enum iopmp_error iopmp_set_enable(IOPMP_t *iopmp)
     }
 
     /* HWCFG0.enable is mandatory W1SS bit */
-    if (iopmp->ops_override && iopmp->ops_override->enable) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->enable != NULL)) {
         iopmp->ops_override->enable(iopmp);
     } else {
         generic_enable(iopmp);
@@ -226,14 +229,15 @@ enum iopmp_error iopmp_set_prio_entry_num(IOPMP_t *iopmp, uint16_t *num_entry)
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
-    if (!num_entry) {
+    if (num_entry == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
     /*
      * If HWCFG2.prio_ent_prog is not wired to 0, this operation is mandatory
      */
-    if (iopmp->ops_override && iopmp->ops_override->set_prio_entry_num) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_prio_entry_num != NULL)) {
         ret = iopmp->ops_override->set_prio_entry_num(iopmp, num_entry);
     } else {
         ret = generic_set_prio_entry_num(iopmp, num_entry);
@@ -253,7 +257,7 @@ enum iopmp_error iopmp_get_rrid_transl_prog(IOPMP_t *iopmp,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!rrid_transl_prog) {
+    if (rrid_transl_prog == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -269,7 +273,7 @@ enum iopmp_error iopmp_get_rrid_transl(IOPMP_t *iopmp, uint16_t *rrid_transl)
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!rrid_transl) {
+    if (rrid_transl == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -291,14 +295,15 @@ enum iopmp_error iopmp_set_rrid_transl(IOPMP_t *iopmp, uint16_t *rrid_transl)
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
-    if (!rrid_transl) {
+    if (rrid_transl == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
     /*
      * If HWCFG3.rrid_transl_prog is not wired to 0, this operation is mandatory
      */
-    if (iopmp->ops_override && iopmp->ops_override->set_rrid_transl) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_rrid_transl != NULL)) {
         ret = iopmp->ops_override->set_rrid_transl(iopmp, rrid_transl);
     } else {
         ret = generic_set_rrid_transl(iopmp, rrid_transl);
@@ -331,7 +336,7 @@ enum iopmp_error iopmp_stall_transactions_by_mds(IOPMP_t *iopmp, uint64_t *mds,
         return IOPMP_ERR_NOT_ALLOWED;
     }
 
-    if (!mds) {
+    if (mds == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -345,7 +350,8 @@ enum iopmp_error iopmp_stall_transactions_by_mds(IOPMP_t *iopmp, uint64_t *mds,
         return IOPMP_ERR_ILLEGAL_VALUE;
     }
 
-    if (iopmp->ops_override && iopmp->ops_override->stall_by_mds) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->stall_by_mds != NULL)) {
         ret = iopmp->ops_override->stall_by_mds(iopmp, mds, exempt, polling);
     } else {
         ret = generic_stall_by_mds(iopmp, mds, exempt, polling);
@@ -372,7 +378,8 @@ enum iopmp_error iopmp_resume_transactions(IOPMP_t *iopmp, bool polling)
         return IOPMP_ERR_NOT_ALLOWED;
     }
 
-    if (iopmp->ops_override && iopmp->ops_override->resume_transactions) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->resume_transactions != NULL)) {
         ret = iopmp->ops_override->resume_transactions(iopmp, polling);
     } else {
         ret = generic_resume_transactions(iopmp, polling);
@@ -395,11 +402,12 @@ static enum iopmp_error poll_mdstall_common(IOPMP_t *iopmp,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!done) {
+    if (done == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    if (iopmp->ops_override && iopmp->ops_override->poll_mdstall) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->poll_mdstall != NULL)) {
         *done = iopmp->ops_override->poll_mdstall(iopmp, polling,
                                                   stall_or_resume);
     } else {
@@ -439,7 +447,7 @@ enum iopmp_error iopmp_probe_stall_by_md(IOPMP_t *iopmp, uint64_t *mds)
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!mds) {
+    if (mds == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -450,14 +458,16 @@ enum iopmp_error iopmp_probe_stall_by_md(IOPMP_t *iopmp, uint64_t *mds)
     }
 
     *mds = GENMASK_64((iopmp->md_num - 1), 0);
-    if (iopmp->ops_override && iopmp->ops_override->stall_by_mds) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->stall_by_mds != NULL)) {
         ret = iopmp->ops_override->stall_by_mds(iopmp, mds, false, false);
     } else {
         ret = generic_stall_by_mds(iopmp, mds, false, false);
     }
     if (ret == IOPMP_OK) {
         /* Every MD was accepted, so undo the stall the probe just caused */
-        if (iopmp->ops_override && iopmp->ops_override->resume_transactions) {
+        if ((iopmp->ops_override != NULL) &&
+            (iopmp->ops_override->resume_transactions != NULL)) {
             ret = iopmp->ops_override->resume_transactions(iopmp, true);
         } else {
             ret = generic_resume_transactions(iopmp, true);
@@ -500,7 +510,7 @@ static enum iopmp_error set_rridscp_common(IOPMP_t *iopmp, uint32_t *rrid,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!rrid || !stat) {
+    if ((rrid == NULL) || (stat == NULL)) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -508,7 +518,8 @@ static enum iopmp_error set_rridscp_common(IOPMP_t *iopmp, uint32_t *rrid,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (iopmp->ops_override && iopmp->ops_override->set_rridscp) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_rridscp != NULL)) {
         return iopmp->ops_override->set_rridscp(iopmp, rrid, op, stat);
     } else {
         return generic_set_rridscp(iopmp, rrid, op, stat);
@@ -536,7 +547,7 @@ enum iopmp_error iopmp_get_locked_md(IOPMP_t *iopmp, uint64_t *mds,
 {
     assert(iopmp_is_initialized(iopmp));
 
-    if (!mds || !mdlck_lock) {
+    if ((mds == NULL) || (mdlck_lock == NULL)) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -554,7 +565,7 @@ enum iopmp_error iopmp_lock_md(IOPMP_t *iopmp, uint64_t *mds, bool mdlck_lock)
 
     assert(iopmp_is_initialized(iopmp));
 
-    if (!mds) {
+    if (mds == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -581,7 +592,8 @@ enum iopmp_error iopmp_lock_md(IOPMP_t *iopmp, uint64_t *mds, bool mdlck_lock)
         }
     }
 
-    if (iopmp->ops_override && iopmp->ops_override->set_md_lock) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_md_lock != NULL)) {
         ret = iopmp->ops_override->set_md_lock(iopmp, mds, mdlck_lock);
     } else {
         ret = srcmd_fmt_0_2_set_md_lock(iopmp, mds, mdlck_lock);
@@ -607,7 +619,7 @@ enum iopmp_error iopmp_lock_mdcfg(IOPMP_t *iopmp, uint32_t *md_num, bool lock)
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!md_num) {
+    if (md_num == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -630,7 +642,8 @@ enum iopmp_error iopmp_lock_mdcfg(IOPMP_t *iopmp, uint32_t *md_num, bool lock)
     }
 
     /* MDCFGLCK is mandatory register in MDCFG_FMT=0 */
-    if (iopmp->ops_override && iopmp->ops_override->lock_mdcfg) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->lock_mdcfg != NULL)) {
         ret = iopmp->ops_override->lock_mdcfg(iopmp, md_num, lock);
     } else {
         ret = mdcfg_fmt_0_lock_mdcfg(iopmp, md_num, lock);
@@ -650,7 +663,7 @@ enum iopmp_error iopmp_is_mdcfglck_locked(IOPMP_t *iopmp, bool *locked)
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!locked) {
+    if (locked == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -666,7 +679,7 @@ enum iopmp_error iopmp_get_locked_mdcfg_num(IOPMP_t *iopmp, uint32_t *md_num)
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!md_num) {
+    if (md_num == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -682,7 +695,7 @@ enum iopmp_error iopmp_lock_entries(IOPMP_t *iopmp, uint32_t *entry_num,
 
     assert(iopmp_is_initialized(iopmp));
 
-    if (!entry_num) {
+    if (entry_num == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -706,7 +719,8 @@ enum iopmp_error iopmp_lock_entries(IOPMP_t *iopmp, uint32_t *entry_num,
 
     /* ENTRYLCK is mandatory register */
 
-    if (iopmp->ops_override && iopmp->ops_override->lock_entries) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->lock_entries != NULL)) {
         ret = iopmp->ops_override->lock_entries(iopmp, entry_num, lock);
     } else {
         ret = generic_lock_entries(iopmp, entry_num, lock);
@@ -728,7 +742,8 @@ enum iopmp_error iopmp_lock_err_cfg(IOPMP_t *iopmp)
 
     /* ERR_CFG.l is mandatory W1SS bit */
 
-    if (iopmp->ops_override && iopmp->ops_override->lock_err_cfg) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->lock_err_cfg != NULL)) {
         iopmp->ops_override->lock_err_cfg(iopmp);
     } else {
         generic_lock_err_cfg(iopmp);
@@ -754,7 +769,8 @@ enum iopmp_error iopmp_set_global_intr(IOPMP_t *iopmp, bool enable)
 
     /* ERR_CFG.ie is mandatory RW bit */
 
-    if (iopmp->ops_override && iopmp->ops_override->set_global_intr) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_global_intr != NULL)) {
         iopmp->ops_override->set_global_intr(iopmp, enable);
     } else {
         generic_set_global_intr(iopmp, enable);
@@ -771,7 +787,7 @@ enum iopmp_error iopmp_set_global_err_resp(IOPMP_t *iopmp, bool *suppress)
 
     assert(iopmp_is_initialized(iopmp));
 
-    if (!suppress) {
+    if (suppress == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -788,7 +804,8 @@ enum iopmp_error iopmp_set_global_err_resp(IOPMP_t *iopmp, bool *suppress)
     }
 
     /* ERR_CFG.rs is optional */
-    if (iopmp->ops_override && iopmp->ops_override->set_global_err_resp) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_global_err_resp != NULL)) {
         ret = iopmp->ops_override->set_global_err_resp(iopmp, suppress);
     } else {
         ret = generic_set_global_err_resp(iopmp, suppress);
@@ -809,7 +826,7 @@ enum iopmp_error iopmp_set_msi_sel(IOPMP_t *iopmp, bool *enable)
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!enable) {
+    if (enable == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -826,7 +843,8 @@ enum iopmp_error iopmp_set_msi_sel(IOPMP_t *iopmp, bool *enable)
     }
 
     /* ERR_CFG.msi_sel can be programmable or hardwired */
-    if (iopmp->ops_override && iopmp->ops_override->set_msi_sel) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_msi_sel != NULL)) {
         ret = iopmp->ops_override->set_msi_sel(iopmp, enable);
     } else {
         ret = generic_set_msi_sel(iopmp, enable);
@@ -844,7 +862,7 @@ enum iopmp_error iopmp_get_msi_addr(IOPMP_t *iopmp, uint64_t *msiaddr64)
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!msiaddr64) {
+    if (msiaddr64 == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -861,7 +879,7 @@ enum iopmp_error iopmp_get_msi_data(IOPMP_t *iopmp, uint16_t *msidata)
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!msidata) {
+    if (msidata == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -883,7 +901,7 @@ enum iopmp_error iopmp_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!msiaddr64 || !msidata) {
+    if ((msiaddr64 == NULL) || (msidata == NULL)) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -913,7 +931,8 @@ enum iopmp_error iopmp_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
-    if (iopmp->ops_override && iopmp->ops_override->set_msi_info) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_msi_info != NULL)) {
         ret = iopmp->ops_override->set_msi_info(iopmp, msiaddr64, msidata);
     } else {
         ret = generic_set_msi_info(iopmp, msiaddr64, msidata);
@@ -936,12 +955,13 @@ enum iopmp_error iopmp_get_and_clear_msi_werr(IOPMP_t *iopmp, bool *msi_werr)
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!msi_werr) {
+    if (msi_werr == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
     /* If HWCFG2.msi_en=1, this operation is mandatory */
-    if (iopmp->ops_override && iopmp->ops_override->get_and_clear_msi_werr) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->get_and_clear_msi_werr != NULL)) {
         iopmp->ops_override->get_and_clear_msi_werr(iopmp, msi_werr);
     } else {
         generic_get_and_clear_msi_werr(iopmp, msi_werr);
@@ -960,7 +980,7 @@ enum iopmp_error iopmp_set_stall_violation_en(IOPMP_t *iopmp, bool *enable)
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!enable) {
+    if (enable == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -974,7 +994,8 @@ enum iopmp_error iopmp_set_stall_violation_en(IOPMP_t *iopmp, bool *enable)
     }
 
     /* If HWCFG2.stall_en=1, this operation is mandatory */
-    if (iopmp->ops_override && iopmp->ops_override->set_stall_violation_en) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_stall_violation_en != NULL)) {
         ret = iopmp->ops_override->set_stall_violation_en(iopmp, enable);
     } else {
         ret = generic_set_stall_violation_en(iopmp, enable);
@@ -996,7 +1017,8 @@ enum iopmp_error iopmp_invalidate_error(IOPMP_t *iopmp)
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (iopmp->ops_override && iopmp->ops_override->invalidate_error) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->invalidate_error != NULL)) {
         iopmp->ops_override->invalidate_error(iopmp);
     } else {
         generic_invalidate_error(iopmp);
@@ -1015,11 +1037,12 @@ enum iopmp_error iopmp_capture_error(IOPMP_t *iopmp,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!err_report) {
+    if (err_report == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    if (iopmp->ops_override && iopmp->ops_override->capture_error) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->capture_error != NULL)) {
         return iopmp->ops_override->capture_error(iopmp, err_report,
                                                   invalidate);
     } else {
@@ -1036,12 +1059,13 @@ enum iopmp_error iopmp_mfr_get_sv_window(IOPMP_t *iopmp, uint16_t *svi,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!svi || !svw) {
+    if ((svi == NULL) || (svw == NULL)) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
     /* If HWCFG2.mfr_en=1, this operation is mandatory */
-    if (iopmp->ops_override && iopmp->ops_override->get_sv_window) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->get_sv_window != NULL)) {
         return iopmp->ops_override->get_sv_window(iopmp, svi, svw);
     } else {
         return generic_get_sv_window(iopmp, svi, svw);
@@ -1060,7 +1084,8 @@ enum iopmp_error iopmp_lock_srcmd_table_fmt_0(IOPMP_t *iopmp, uint32_t rrid)
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (iopmp->ops_override && iopmp->ops_override->lock_srcmd_table) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->lock_srcmd_table != NULL)) {
         return iopmp->ops_override->lock_srcmd_table(iopmp, rrid, 0);
     } else {
         return srcmd_fmt_0_lock_srcmd_table(iopmp, rrid, 0);
@@ -1083,12 +1108,13 @@ enum iopmp_error iopmp_is_srcmd_table_fmt_0_locked(IOPMP_t *iopmp,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (!locked) {
+    if (locked == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
     /* Get current SRCMD_EN(rrid) */
-    if (iopmp->ops_override && iopmp->ops_override->get_association_rrid_md) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->get_association_rrid_md != NULL)) {
         iopmp->ops_override->get_association_rrid_md(iopmp, rrid, &mds, locked);
     } else {
         srcmd_fmt_0_get_association_rrid_md(iopmp, rrid, &mds, locked);
@@ -1121,7 +1147,8 @@ enum iopmp_error iopmp_lock_srcmd_table_fmt_2(IOPMP_t *iopmp, uint32_t mdidx)
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
-    if (iopmp->ops_override && iopmp->ops_override->lock_srcmd_table) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->lock_srcmd_table != NULL)) {
         ret = iopmp->ops_override->lock_srcmd_table(iopmp, 0, mdidx);
     } else {
         ret = srcmd_fmt_2_lock_srcmd_table(iopmp, 0, mdidx);
@@ -1149,7 +1176,7 @@ enum iopmp_error iopmp_is_srcmd_table_fmt_2_locked(IOPMP_t *iopmp,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (!locked) {
+    if (locked == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -1169,14 +1196,14 @@ enum iopmp_error iopmp_get_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (!lock || !mds) {
+    if ((lock == NULL) || (mds == NULL)) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
     if (iopmp->srcmd_fmt == IOPMP_SRCMD_FMT_0) {
         /* Check SRCMD table */
-        if (iopmp->ops_override &&
-            iopmp->ops_override->get_association_rrid_md) {
+        if ((iopmp->ops_override != NULL) &&
+            (iopmp->ops_override->get_association_rrid_md != NULL)) {
             iopmp->ops_override->get_association_rrid_md(iopmp, rrid, mds,
                                                          lock);
         } else {
@@ -1214,7 +1241,7 @@ enum iopmp_error iopmp_set_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (!mds) {
+    if (mds == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -1229,7 +1256,8 @@ enum iopmp_error iopmp_set_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
     }
 
     /* Get current SRCMD_EN(rrid) */
-    if (iopmp->ops_override && iopmp->ops_override->get_association_rrid_md) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->get_association_rrid_md != NULL)) {
         iopmp->ops_override->get_association_rrid_md(iopmp, rrid, mds,
                                                      &is_srcmd_en_locked);
     } else {
@@ -1246,7 +1274,8 @@ enum iopmp_error iopmp_set_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
     /* Clear new MD bitmap */
     *mds &= ~mds_clr;
 
-    if (iopmp->ops_override && iopmp->ops_override->set_association_rrid_md) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_association_rrid_md != NULL)) {
         return iopmp->ops_override->set_association_rrid_md(iopmp, rrid, mds,
                                                             lock);
     } else {
@@ -1272,7 +1301,8 @@ enum iopmp_error iopmp_set_md_permission(IOPMP_t *iopmp, uint32_t rrid,
     }
 
     /* This operation is mandatory for SRCMD_FMT_2 */
-    if (iopmp->ops_override && iopmp->ops_override->set_md_permission) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_md_permission != NULL)) {
         return iopmp->ops_override->set_md_permission(iopmp, rrid, mdidx, r, w);
     } else {
         return srcmd_fmt_2_set_md_permission(iopmp, rrid, mdidx, r, w);
@@ -1299,7 +1329,8 @@ enum iopmp_error iopmp_set_md_permission(IOPMP_t *iopmp, uint32_t rrid,
 static enum iopmp_error set_md_permission_multi_nocheck(
     IOPMP_t *iopmp, uint32_t mdidx, IOPMP_SRCMD_PERM_CFG_t *cfg)
 {
-    if (iopmp->ops_override && iopmp->ops_override->set_md_permission_multi) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_md_permission_multi != NULL)) {
         return iopmp->ops_override->set_md_permission_multi(iopmp, mdidx, cfg);
     } else {
         return srcmd_fmt_2_set_md_permission_multi(iopmp, mdidx, cfg);
@@ -1319,7 +1350,7 @@ enum iopmp_error iopmp_set_md_permission_multi(IOPMP_t *iopmp, uint32_t mdidx,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (!cfg) {
+    if (cfg == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -1345,7 +1376,7 @@ void iopmp_set_srcmd_perm_cfg_nocheck(IOPMP_SRCMD_PERM_CFG_t *cfg,
 enum iopmp_error iopmp_set_srcmd_perm_cfg(IOPMP_SRCMD_PERM_CFG_t *cfg,
                                           uint32_t rrid, bool r, bool w)
 {
-    if (!cfg) {
+    if (cfg == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -1393,7 +1424,8 @@ static enum iopmp_error sps_check(IOPMP_t *iopmp, uint32_t rrid,
     }
 
     /* Get current SRCMD_EN(rrid) */
-    if (iopmp->ops_override && iopmp->ops_override->get_association_rrid_md) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->get_association_rrid_md != NULL)) {
         iopmp->ops_override->get_association_rrid_md(iopmp, rrid, &srcmd_mds,
                                                      &is_srcmd_en_locked);
     } else {
@@ -1498,7 +1530,7 @@ static enum iopmp_error sps_set(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (!mds) {
+    if (mds == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -1529,7 +1561,7 @@ static enum iopmp_error sps_get(IOPMP_t *iopmp, uint32_t rrid, uint64_t *mds,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (!mds) {
+    if (mds == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -1635,7 +1667,7 @@ enum iopmp_error iopmp_sps_set_rrid_md_rwx(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!mds_r || !mds_w || !mds_x) {
+    if ((mds_r == NULL) || (mds_w == NULL) || (mds_x == NULL)) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -1697,7 +1729,8 @@ enum iopmp_error iopmp_sps_get_rrid_md_rwx(IOPMP_t *iopmp, uint32_t rrid,
 static void get_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
                              uint32_t *entry_top)
 {
-    if (iopmp->ops_override && iopmp->ops_override->get_md_entry_top) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->get_md_entry_top != NULL)) {
         iopmp->ops_override->get_md_entry_top(iopmp, mdidx, entry_top);
     } else if (iopmp->mdcfg_fmt == IOPMP_MDCFG_FMT_0) {
         mdcfg_fmt_0_get_md_entry_top(iopmp, mdidx, entry_top);
@@ -1737,7 +1770,7 @@ enum iopmp_error iopmp_get_md_entry_association(IOPMP_t *iopmp, uint32_t mdidx,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (!entry_idx_start || !num_entry) {
+    if ((entry_idx_start == NULL) || (num_entry == NULL)) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -1775,7 +1808,7 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
         return IOPMP_ERR_NOT_ALLOWED;   /* Must call iopmp_set_md_entry_num() */
     }
 
-    if (!num_entries) {
+    if (num_entries == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -1800,7 +1833,8 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
             return IOPMP_ERR_OUT_OF_BOUNDS;
         }
         /* This operation is mandatory for MDCFG_FMT_0 */
-        if (iopmp->ops_override && iopmp->ops_override->set_md_entry_top) {
+        if ((iopmp->ops_override != NULL) &&
+            (iopmp->ops_override->set_md_entry_top != NULL)) {
             ret = iopmp->ops_override->set_md_entry_top(iopmp,
                                                         mdidx_start + m,
                                                         &this_top);
@@ -1829,7 +1863,7 @@ enum iopmp_error iopmp_get_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (!md_entry_num) {
+    if (md_entry_num == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -1848,7 +1882,7 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
         return IOPMP_ERR_NOT_ALLOWED;
     }
 
-    if (!md_entry_num) {
+    if (md_entry_num == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -1867,7 +1901,8 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
     }
 
     /* Try to write new md_entry_num into IOPMP */
-    if (iopmp->ops_override && iopmp->ops_override->set_md_entry_num) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_md_entry_num != NULL)) {
         ret = iopmp->ops_override->set_md_entry_num(iopmp, md_entry_num);
     } else {
         ret = mdcfg_fmt_2_set_md_entry_num(iopmp, md_entry_num);
@@ -2035,7 +2070,7 @@ enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
 
     assert(iopmp_is_initialized(iopmp));
 
-    if (!entries || !num_entry) {
+    if ((entries == NULL) || !num_entry) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -2172,7 +2207,7 @@ static enum iopmp_error check_set_entries(
     IOPMP_t *iopmp, const struct iopmp_entry *entry_array,
     uint32_t idx_start, uint32_t num_entry)
 {
-    if (!entry_array || !num_entry) {
+    if ((entry_array == NULL) || !num_entry) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -2212,7 +2247,8 @@ static enum iopmp_error set_entries_nocheck(
     IOPMP_t *iopmp, const struct iopmp_entry *entry_array,
     uint32_t idx_start, uint32_t num_entry)
 {
-    if (iopmp->ops_override && iopmp->ops_override->set_entries) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->set_entries != NULL)) {
         return iopmp->ops_override->set_entries(iopmp, entry_array,
                                                 idx_start, num_entry);
     } else {
@@ -2322,7 +2358,7 @@ enum iopmp_error iopmp_get_entries(IOPMP_t *iopmp,
 {
     assert(iopmp_is_initialized(iopmp));
 
-    if (!entry_array || !num_entry) {
+    if ((entry_array == NULL) || !num_entry) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -2331,7 +2367,8 @@ enum iopmp_error iopmp_get_entries(IOPMP_t *iopmp,
     }
 
     /* Read IOPMP entries from IOPMP registers */
-    if (iopmp->ops_override && iopmp->ops_override->get_entries) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->get_entries != NULL)) {
         iopmp->ops_override->get_entries(iopmp, entry_array, idx_start,
                                          num_entry);
     } else {
@@ -2388,7 +2425,8 @@ enum iopmp_error iopmp_clear_entries(IOPMP_t *iopmp, uint32_t idx_start,
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
-    if (iopmp->ops_override && iopmp->ops_override->clear_entries) {
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->clear_entries != NULL)) {
         iopmp->ops_override->clear_entries(iopmp, idx_start, num_entry);
     } else {
         generic_clear_entries(iopmp, idx_start, num_entry);
@@ -2426,7 +2464,7 @@ enum iopmp_error iopmp_entries_get_belong_md(IOPMP_t *iopmp, uint32_t idx_start,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (!mds) {
+    if (mds == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
