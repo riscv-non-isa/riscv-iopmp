@@ -476,66 +476,66 @@ enum iopmp_rridscp_stat {
 /******************************************************************************/
 /* The flags used when calling iopmp_encode_entry()                           */
 /******************************************************************************/
-/** The flags used when calling iopmp_encode_entry() */
-enum iopmp_entry_flags {
-    /** ENTRY_CFG.r = 1 */
-    IOPMP_ENTRY_R = (1UL << 0),
-    /** ENTRY_CFG.w = 1 */
-    IOPMP_ENTRY_W = (1UL << 1),
-    /** ENTRY_CFG.x = 1 */
-    IOPMP_ENTRY_X = (1UL << 2),
-    /** ENTRY_CFG.r = 1 and ENTRY_CFG.w = 1 */
-    IOPMP_ENTRY_RW = (IOPMP_ENTRY_R | IOPMP_ENTRY_W),
-    /** ENTRY_CFG.r = 1 and ENTRY_CFG.x = 1 */
-    IOPMP_ENTRY_RX = (IOPMP_ENTRY_R | IOPMP_ENTRY_X),
-    /** ENTRY_CFG.r = 1, ENTRY_CFG.w = 1, and ENTRY_CFG.x = 1 */
-    IOPMP_ENTRY_RWX = (IOPMP_ENTRY_R | IOPMP_ENTRY_W | IOPMP_ENTRY_X),
+/** ENTRY_CFG.r = 1 */
+#define IOPMP_ENTRY_R               ((uint32_t)1U << 0U)
+/** ENTRY_CFG.w = 1 */
+#define IOPMP_ENTRY_W               ((uint32_t)1U << 1U)
+/** ENTRY_CFG.x = 1 */
+#define IOPMP_ENTRY_X               ((uint32_t)1U << 2U)
+/** ENTRY_CFG.r = 1 and ENTRY_CFG.w = 1 */
+#define IOPMP_ENTRY_RW              (IOPMP_ENTRY_R | IOPMP_ENTRY_W)
+/** ENTRY_CFG.r = 1 and ENTRY_CFG.x = 1 */
+#define IOPMP_ENTRY_RX              (IOPMP_ENTRY_R | IOPMP_ENTRY_X)
+/** ENTRY_CFG.r = 1, ENTRY_CFG.w = 1, and ENTRY_CFG.x = 1 */
+#define IOPMP_ENTRY_RWX             (IOPMP_ENTRY_R | IOPMP_ENTRY_W |   \
+                                     IOPMP_ENTRY_X)
 
-    /** ENTRY_CFG.a = OFF */
-    IOPMP_ENTRY_A_OFF = (0UL << 3),
-    /** ENTRY_CFG.a = TOR */
-    IOPMP_ENTRY_A_TOR = (1UL << 3),
-    /** ENTRY_CFG.a = NA4 */
-    IOPMP_ENTRY_A_NA4 = (2UL << 3),
-    /** ENTRY_CFG.a = NAPOT */
-    IOPMP_ENTRY_A_NAPOT = (3UL << 3),
-    /** Bit mask of ENTRY_CFG.a field */
-    IOPMP_ENTRY_A_MASK = (3UL << 3),
+/** ENTRY_CFG.a = OFF */
+#define IOPMP_ENTRY_A_OFF           ((uint32_t)0U << 3U)
+/** ENTRY_CFG.a = TOR */
+#define IOPMP_ENTRY_A_TOR           ((uint32_t)1U << 3U)
+/** ENTRY_CFG.a = NA4 */
+#define IOPMP_ENTRY_A_NA4           ((uint32_t)2U << 3U)
+/** ENTRY_CFG.a = NAPOT */
+#define IOPMP_ENTRY_A_NAPOT         ((uint32_t)3U << 3U)
+/** Bit mask of ENTRY_CFG.a field */
+#define IOPMP_ENTRY_A_MASK          ((uint32_t)3U << 3U)
 
-    /** ENTRY_CFG.sire = 1 */
-    IOPMP_ENTRY_SIRE = (1UL << 5),
-    /** ENTRY_CFG.siwe = 1 */
-    IOPMP_ENTRY_SIWE = (1UL << 6),
-    /** ENTRY_CFG.sixe = 1 */
-    IOPMP_ENTRY_SIXE = (1UL << 7),
-    /** Bit mask of ENTRY_CFG.sire, ENTRY_CFG.siwe, and ENTRY_CFG.sixe */
-    IOPMP_ENTRY_SIE_MASK = (7UL << 5),
-    /** ENTRY_CFG.sere = 1 */
-    IOPMP_ENTRY_SERE = (1UL << 8),
-    /** ENTRY_CFG.sewe = 1 */
-    IOPMP_ENTRY_SEWE = (1UL << 9),
-    /** ENTRY_CFG.sexe = 1 */
-    IOPMP_ENTRY_SEXE = (1UL << 10),
-    /** Bit mask of ENTRY_CFG.sere, ENTRY_CFG.sewe, and ENTRY_CFG.sexe */
-    IOPMP_ENTRY_SEE_MASK = (7UL << 8),
+/** ENTRY_CFG.sire = 1 */
+#define IOPMP_ENTRY_SIRE            ((uint32_t)1U << 5U)
+/** ENTRY_CFG.siwe = 1 */
+#define IOPMP_ENTRY_SIWE            ((uint32_t)1U << 6U)
+/** ENTRY_CFG.sixe = 1 */
+#define IOPMP_ENTRY_SIXE            ((uint32_t)1U << 7U)
+/** Bit mask of ENTRY_CFG.sire, ENTRY_CFG.siwe, and ENTRY_CFG.sixe */
+#define IOPMP_ENTRY_SIE_MASK        ((uint32_t)7U << 5U)
+/** ENTRY_CFG.sere = 1 */
+#define IOPMP_ENTRY_SERE            ((uint32_t)1U << 8U)
+/** ENTRY_CFG.sewe = 1 */
+#define IOPMP_ENTRY_SEWE            ((uint32_t)1U << 9U)
+/** ENTRY_CFG.sexe = 1 */
+#define IOPMP_ENTRY_SEXE            ((uint32_t)1U << 10U)
+/** Bit mask of ENTRY_CFG.sere, ENTRY_CFG.sewe, and ENTRY_CFG.sexe */
+#define IOPMP_ENTRY_SEE_MASK        ((uint32_t)7U << 8U)
 
-    /** [Software flag] Forcefully set ENTRY_CFG.a = OFF */
-    IOPMP_ENTRY_FORCE_OFF = (1UL << 27),
-    /** [Software flag] Forcefully set ENTRY_CFG(0).a = TOR */
-    IOPMP_ENTRY_FIRST_TOR = (1UL << 28),
-    /** [Software flag] Forcefully set ENTRY_CFG.a = TOR */
-    IOPMP_ENTRY_FORCE_TOR = (1UL << 29),
+/** [Software flag] Forcefully set ENTRY_CFG.a = OFF */
+#define IOPMP_ENTRY_FORCE_OFF       ((uint32_t)1U << 27U)
+/** [Software flag] Forcefully set ENTRY_CFG(0).a = TOR */
+#define IOPMP_ENTRY_FIRST_TOR       ((uint32_t)1U << 28U)
+/** [Software flag] Forcefully set ENTRY_CFG.a = TOR */
+#define IOPMP_ENTRY_FORCE_TOR       ((uint32_t)1U << 29U)
 
-    /** [Software flag] Flag to indicate this entry is priority entry */
-    IOPMP_ENTRY_PRIO = (1UL << 30),
-    /** [Software flag] Flag to indicate this entry is non-priority entry */
-    IOPMP_ENTRY_NON_PRIO = (1UL << 31),
+/** [Software flag] Flag to indicate this entry is priority entry */
+#define IOPMP_ENTRY_PRIO            ((uint32_t)1U << 30U)
+/** [Software flag] Flag to indicate this entry is non-priority entry */
+#define IOPMP_ENTRY_NON_PRIO        ((uint32_t)1U << 31U)
 
-    /** Bit mask of all software flags */
-    IOPMP_ENTRY_SW_FLAGS_MASK = (IOPMP_ENTRY_FORCE_OFF | IOPMP_ENTRY_FIRST_TOR |
-                                 IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_PRIO |
-                                 IOPMP_ENTRY_NON_PRIO),
-};
+/** Bit mask of all software flags */
+#define IOPMP_ENTRY_SW_FLAGS_MASK   (IOPMP_ENTRY_FORCE_OFF |    \
+                                     IOPMP_ENTRY_FIRST_TOR |    \
+                                     IOPMP_ENTRY_FORCE_TOR |    \
+                                     IOPMP_ENTRY_PRIO |         \
+                                     IOPMP_ENTRY_NON_PRIO)
 
 /******************************************************************************/
 /* API Error codes                                                            */
@@ -2278,8 +2278,7 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num);
  */
 enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
                                     uint32_t num_entry, uint64_t addr,
-                                    uint64_t size,
-                                    enum iopmp_entry_flags flags,
+                                    uint64_t size, uint32_t flags,
                                     uint64_t private_data);
 
 /**

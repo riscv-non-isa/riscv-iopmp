@@ -1926,12 +1926,11 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
  */
 static int encode_entry_pow2(struct iopmp_entry *entry,
                              uint64_t addr, uint64_t size,
-                             enum iopmp_entry_flags hw_flags,
-                             enum iopmp_entry_flags sw_flags,
+                             uint32_t hw_flags, uint32_t sw_flags,
                              uint64_t private_data)
 {
     /* Encode entry_cfg */
-    enum iopmp_entry_flags match;
+    uint32_t match;
 
     if ((sw_flags & IOPMP_ENTRY_FORCE_OFF) != 0U) {
         match = IOPMP_ENTRY_A_OFF;
@@ -1972,8 +1971,7 @@ static int encode_entry_pow2(struct iopmp_entry *entry,
  */
 static int encode_entry_tor(struct iopmp_entry *entries,
                             uint64_t addr, uint64_t size,
-                            enum iopmp_entry_flags hw_flags,
-                            enum iopmp_entry_flags sw_flags,
+                            uint32_t hw_flags, uint32_t sw_flags,
                             uint64_t private_data)
 {
     uint32_t entry_cfg0;
@@ -2064,10 +2062,10 @@ static inline bool is_napot(uint64_t addr, uint64_t size)
 
 enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
                                     uint32_t num_entry, uint64_t addr,
-                                    uint64_t size, enum iopmp_entry_flags flags,
+                                    uint64_t size, uint32_t flags,
                                     uint64_t private_data)
 {
-    enum iopmp_entry_flags hw_flags, sw_flags;
+    uint32_t hw_flags, sw_flags;
 
     assert(iopmp_is_initialized(iopmp));
 
