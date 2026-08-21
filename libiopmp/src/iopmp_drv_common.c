@@ -419,7 +419,7 @@ static void detect_stall_function(IOPMP_t *iopmp)
      * HWCFG2.stall_en indicates if the IOPMP implements stall-related features,
      * which are MDSTALL, MDSTALLH, and RRIDSCP registers.
      */
-    if (iopmp->stall_en) {
+    if (iopmp->stall_en != 0U) {
         /* Assume all MDs selectable; iopmp_probe_stall_by_md() narrows it */
         iopmp->stall_md_mask = GENMASK_64((iopmp->md_num - 1), 0);
         /*
@@ -429,7 +429,7 @@ static void detect_stall_function(IOPMP_t *iopmp)
          * in this case.
          */
         io_write32(iopmp->addr + IOPMP_RRIDSCP_BASE, 0);
-        if (io_read32(iopmp->addr + IOPMP_RRIDSCP_BASE)) {
+        if (io_read32(iopmp->addr + IOPMP_RRIDSCP_BASE) != 0U) {
             iopmp->support_stall_by_rrid = true;
         } else {
             iopmp->support_stall_by_rrid = false;
@@ -453,20 +453,21 @@ enum iopmp_error detect_entry_addr_bits(IOPMP_t *iopmp)
     for (i = entrylck_f; i < iopmp->entry_num; i++) {
         entry = get_addr_of_entry(iopmp, i);
         /* One read per field, so a used entry costs a single read */
-        if (io_read32(entry + IOPMP_ENTRY_CFG_BASE)) {
+        if (io_read32(entry + IOPMP_ENTRY_CFG_BASE) != 0U) {
             continue;
         }
-        if (io_read32(entry + IOPMP_ENTRY_ADDR_BASE)) {
+        if (io_read32(entry + IOPMP_ENTRY_ADDR_BASE) != 0U) {
             continue;
         }
-        if (iopmp->addrh_en && io_read32(entry + IOPMP_ENTRY_ADDRH_BASE)) {
+        if ((iopmp->addrh_en != 0U) &&
+            (io_read32(entry + IOPMP_ENTRY_ADDRH_BASE) != 0U)) {
             continue;
         }
 
         io_write32(entry + IOPMP_ENTRY_ADDR_BASE, 0xFFFFFFFF);
         val = io_read32(entry + IOPMP_ENTRY_ADDR_BASE);
         io_write32(entry + IOPMP_ENTRY_ADDR_BASE, 0);       /* Clear */
-        if (iopmp->addrh_en) {
+        if (iopmp->addrh_en != 0U) {
             io_write32(entry + IOPMP_ENTRY_ADDRH_BASE, 0xFFFFFFFF);
             val |= (uint64_t)io_read32(entry + IOPMP_ENTRY_ADDRH_BASE) << 32;
             io_write32(entry + IOPMP_ENTRY_ADDRH_BASE, 0);  /* Clear */
@@ -477,7 +478,7 @@ enum iopmp_error detect_entry_addr_bits(IOPMP_t *iopmp)
     /* Every entry is locked or in use, so nothing can be probed. iopmp_ctzll()
      * below is undefined for zero, and a zero entry_addr_bits would reject
      * every address handed to iopmp_encode_entry() anyway */
-    if (!val) {
+    if (val == 0U) {
         return IOPMP_ERR_NOT_AVAILABLE;
     }
 
@@ -605,7 +606,7 @@ static enum iopmp_error stall_by_mds_common(IOPMP_t *iopmp, uint64_t *mds,
     mdstall = MAKE_FIELD_32(mdstall_md, IOPMP_MDSTALL_MD) |
               MAKE_FIELD_32(exempt, IOPMP_MDSTALL_EXEMPT);
     /* Write MD_STALLH first then MD_STALL to take effect. */
-    if (mdstallh) {
+    if (mdstallh != 0U) {
         io_write32(iopmp->addr + IOPMP_MDSTALLH_BASE, mdstallh);
     }
     io_write32(iopmp->addr + IOPMP_MDSTALL_BASE, mdstall);
@@ -614,7 +615,7 @@ static enum iopmp_error stall_by_mds_common(IOPMP_t *iopmp, uint64_t *mds,
      * MDSTALL.md and MDSTALLH.mdh are WARL fields. Read them back to check the
      * values.
      */
-    if (mdstallh) {
+    if (mdstallh != 0U) {
         rb_mdstallh = io_read32(iopmp->addr + IOPMP_MDSTALLH_BASE);
     } else {
         rb_mdstallh = 0;
@@ -640,7 +641,7 @@ static void polling_mdstall(IOPMP_t *iopmp)
 
     do {
         mdstall = io_read32(iopmp->addr + IOPMP_MDSTALL_BASE);
-    } while(EXTRACT_FIELD(mdstall, IOPMP_MDSTALL_IS_BUSY));
+    } while(EXTRACT_FIELD(mdstall, IOPMP_MDSTALL_IS_BUSY) != 0U);
 }
 
 enum iopmp_error generic_stall_by_mds(IOPMP_t *iopmp, uint64_t *mds,
@@ -783,7 +784,7 @@ enum iopmp_error generic_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
     err_cfg = io_read32(iopmp->addr + IOPMP_ERR_CFG_BASE);
     *msidata = EXTRACT_FIELD(err_cfg, IOPMP_ERR_CFG_MSIDATA);
 
-    if (!iopmp->addrh_en) {
+    if (iopmp->addrh_en == 0U) {
         /* Write bits 33 to 2 of the address into ERR_MSIADDR */
         err_msiaddr = msiaddr64_req >> 2;
         io_write32(iopmp->addr + IOPMP_ERR_MSIADDR_BASE, err_msiaddr);
@@ -856,7 +857,7 @@ enum iopmp_error generic_capture_error(IOPMP_t *iopmp,
 
     /* Read ERR_REQADDR, ERR_REQADDRH, and ERR_REQID from IOPMP */
     err_reqaddr  = io_read32(iopmp->addr + IOPMP_ERR_REQADDR_BASE);
-    if (iopmp->addrh_en) {
+    if (iopmp->addrh_en != 0U) {
         err_reqaddrh = io_read32(iopmp->addr + IOPMP_ERR_REQADDRH_BASE);
     } else {
         err_reqaddrh = 0;
@@ -904,7 +905,7 @@ enum iopmp_error generic_get_sv_window(IOPMP_t *iopmp, uint16_t *svi,
     io_write32(iopmp->addr + IOPMP_ERR_MFR_BASE, err_mfr);
 
     err_mfr = io_read32(iopmp->addr + IOPMP_ERR_MFR_BASE);
-    if (err_mfr & IOPMP_ERR_MFR_SVS_MASK) {
+    if ((err_mfr & IOPMP_ERR_MFR_SVS_MASK) != 0U) {
         /* Subsequent violation found */
         *svi = EXTRACT_FIELD(err_mfr, IOPMP_ERR_MFR_SVI);
         *svw = EXTRACT_FIELD(err_mfr, IOPMP_ERR_MFR_SVW);
@@ -924,7 +925,7 @@ enum iopmp_error generic_set_entries(IOPMP_t *iopmp,
     for (i = 0; i < num_entry; i++) {
         io_write32(e + IOPMP_ENTRY_CFG_BASE, 0);
         io_write32(e + IOPMP_ENTRY_ADDR_BASE, entry_array[i].addr & UINT32_MAX);
-        if (iopmp->addrh_en) {
+        if (iopmp->addrh_en != 0U) {
             io_write32(e + IOPMP_ENTRY_ADDRH_BASE, entry_array[i].addr >> 32);
         }
         io_write32(e + IOPMP_ENTRY_CFG_BASE, entry_array[i].cfg);
@@ -944,7 +945,7 @@ void generic_get_entries(IOPMP_t *iopmp, struct iopmp_entry *entry_array,
 
     for (i = 0; i < num_entry; i++) {
         /* Read ENTRY_ADDR(idx), ENTRY_ADDRH(idx), and ENTRY_CFG(idx) from IP */
-        if (iopmp->addrh_en) {
+        if (iopmp->addrh_en != 0U) {
             addrh = io_read32(e + IOPMP_ENTRY_ADDRH_BASE);
         }
         addr = io_read32(e + IOPMP_ENTRY_ADDR_BASE);
@@ -966,7 +967,7 @@ void generic_clear_entries(IOPMP_t *iopmp, uint32_t idx_start,
     for (i = 0; i < num_entry; i++) {
         io_write32(e + IOPMP_ENTRY_CFG_BASE, 0);
         io_write32(e + IOPMP_ENTRY_ADDR_BASE, 0);
-        if (iopmp->addrh_en) {
+        if (iopmp->addrh_en != 0U) {
             io_write32(e + IOPMP_ENTRY_ADDRH_BASE, 0);
         }
 
@@ -1021,7 +1022,7 @@ enum iopmp_error srcmd_fmt_0_2_set_md_lock(IOPMP_t *iopmp, uint64_t *mds,
     mdlck  = mdlck_64 & UINT32_MAX;
 
     /* Write MDLCKH first */
-    if (mdlckh) {
+    if (mdlckh != 0U) {
         io_write32(iopmp->addr + IOPMP_MDLCKH_BASE, mdlckh);
         /* MDLCKH.mdh is WARL. Read the value back to check */
         mdlckh = io_read32(iopmp->addr + IOPMP_MDLCKH_BASE);
@@ -1361,10 +1362,10 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
     iopmp->msidata = EXTRACT_FIELD(data, IOPMP_ERR_CFG_MSIDATA);
 
     /* Read ERR_MSIADDR and ERR_MSIADDRH */
-    if (iopmp->msi_en) {
+    if (iopmp->msi_en != 0U) {
         uint32_t msiaddr, msiaddrh = 0;
         msiaddr = io_read32(iopmp->addr + IOPMP_ERR_MSIADDR_BASE);
-        if (iopmp->addrh_en) {
+        if (iopmp->addrh_en != 0U) {
             msiaddrh = io_read32(iopmp->addr + IOPMP_ERR_MSIADDRH_BASE);
         } else {
             msiaddr = msiaddr << 2; /* ERR_MSIADDR contains address[33:2] */

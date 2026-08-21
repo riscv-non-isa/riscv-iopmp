@@ -649,7 +649,7 @@ bool libiopmp_check_version(int major, int minor, int extra);
  */
 static inline bool iopmp_is_initialized(IOPMP_t *iopmp)
 {
-    return (iopmp != NULL) && iopmp->init;
+    return (iopmp != NULL) && (iopmp->init != 0U);
 }
 
 /**
@@ -774,7 +774,7 @@ static inline bool iopmp_get_support_rrid_transl(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_support_chk_x(IOPMP_t *iopmp)
 {
-    return !iopmp->xinr;
+    return iopmp->xinr == 0U;
 }
 
 /**
