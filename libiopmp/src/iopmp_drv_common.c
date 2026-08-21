@@ -302,8 +302,9 @@ DECLARE_FUNC_READ_SRCMD_L(srcmd_x);
 #define DECLARE_FUNC_READ_SRCMD_H(name, condition)                      \
 static uint32_t read_ ## name(IOPMP_t *iopmp, uint32_t idx)             \
 {                                                                       \
-    if (condition)                                                      \
+    if (condition) {                                                    \
         return io_read32(get_addr_of_##name(iopmp, idx));               \
+    }                                                                   \
     return 0;                                                           \
 }
 DECLARE_FUNC_READ_SRCMD_H(srcmd_enh,   (iopmp->md_num > 31));
@@ -342,8 +343,9 @@ DECLARE_FUNC_WRITE_SRCMD_L(srcmd_x);
 #define DECLARE_FUNC_WRITE_SRCMD_H(name, condition)                     \
 static void write_ ## name(IOPMP_t *iopmp, uint32_t idx, uint32_t val)  \
 {                                                                       \
-    if (condition)                                                      \
+    if (condition) {                                                    \
         io_write32(get_addr_of_##name(iopmp, idx), val);                \
+    }                                                                   \
 }
 DECLARE_FUNC_WRITE_SRCMD_H(srcmd_enh,   (iopmp->md_num > 31));
 DECLARE_FUNC_WRITE_SRCMD_H(srcmd_permh, (iopmp->rrid_num > 16));
@@ -427,10 +429,11 @@ static void detect_stall_function(IOPMP_t *iopmp)
          * in this case.
          */
         io_write32(iopmp->addr + IOPMP_RRIDSCP_BASE, 0);
-        if (io_read32(iopmp->addr + IOPMP_RRIDSCP_BASE))
+        if (io_read32(iopmp->addr + IOPMP_RRIDSCP_BASE)) {
             iopmp->support_stall_by_rrid = true;
-        else
+        } else {
             iopmp->support_stall_by_rrid = false;
+        }
     } else {
         iopmp->stall_md_mask = 0;
         iopmp->support_stall_by_rrid = false;
@@ -450,12 +453,15 @@ enum iopmp_error detect_entry_addr_bits(IOPMP_t *iopmp)
     for (i = entrylck_f; i < iopmp->entry_num; i++) {
         entry = get_addr_of_entry(iopmp, i);
         /* One read per field, so a used entry costs a single read */
-        if (io_read32(entry + IOPMP_ENTRY_CFG_BASE))
+        if (io_read32(entry + IOPMP_ENTRY_CFG_BASE)) {
             continue;
-        if (io_read32(entry + IOPMP_ENTRY_ADDR_BASE))
+        }
+        if (io_read32(entry + IOPMP_ENTRY_ADDR_BASE)) {
             continue;
-        if (iopmp->addrh_en && io_read32(entry + IOPMP_ENTRY_ADDRH_BASE))
+        }
+        if (iopmp->addrh_en && io_read32(entry + IOPMP_ENTRY_ADDRH_BASE)) {
             continue;
+        }
 
         io_write32(entry + IOPMP_ENTRY_ADDR_BASE, 0xFFFFFFFF);
         val = io_read32(entry + IOPMP_ENTRY_ADDR_BASE);
@@ -471,8 +477,9 @@ enum iopmp_error detect_entry_addr_bits(IOPMP_t *iopmp)
     /* Every entry is locked or in use, so nothing can be probed. iopmp_ctzll()
      * below is undefined for zero, and a zero entry_addr_bits would reject
      * every address handed to iopmp_encode_entry() anyway */
-    if (!val)
+    if (!val) {
         return IOPMP_ERR_NOT_AVAILABLE;
+    }
 
     iopmp->entry_addr_bits = val;
 
@@ -551,21 +558,24 @@ static enum iopmp_error __resume_transactions(IOPMP_t *iopmp)
 {
     uint32_t rb_mdstallh, rb_mdstall_md;
 
-    if (iopmp->md_num > 31)
+    if (iopmp->md_num > 31) {
         io_write32(iopmp->addr + IOPMP_MDSTALLH_BASE, 0);
+    }
     io_write32(iopmp->addr + IOPMP_MDSTALL_BASE, 0);
     /*
      * MDSTALL.md and MDSTALLH.mdh are WARL fields. Read them back to check the
      * values.
      */
-    if (iopmp->md_num > 31)
+    if (iopmp->md_num > 31) {
         rb_mdstallh = io_read32(iopmp->addr + IOPMP_MDSTALLH_BASE);
-    else
+    } else {
         rb_mdstallh = 0;
+    }
     rb_mdstall_md = io_read32(iopmp->addr + IOPMP_MDSTALL_BASE);
     rb_mdstall_md = EXTRACT_FIELD(rb_mdstall_md, IOPMP_MDSTALL_MD);
-    if (rb_mdstallh != 0 || rb_mdstall_md != 0)
+    if (rb_mdstallh != 0 || rb_mdstall_md != 0) {
         return IOPMP_ERR_ILLEGAL_VALUE;
+    }
 
     return IOPMP_OK;
 }
@@ -594,18 +604,20 @@ static enum iopmp_error __stall_by_mds_common(IOPMP_t *iopmp, uint64_t *mds,
     mdstall = MAKE_FIELD_32(mdstall_md, IOPMP_MDSTALL_MD) |
               MAKE_FIELD_32(exempt, IOPMP_MDSTALL_EXEMPT);
     /* Write MD_STALLH first then MD_STALL to take effect. */
-    if (mdstallh)
+    if (mdstallh) {
         io_write32(iopmp->addr + IOPMP_MDSTALLH_BASE, mdstallh);
+    }
     io_write32(iopmp->addr + IOPMP_MDSTALL_BASE, mdstall);
 
     /*
      * MDSTALL.md and MDSTALLH.mdh are WARL fields. Read them back to check the
      * values.
      */
-    if (mdstallh)
+    if (mdstallh) {
         rb_mdstallh = io_read32(iopmp->addr + IOPMP_MDSTALLH_BASE);
-    else
+    } else {
         rb_mdstallh = 0;
+    }
     rb_mdstall_md = io_read32(iopmp->addr + IOPMP_MDSTALL_BASE);
     rb_mdstall_md = EXTRACT_FIELD(rb_mdstall_md, IOPMP_MDSTALL_MD);
     *mds = ((uint64_t)rb_mdstallh << 31) | rb_mdstall_md;
@@ -636,11 +648,13 @@ enum iopmp_error generic_stall_by_mds(IOPMP_t *iopmp, uint64_t *mds,
     enum iopmp_error ret;
 
     ret = __stall_by_mds_common(iopmp, mds, exempt);
-    if (ret != IOPMP_OK)
+    if (ret != IOPMP_OK) {
         return ret;
+    }
 
-    if (polling)
+    if (polling) {
         __polling_mdstall(iopmp);
+    }
 
     return IOPMP_OK;
 }
@@ -650,11 +664,13 @@ enum iopmp_error generic_resume_transactions(IOPMP_t *iopmp, bool polling)
     enum iopmp_error ret;
 
     ret = __resume_transactions(iopmp);
-    if (ret != IOPMP_OK)
+    if (ret != IOPMP_OK) {
         return ret;
+    }
 
-    if (polling)
+    if (polling) {
         __polling_mdstall(iopmp);
+    }
 
     return IOPMP_OK;
 }
@@ -833,15 +849,17 @@ enum iopmp_error generic_capture_error(IOPMP_t *iopmp,
 
     /* Check ERR_INFO.v first */
     err_info = io_read32(iopmp->addr + IOPMP_ERR_INFO_BASE);
-    if ((err_info & IOPMP_ERR_INFO_V_MASK) == 0)
+    if ((err_info & IOPMP_ERR_INFO_V_MASK) == 0) {
         return IOPMP_ERR_NOT_EXIST; /* No pending error */
+    }
 
     /* Read ERR_REQADDR, ERR_REQADDRH, and ERR_REQID from IOPMP */
     err_reqaddr  = io_read32(iopmp->addr + IOPMP_ERR_REQADDR_BASE);
-    if (iopmp->addrh_en)
+    if (iopmp->addrh_en) {
         err_reqaddrh = io_read32(iopmp->addr + IOPMP_ERR_REQADDRH_BASE);
-    else
+    } else {
         err_reqaddrh = 0;
+    }
     /* Read ERR_REQID from IOPMP */
     err_reqid = io_read32(iopmp->addr + IOPMP_ERR_REQID_BASE);
 
@@ -875,8 +893,9 @@ enum iopmp_error generic_get_sv_window(IOPMP_t *iopmp, uint16_t *svi,
 
     err_info = io_read32(iopmp->addr + IOPMP_ERR_INFO_BASE);
     svc = EXTRACT_FIELD(err_info, IOPMP_ERR_INFO_SVC);
-    if (!svc)
+    if (!svc) {
         return IOPMP_ERR_NOT_EXIST;
+    }
 
     /* Set original position */
     err_mfr = MAKE_FIELD_32(*svi, IOPMP_ERR_MFR_SVI);
@@ -903,8 +922,9 @@ enum iopmp_error generic_set_entries(IOPMP_t *iopmp,
     for (i = 0; i < num_entry; i++) {
         io_write32(e + IOPMP_ENTRY_CFG_BASE, 0);
         io_write32(e + IOPMP_ENTRY_ADDR_BASE, entry_array[i].addr & UINT32_MAX);
-        if (iopmp->addrh_en)
+        if (iopmp->addrh_en) {
             io_write32(e + IOPMP_ENTRY_ADDRH_BASE, entry_array[i].addr >> 32);
+        }
         io_write32(e + IOPMP_ENTRY_CFG_BASE, entry_array[i].cfg);
 
         e += IOPMP_ENTRY_STRIDE;
@@ -922,8 +942,9 @@ void generic_get_entries(IOPMP_t *iopmp, struct iopmp_entry *entry_array,
 
     for (i = 0; i < num_entry; i++) {
         /* Read ENTRY_ADDR(idx), ENTRY_ADDRH(idx), and ENTRY_CFG(idx) from IP */
-        if (iopmp->addrh_en)
+        if (iopmp->addrh_en) {
             addrh = io_read32(e + IOPMP_ENTRY_ADDRH_BASE);
+        }
         addr = io_read32(e + IOPMP_ENTRY_ADDR_BASE);
         cfg  = io_read32(e + IOPMP_ENTRY_CFG_BASE);
         /* Store into data structure */
@@ -943,8 +964,9 @@ void generic_clear_entries(IOPMP_t *iopmp, uint32_t idx_start,
     for (i = 0; i < num_entry; i++) {
         io_write32(e + IOPMP_ENTRY_CFG_BASE, 0);
         io_write32(e + IOPMP_ENTRY_ADDR_BASE, 0);
-        if (iopmp->addrh_en)
+        if (iopmp->addrh_en) {
             io_write32(e + IOPMP_ENTRY_ADDRH_BASE, 0);
+        }
 
         e += IOPMP_ENTRY_STRIDE;
     }
@@ -990,8 +1012,9 @@ enum iopmp_error srcmd_fmt_0_2_set_md_lock(IOPMP_t *iopmp, uint64_t *mds,
 
     /* Set bits of new MDs and MDLCK.l */
     mdlck_64 = (__mds << IOPMP_MDLCK_MD_SHIFT);
-    if (lock_mdlck)
+    if (lock_mdlck) {
         mdlck_64 |= IOPMP_MDLCK_L_MASK;
+    }
     mdlckh = mdlck_64 >> 32;
     mdlck  = mdlck_64 & UINT32_MAX;
 
@@ -1120,8 +1143,9 @@ enum iopmp_error srcmd_fmt_2_set_md_permission(IOPMP_t *iopmp, uint32_t rrid,
         srcmd_perm = read_srcmd_perm(iopmp, mdidx);
         *r = ((srcmd_perm & mask) >> shift) & 0b1;
         *w = ((srcmd_perm & mask) >> (shift + 1)) & 0b1;
-        if (__r != *r || __w != *w)
+        if (__r != *r || __w != *w) {
             return IOPMP_ERR_ILLEGAL_VALUE;
+        }
     } else {
         srcmd_perm = read_srcmd_permh(iopmp, mdidx);
         shift = (rrid - 16) << 1;
@@ -1133,8 +1157,9 @@ enum iopmp_error srcmd_fmt_2_set_md_permission(IOPMP_t *iopmp, uint32_t rrid,
         srcmd_perm = read_srcmd_permh(iopmp, mdidx);
         *r = ((srcmd_perm & mask) >> shift) & 0b1;
         *w = ((srcmd_perm & mask) >> (shift + 1)) & 0b1;
-        if (__r != *r || __w != *w)
+        if (__r != *r || __w != *w) {
             return IOPMP_ERR_ILLEGAL_VALUE;
+        }
     }
 
     return IOPMP_OK;
@@ -1252,8 +1277,9 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
         hwcfg3_srcmd_fmt = IOPMP_SRCMD_FMT_0;
     }
 
-    if (srcmd_fmt != hwcfg3_srcmd_fmt || mdcfg_fmt != hwcfg3_mdcfg_fmt)
+    if (srcmd_fmt != hwcfg3_srcmd_fmt || mdcfg_fmt != hwcfg3_mdcfg_fmt) {
         return IOPMP_ERR_NOT_SUPPORTED;
+    }
 
     /* Set base address and address width of IOPMP */
     iopmp->addr = addr;
@@ -1336,10 +1362,11 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
     if (iopmp->msi_en) {
         uint32_t msiaddr, msiaddrh = 0;
         msiaddr = io_read32(iopmp->addr + IOPMP_ERR_MSIADDR_BASE);
-        if (iopmp->addrh_en)
+        if (iopmp->addrh_en) {
             msiaddrh = io_read32(iopmp->addr + IOPMP_ERR_MSIADDRH_BASE);
-        else
+        } else {
             msiaddr = msiaddr << 2; /* ERR_MSIADDR contains address[33:2] */
+        }
         iopmp->msiaddr64 = (uint64_t)msiaddrh << 32 | msiaddr;
     }
 
@@ -1352,10 +1379,11 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
         uint64_t mdlck_64;
 
         mdlck = io_read32(iopmp->addr + IOPMP_MDLCK_BASE);
-        if (iopmp->md_num > 31)
+        if (iopmp->md_num > 31) {
             mdlckh = io_read32(iopmp->addr + IOPMP_MDLCKH_BASE);
-        else
+        } else {
             mdlckh = 0;
+        }
         mdlck_64 = ((uint64_t)mdlckh << 32) | mdlck;
 
         iopmp->mdlck_lock = EXTRACT_FIELD(mdlck, IOPMP_MDLCK_L);
@@ -1381,8 +1409,9 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
 
     /* Detect implemented bits of ENTRY_ADDR(H) */
     ret = detect_entry_addr_bits(iopmp);
-    if (ret != IOPMP_OK)
+    if (ret != IOPMP_OK) {
         return ret;
+    }
 
     iopmp->init = true;
     return IOPMP_OK;

@@ -28,7 +28,9 @@ static inline void __assert_func(const char *filename,
     printf("%s:%d: assertion \"%s\" failed in function %s\n",
            filename, line, expr, assert_func);
 
-    while(1);
+    while (1) {
+        /* A failed assertion is not recoverable: hang here */
+    }
 }
 /* GCOVR_EXCL_STOP */
 
