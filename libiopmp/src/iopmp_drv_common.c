@@ -23,241 +23,241 @@
 /* Memory-mapped offsets for standard IOPMP                                   */
 /******************************************************************************/
 /* INFO Registers */
-#define IOPMP_VERSION_BASE                      0x0000
-    #define IOPMP_VERSION_VENDOR_SHIFT          0
-    #define IOPMP_VERSION_VENDOR_MASK           GENMASK_32(23, 0)
-    #define IOPMP_VERSION_SPECVER_SHIFT         24
-    #define IOPMP_VERSION_SPECVER_MASK          GENMASK_32(31, 24)
+#define IOPMP_VERSION_BASE                      0x0000U
+    #define IOPMP_VERSION_VENDOR_SHIFT          0U
+    #define IOPMP_VERSION_VENDOR_MASK           GENMASK_32(23U, 0U)
+    #define IOPMP_VERSION_SPECVER_SHIFT         24U
+    #define IOPMP_VERSION_SPECVER_MASK          GENMASK_32(31U, 24U)
 
-#define IOPMP_IMPLEMENTATION_BASE               0x0004
-    #define IOPMP_IMPLEMENTATION_IMPID_SHIFT    0
-    #define IOPMP_IMPLEMENTATION_IMPID_MASK     GENMASK_32(31, 0)
+#define IOPMP_IMPLEMENTATION_BASE               0x0004U
+    #define IOPMP_IMPLEMENTATION_IMPID_SHIFT    0U
+    #define IOPMP_IMPLEMENTATION_IMPID_MASK     GENMASK_32(31U, 0U)
 
-#define IOPMP_HWCFG0_BASE                       0x0008
-    #define IOPMP_HWCFG0_ENABLE_SHIFT           0
-    #define IOPMP_HWCFG0_ENABLE_MASK            GENMASK_32(0, 0)
-    #define IOPMP_HWCFG0_HWCFG2_EN_SHIFT        1
-    #define IOPMP_HWCFG0_HWCFG2_EN_MASK         GENMASK_32(1, 1)
-    #define IOPMP_HWCFG0_HWCFG3_EN_SHIFT        2
-    #define IOPMP_HWCFG0_HWCFG3_EN_MASK         GENMASK_32(2, 2)
-    #define IOPMP_HWCFG0_NO_ERR_REC_SHIFT       23
-    #define IOPMP_HWCFG0_NO_ERR_REC_MASK        GENMASK_32(23, 23)
-    #define IOPMP_HWCFG0_MD_NUM_SHIFT           24
-    #define IOPMP_HWCFG0_MD_NUM_MASK            GENMASK_32(29, 24)
-    #define IOPMP_HWCFG0_ADDRH_EN_SHIFT         30
-    #define IOPMP_HWCFG0_ADDRH_EN_MASK          GENMASK_32(30, 30)
-    #define IOPMP_HWCFG0_TOR_EN_SHIFT           31
-    #define IOPMP_HWCFG0_TOR_EN_MASK            GENMASK_32(31, 31)
+#define IOPMP_HWCFG0_BASE                       0x0008U
+    #define IOPMP_HWCFG0_ENABLE_SHIFT           0U
+    #define IOPMP_HWCFG0_ENABLE_MASK            GENMASK_32(0U, 0U)
+    #define IOPMP_HWCFG0_HWCFG2_EN_SHIFT        1U
+    #define IOPMP_HWCFG0_HWCFG2_EN_MASK         GENMASK_32(1U, 1U)
+    #define IOPMP_HWCFG0_HWCFG3_EN_SHIFT        2U
+    #define IOPMP_HWCFG0_HWCFG3_EN_MASK         GENMASK_32(2U, 2U)
+    #define IOPMP_HWCFG0_NO_ERR_REC_SHIFT       23U
+    #define IOPMP_HWCFG0_NO_ERR_REC_MASK        GENMASK_32(23U, 23U)
+    #define IOPMP_HWCFG0_MD_NUM_SHIFT           24U
+    #define IOPMP_HWCFG0_MD_NUM_MASK            GENMASK_32(29U, 24U)
+    #define IOPMP_HWCFG0_ADDRH_EN_SHIFT         30U
+    #define IOPMP_HWCFG0_ADDRH_EN_MASK          GENMASK_32(30U, 30U)
+    #define IOPMP_HWCFG0_TOR_EN_SHIFT           31U
+    #define IOPMP_HWCFG0_TOR_EN_MASK            GENMASK_32(31U, 31U)
 
-#define IOPMP_HWCFG1_BASE                       0x000C
-    #define IOPMP_HWCFG1_RRID_NUM_SHIFT         0
-    #define IOPMP_HWCFG1_RRID_NUM_MASK          GENMASK_32(15, 0)
-    #define IOPMP_HWCFG1_ENTRY_NUM_SHIFT        16
-    #define IOPMP_HWCFG1_ENTRY_NUM_MASK         GENMASK_32(31, 16)
+#define IOPMP_HWCFG1_BASE                       0x000CU
+    #define IOPMP_HWCFG1_RRID_NUM_SHIFT         0U
+    #define IOPMP_HWCFG1_RRID_NUM_MASK          GENMASK_32(15U, 0U)
+    #define IOPMP_HWCFG1_ENTRY_NUM_SHIFT        16U
+    #define IOPMP_HWCFG1_ENTRY_NUM_MASK         GENMASK_32(31U, 16U)
 
-#define IOPMP_HWCFG2_BASE                       0x0010
-    #define IOPMP_HWCFG2_PRIO_ENTRY_SHIFT       0
-    #define IOPMP_HWCFG2_PRIO_ENTRY_MASK        GENMASK_32(15, 0)
-    #define IOPMP_HWCFG2_PRIO_ENT_PROG_SHIFT    16
-    #define IOPMP_HWCFG2_PRIO_ENT_PROG_MASK     GENMASK_32(16, 16)
-    #define IOPMP_HWCFG2_NON_PRIO_EN_SHIFT      17
-    #define IOPMP_HWCFG2_NON_PRIO_EN_MASK       GENMASK_32(17, 17)
-    #define IOPMP_HWCFG2_MSI_EN_SHIFT           26
-    #define IOPMP_HWCFG2_MSI_EN_MASK            GENMASK_32(26, 26)
-    #define IOPMP_HWCFG2_PEIS_SHIFT             27
-    #define IOPMP_HWCFG2_PEIS_MASK              GENMASK_32(27, 27)
-    #define IOPMP_HWCFG2_PEES_SHIFT             28
-    #define IOPMP_HWCFG2_PEES_MASK              GENMASK_32(28, 28)
-    #define IOPMP_HWCFG2_SPS_EN_SHIFT           29
-    #define IOPMP_HWCFG2_SPS_EN_MASK            GENMASK_32(29, 29)
-    #define IOPMP_HWCFG2_STALL_EN_SHIFT         30
-    #define IOPMP_HWCFG2_STALL_EN_MASK          GENMASK_32(30, 30)
-    #define IOPMP_HWCFG2_MFR_EN_SHIFT           31
-    #define IOPMP_HWCFG2_MFR_EN_MASK            GENMASK_32(31, 31)
+#define IOPMP_HWCFG2_BASE                       0x0010U
+    #define IOPMP_HWCFG2_PRIO_ENTRY_SHIFT       0U
+    #define IOPMP_HWCFG2_PRIO_ENTRY_MASK        GENMASK_32(15U, 0U)
+    #define IOPMP_HWCFG2_PRIO_ENT_PROG_SHIFT    16U
+    #define IOPMP_HWCFG2_PRIO_ENT_PROG_MASK     GENMASK_32(16U, 16U)
+    #define IOPMP_HWCFG2_NON_PRIO_EN_SHIFT      17U
+    #define IOPMP_HWCFG2_NON_PRIO_EN_MASK       GENMASK_32(17U, 17U)
+    #define IOPMP_HWCFG2_MSI_EN_SHIFT           26U
+    #define IOPMP_HWCFG2_MSI_EN_MASK            GENMASK_32(26U, 26U)
+    #define IOPMP_HWCFG2_PEIS_SHIFT             27U
+    #define IOPMP_HWCFG2_PEIS_MASK              GENMASK_32(27U, 27U)
+    #define IOPMP_HWCFG2_PEES_SHIFT             28U
+    #define IOPMP_HWCFG2_PEES_MASK              GENMASK_32(28U, 28U)
+    #define IOPMP_HWCFG2_SPS_EN_SHIFT           29U
+    #define IOPMP_HWCFG2_SPS_EN_MASK            GENMASK_32(29U, 29U)
+    #define IOPMP_HWCFG2_STALL_EN_SHIFT         30U
+    #define IOPMP_HWCFG2_STALL_EN_MASK          GENMASK_32(30U, 30U)
+    #define IOPMP_HWCFG2_MFR_EN_SHIFT           31U
+    #define IOPMP_HWCFG2_MFR_EN_MASK            GENMASK_32(31U, 31U)
 
-#define IOPMP_HWCFG3_BASE                       0x0014
-    #define IOPMP_HWCFG3_MDCFG_FMT_SHIFT        0
-    #define IOPMP_HWCFG3_MDCFG_FMT_MASK         GENMASK_32(1, 0)
-    #define IOPMP_HWCFG3_SRCMD_FMT_SHIFT        2
-    #define IOPMP_HWCFG3_SRCMD_FMT_MASK         GENMASK_32(3, 2)
-    #define IOPMP_HWCFG3_MD_ENTRY_NUM_SHIFT     4
-    #define IOPMP_HWCFG3_MD_ENTRY_NUM_MASK      GENMASK_32(10, 4)
-    #define IOPMP_HWCFG3_XINR_SHIFT             11
-    #define IOPMP_HWCFG3_XINR_MASK              GENMASK_32(11, 11)
-    #define IOPMP_HWCFG3_NO_X_SHIFT             12
-    #define IOPMP_HWCFG3_NO_X_MASK              GENMASK_32(12, 12)
-    #define IOPMP_HWCFG3_NO_W_SHIFT             13
-    #define IOPMP_HWCFG3_NO_W_MASK              GENMASK_32(13, 13)
-    #define IOPMP_HWCFG3_RRID_TRANSL_EN_SHIFT   14
-    #define IOPMP_HWCFG3_RRID_TRANSL_EN_MASK    GENMASK_32(14, 14)
-    #define IOPMP_HWCFG3_RRID_TRANSL_PROG_SHIFT 15
-    #define IOPMP_HWCFG3_RRID_TRANSL_PROG_MASK  GENMASK_32(15, 15)
-    #define IOPMP_HWCFG3_RRID_TRANSL_SHIFT      16
-    #define IOPMP_HWCFG3_RRID_TRANSL_MASK       GENMASK_32(31, 16)
+#define IOPMP_HWCFG3_BASE                       0x0014U
+    #define IOPMP_HWCFG3_MDCFG_FMT_SHIFT        0U
+    #define IOPMP_HWCFG3_MDCFG_FMT_MASK         GENMASK_32(1U, 0U)
+    #define IOPMP_HWCFG3_SRCMD_FMT_SHIFT        2U
+    #define IOPMP_HWCFG3_SRCMD_FMT_MASK         GENMASK_32(3U, 2U)
+    #define IOPMP_HWCFG3_MD_ENTRY_NUM_SHIFT     4U
+    #define IOPMP_HWCFG3_MD_ENTRY_NUM_MASK      GENMASK_32(10U, 4U)
+    #define IOPMP_HWCFG3_XINR_SHIFT             11U
+    #define IOPMP_HWCFG3_XINR_MASK              GENMASK_32(11U, 11U)
+    #define IOPMP_HWCFG3_NO_X_SHIFT             12U
+    #define IOPMP_HWCFG3_NO_X_MASK              GENMASK_32(12U, 12U)
+    #define IOPMP_HWCFG3_NO_W_SHIFT             13U
+    #define IOPMP_HWCFG3_NO_W_MASK              GENMASK_32(13U, 13U)
+    #define IOPMP_HWCFG3_RRID_TRANSL_EN_SHIFT   14U
+    #define IOPMP_HWCFG3_RRID_TRANSL_EN_MASK    GENMASK_32(14U, 14U)
+    #define IOPMP_HWCFG3_RRID_TRANSL_PROG_SHIFT 15U
+    #define IOPMP_HWCFG3_RRID_TRANSL_PROG_MASK  GENMASK_32(15U, 15U)
+    #define IOPMP_HWCFG3_RRID_TRANSL_SHIFT      16U
+    #define IOPMP_HWCFG3_RRID_TRANSL_MASK       GENMASK_32(31U, 16U)
 
-#define IOPMP_HWCFG_USER_BASE                   0x0028
-    #define IOPMP_HWCFG_USER_SHIFT              0
-    #define IOPMP_HWCFG_USER_MASK               GENMASK_32(31, 0)
+#define IOPMP_HWCFG_USER_BASE                   0x0028U
+    #define IOPMP_HWCFG_USER_SHIFT              0U
+    #define IOPMP_HWCFG_USER_MASK               GENMASK_32(31U, 0U)
 
-#define IOPMP_ENTRY_OFFSET_BASE                 0x002C
-    #define IOPMP_ENTRYOFFSET_SHIFT             0
-    #define IOPMP_ENTRYOFFSET_MASK              GENMASK_32(31, 0)
+#define IOPMP_ENTRY_OFFSET_BASE                 0x002CU
+    #define IOPMP_ENTRYOFFSET_SHIFT             0U
+    #define IOPMP_ENTRYOFFSET_MASK              GENMASK_32(31U, 0U)
 
 /* Programming Protection Registers */
-#define IOPMP_MDSTALL_BASE                      0x0030
-    #define IOPMP_MDSTALL_EXEMPT_SHIFT          0
-    #define IOPMP_MDSTALL_EXEMPT_MASK           GENMASK_32(0, 0)
-    #define IOPMP_MDSTALL_IS_BUSY_SHIFT         0
+#define IOPMP_MDSTALL_BASE                      0x0030U
+    #define IOPMP_MDSTALL_EXEMPT_SHIFT          0U
+    #define IOPMP_MDSTALL_EXEMPT_MASK           GENMASK_32(0U, 0U)
+    #define IOPMP_MDSTALL_IS_BUSY_SHIFT         0U
     #define IOPMP_MDSTALL_IS_BUSY_MASK          IOPMP_MDSTALL_EXEMPT_MASK
-    #define IOPMP_MDSTALL_MD_SHIFT              1
-    #define IOPMP_MDSTALL_MD_MASK               GENMASK_32(31, 1)
+    #define IOPMP_MDSTALL_MD_SHIFT              1U
+    #define IOPMP_MDSTALL_MD_MASK               GENMASK_32(31U, 1U)
 
-#define IOPMP_MDSTALLH_BASE                     0x0034
-    #define IOPMP_MDSTALLH_MDH_SHIFT            0
-    #define IOPMP_MDSTALLH_MDH_MASK             GENMASK_32(31, 0)
+#define IOPMP_MDSTALLH_BASE                     0x0034U
+    #define IOPMP_MDSTALLH_MDH_SHIFT            0U
+    #define IOPMP_MDSTALLH_MDH_MASK             GENMASK_32(31U, 0U)
 
-#define IOPMP_RRIDSCP_BASE                      0x0038
-    #define IOPMP_RRIDSCP_RRID_SHIFT            0
-    #define IOPMP_RRIDSCP_RRID_MASK             GENMASK_32(15, 0)
-    #define IOPMP_RRIDSCP_OP_SHIFT              30
-    #define IOPMP_RRIDSCP_OP_MASK               GENMASK_32(31, 30)
+#define IOPMP_RRIDSCP_BASE                      0x0038U
+    #define IOPMP_RRIDSCP_RRID_SHIFT            0U
+    #define IOPMP_RRIDSCP_RRID_MASK             GENMASK_32(15U, 0U)
+    #define IOPMP_RRIDSCP_OP_SHIFT              30U
+    #define IOPMP_RRIDSCP_OP_MASK               GENMASK_32(31U, 30U)
     #define IOPMP_RRIDSCP_STAT_SHIFT            IOPMP_RRIDSCP_OP_SHIFT
     #define IOPMP_RRIDSCP_STAT_MASK             IOPMP_RRIDSCP_OP_MASK
 
 /* Configuration Protection Registers */
-#define IOPMP_MDLCK_BASE                        0x0040
-    #define IOPMP_MDLCK_L_SHIFT                 0
-    #define IOPMP_MDLCK_L_MASK                  GENMASK_32(0, 0)
-    #define IOPMP_MDLCK_MD_SHIFT                1
-    #define IOPMP_MDLCK_MD_MASK                 GENMASK_32(31, 1)
+#define IOPMP_MDLCK_BASE                        0x0040U
+    #define IOPMP_MDLCK_L_SHIFT                 0U
+    #define IOPMP_MDLCK_L_MASK                  GENMASK_32(0U, 0U)
+    #define IOPMP_MDLCK_MD_SHIFT                1U
+    #define IOPMP_MDLCK_MD_MASK                 GENMASK_32(31U, 1U)
 
-#define IOPMP_MDLCKH_BASE                       0x0044
-    #define IOPMP_MDLCKH_MDH_SHIFT              0
-    #define IOPMP_MDLCKH_MDH_MASK               GENMASK_32(31, 0)
+#define IOPMP_MDLCKH_BASE                       0x0044U
+    #define IOPMP_MDLCKH_MDH_SHIFT              0U
+    #define IOPMP_MDLCKH_MDH_MASK               GENMASK_32(31U, 0U)
 
-#define IOPMP_MDCFGLCK_BASE                     0x0048
-    #define IOPMP_MDCFGLCK_L_SHIFT              0
-    #define IOPMP_MDCFGLCK_L_MASK               GENMASK_32(0, 0)
-    #define IOPMP_MDCFGLCK_F_SHIFT              1
-    #define IOPMP_MDCFGLCK_F_MASK               GENMASK_32(7, 1)
+#define IOPMP_MDCFGLCK_BASE                     0x0048U
+    #define IOPMP_MDCFGLCK_L_SHIFT              0U
+    #define IOPMP_MDCFGLCK_L_MASK               GENMASK_32(0U, 0U)
+    #define IOPMP_MDCFGLCK_F_SHIFT              1U
+    #define IOPMP_MDCFGLCK_F_MASK               GENMASK_32(7U, 1U)
 
-#define IOPMP_ENTRYLCK_BASE                     0x004C
-    #define IOPMP_ENTRYLCK_L_SHIFT              0
-    #define IOPMP_ENTRYLCK_L_MASK               GENMASK_32(0, 0)
-    #define IOPMP_ENTRYLCK_F_SHIFT              1
-    #define IOPMP_ENTRYLCK_F_MASK               GENMASK_32(16, 1)
+#define IOPMP_ENTRYLCK_BASE                     0x004CU
+    #define IOPMP_ENTRYLCK_L_SHIFT              0U
+    #define IOPMP_ENTRYLCK_L_MASK               GENMASK_32(0U, 0U)
+    #define IOPMP_ENTRYLCK_F_SHIFT              1U
+    #define IOPMP_ENTRYLCK_F_MASK               GENMASK_32(16U, 1U)
 
 /* Error Capture Registers */
-#define IOPMP_ERR_CFG_BASE                      0x0060
-    #define IOPMP_ERR_CFG_L_SHIFT               0
-    #define IOPMP_ERR_CFG_L_MASK                GENMASK_32(0, 0)
-    #define IOPMP_ERR_CFG_IE_SHIFT              1
-    #define IOPMP_ERR_CFG_IE_MASK               GENMASK_32(1, 1)
-    #define IOPMP_ERR_CFG_RS_SHIFT              2
-    #define IOPMP_ERR_CFG_RS_MASK               GENMASK_32(2, 2)
-    #define IOPMP_ERR_CFG_MSI_SEL_SHIFT         3
-    #define IOPMP_ERR_CFG_MSI_SEL_MASK          GENMASK_32(3, 3)
-    #define IOPMP_ERR_CFG_STALL_VIO_EN_SHIFT    4
-    #define IOPMP_ERR_CFG_STALL_VIO_EN_MASK     GENMASK_32(4, 4)
-    #define IOPMP_ERR_CFG_MSIDATA_SHIFT         8
-    #define IOPMP_ERR_CFG_MSIDATA_MASK          GENMASK_32(18, 8)
+#define IOPMP_ERR_CFG_BASE                      0x0060U
+    #define IOPMP_ERR_CFG_L_SHIFT               0U
+    #define IOPMP_ERR_CFG_L_MASK                GENMASK_32(0U, 0U)
+    #define IOPMP_ERR_CFG_IE_SHIFT              1U
+    #define IOPMP_ERR_CFG_IE_MASK               GENMASK_32(1U, 1U)
+    #define IOPMP_ERR_CFG_RS_SHIFT              2U
+    #define IOPMP_ERR_CFG_RS_MASK               GENMASK_32(2U, 2U)
+    #define IOPMP_ERR_CFG_MSI_SEL_SHIFT         3U
+    #define IOPMP_ERR_CFG_MSI_SEL_MASK          GENMASK_32(3U, 3U)
+    #define IOPMP_ERR_CFG_STALL_VIO_EN_SHIFT    4U
+    #define IOPMP_ERR_CFG_STALL_VIO_EN_MASK     GENMASK_32(4U, 4U)
+    #define IOPMP_ERR_CFG_MSIDATA_SHIFT         8U
+    #define IOPMP_ERR_CFG_MSIDATA_MASK          GENMASK_32(18U, 8U)
 
-#define IOPMP_ERR_INFO_BASE                         0x0064
-    #define IOPMP_ERR_INFO_V_SHIFT                  0
-    #define IOPMP_ERR_INFO_V_MASK                   GENMASK_32(0, 0)
-    #define IOPMP_ERR_INFO_TTYPE_SHIFT              1
-    #define IOPMP_ERR_INFO_TTYPE_MASK               GENMASK_32(2, 1)
-    #define IOPMP_ERR_INFO_MSI_WERR_SHIFT           3
-    #define IOPMP_ERR_INFO_MSI_WERR_MASK            GENMASK_32(3, 3)
-    #define IOPMP_ERR_INFO_ETYPE_SHIFT              4
-    #define IOPMP_ERR_INFO_ETYPE_MASK               GENMASK_32(7, 4)
-    #define IOPMP_ERR_INFO_SVC_SHIFT                8
-    #define IOPMP_ERR_INFO_SVC_MASK                 GENMASK_32(8, 8)
+#define IOPMP_ERR_INFO_BASE                         0x0064U
+    #define IOPMP_ERR_INFO_V_SHIFT                  0U
+    #define IOPMP_ERR_INFO_V_MASK                   GENMASK_32(0U, 0U)
+    #define IOPMP_ERR_INFO_TTYPE_SHIFT              1U
+    #define IOPMP_ERR_INFO_TTYPE_MASK               GENMASK_32(2U, 1U)
+    #define IOPMP_ERR_INFO_MSI_WERR_SHIFT           3U
+    #define IOPMP_ERR_INFO_MSI_WERR_MASK            GENMASK_32(3U, 3U)
+    #define IOPMP_ERR_INFO_ETYPE_SHIFT              4U
+    #define IOPMP_ERR_INFO_ETYPE_MASK               GENMASK_32(7U, 4U)
+    #define IOPMP_ERR_INFO_SVC_SHIFT                8U
+    #define IOPMP_ERR_INFO_SVC_MASK                 GENMASK_32(8U, 8U)
 
-#define IOPMP_ERR_REQADDR_BASE                      0x0068
-    #define IOPMP_ERR_REQADDR_SHIFT                 0
-    #define IOPMP_ERR_REQADDR_MASK                  GENMASK_32(31, 0)
+#define IOPMP_ERR_REQADDR_BASE                      0x0068U
+    #define IOPMP_ERR_REQADDR_SHIFT                 0U
+    #define IOPMP_ERR_REQADDR_MASK                  GENMASK_32(31U, 0U)
 
-#define IOPMP_ERR_REQADDRH_BASE                     0x006C
-    #define IOPMP_ERR_REQADDRH_SHIFT                0
-    #define IOPMP_ERR_REQADDRH_MASK                 GENMASK_32(31, 0)
+#define IOPMP_ERR_REQADDRH_BASE                     0x006CU
+    #define IOPMP_ERR_REQADDRH_SHIFT                0U
+    #define IOPMP_ERR_REQADDRH_MASK                 GENMASK_32(31U, 0U)
 
-#define IOPMP_ERR_REQID_BASE                        0x0070
-    #define IOPMP_ERR_REQID_RRID_SHIFT              0
-    #define IOPMP_ERR_REQID_RRID_MASK               GENMASK_32(15, 0)
-    #define IOPMP_ERR_REQID_EID_SHIFT               16
-    #define IOPMP_ERR_REQID_EID_MASK                GENMASK_32(31, 16)
+#define IOPMP_ERR_REQID_BASE                        0x0070U
+    #define IOPMP_ERR_REQID_RRID_SHIFT              0U
+    #define IOPMP_ERR_REQID_RRID_MASK               GENMASK_32(15U, 0U)
+    #define IOPMP_ERR_REQID_EID_SHIFT               16U
+    #define IOPMP_ERR_REQID_EID_MASK                GENMASK_32(31U, 16U)
 
-#define IOPMP_ERR_MFR_BASE                          0x0074
-    #define IOPMP_ERR_MFR_SVW_SHIFT                 0
-    #define IOPMP_ERR_MFR_SVW_MASK                  GENMASK_32(15, 0)
-    #define IOPMP_ERR_MFR_SVI_SHIFT                 16
-    #define IOPMP_ERR_MFR_SVI_MASK                  GENMASK_32(27, 16)
-    #define IOPMP_ERR_MFR_SVS_SHIFT                 31
-    #define IOPMP_ERR_MFR_SVS_MASK                  GENMASK_32(31, 31)
+#define IOPMP_ERR_MFR_BASE                          0x0074U
+    #define IOPMP_ERR_MFR_SVW_SHIFT                 0U
+    #define IOPMP_ERR_MFR_SVW_MASK                  GENMASK_32(15U, 0U)
+    #define IOPMP_ERR_MFR_SVI_SHIFT                 16U
+    #define IOPMP_ERR_MFR_SVI_MASK                  GENMASK_32(27U, 16U)
+    #define IOPMP_ERR_MFR_SVS_SHIFT                 31U
+    #define IOPMP_ERR_MFR_SVS_MASK                  GENMASK_32(31U, 31U)
 
-#define IOPMP_ERR_MSIADDR_BASE                      0x0078
+#define IOPMP_ERR_MSIADDR_BASE                      0x0078U
 
-#define IOPMP_ERR_MSIADDRH_BASE                     0x007C
+#define IOPMP_ERR_MSIADDRH_BASE                     0x007CU
 
-#define IOPMP_ERR_USER_BASE                         0x0080
-    #define IOPMP_ERR_USER_USER_SHIFT               0
-    #define IOPMP_ERR_USER_USER_MASK                GENMASK_32(31, 0)
+#define IOPMP_ERR_USER_BASE                         0x0080U
+    #define IOPMP_ERR_USER_USER_SHIFT               0U
+    #define IOPMP_ERR_USER_USER_MASK                GENMASK_32(31U, 0U)
 
 /* MDCFG Table */
-#define IOPMP_MDCFG_BASE                            0x0800
-    #define IOPMP_MDCFG_T_SHIFT                     0
-    #define IOPMP_MDCFG_T_MASK                      GENMASK_32(15, 0)
+#define IOPMP_MDCFG_BASE                            0x0800U
+    #define IOPMP_MDCFG_T_SHIFT                     0U
+    #define IOPMP_MDCFG_T_MASK                      GENMASK_32(15U, 0U)
 
-#define IOPMP_MDCFG_STRIDE                          0x4
+#define IOPMP_MDCFG_STRIDE                          0x4U
 
 /* SRCMD Table Registers */
-#define IOPMP_SRCMD_EN_BASE                         0x1000
-    #define IOPMP_SRCMD_EN_L_SHIFT                  0
-    #define IOPMP_SRCMD_EN_L_MASK                   GENMASK_32(0, 0)
-    #define IOPMP_SRCMD_EN_MD_SHIFT                 1
-    #define IOPMP_SRCMD_EN_MD_MASK                  GENMASK_32(31, 1)
+#define IOPMP_SRCMD_EN_BASE                         0x1000U
+    #define IOPMP_SRCMD_EN_L_SHIFT                  0U
+    #define IOPMP_SRCMD_EN_L_MASK                   GENMASK_32(0U, 0U)
+    #define IOPMP_SRCMD_EN_MD_SHIFT                 1U
+    #define IOPMP_SRCMD_EN_MD_MASK                  GENMASK_32(31U, 1U)
 
 #define IOPMP_SRCMD_PERM_BASE                       IOPMP_SRCMD_EN_BASE
 
-#define IOPMP_SRCMD_ENH_BASE                        0x1004
-    #define IOPMP_SRCMD_ENH_MDH_SHIFT               0
-    #define IOPMP_SRCMD_ENH_MDH_MASK                GENMASK_32(31, 0)
+#define IOPMP_SRCMD_ENH_BASE                        0x1004U
+    #define IOPMP_SRCMD_ENH_MDH_SHIFT               0U
+    #define IOPMP_SRCMD_ENH_MDH_MASK                GENMASK_32(31U, 0U)
 
 #define IOPMP_SRCMD_PERMH_BASE                      IOPMP_SRCMD_ENH_BASE
 
-#define IOPMP_SRCMD_R_BASE                          0x1008
-    #define IOPMP_SRCMD_R_MD_SHIFT                  1
-    #define IOPMP_SRCMD_R_MD_MASK                   GENMASK_32(31, 1)
+#define IOPMP_SRCMD_R_BASE                          0x1008U
+    #define IOPMP_SRCMD_R_MD_SHIFT                  1U
+    #define IOPMP_SRCMD_R_MD_MASK                   GENMASK_32(31U, 1U)
 
-#define IOPMP_SRCMD_RH_BASE                         0x100C
-    #define IOPMP_SRCMD_RH_MDH_SHIFT                0
-    #define IOPMP_SRCMD_RH_MDH_MASK                 GENMASK_32(31, 0)
+#define IOPMP_SRCMD_RH_BASE                         0x100CU
+    #define IOPMP_SRCMD_RH_MDH_SHIFT                0U
+    #define IOPMP_SRCMD_RH_MDH_MASK                 GENMASK_32(31U, 0U)
 
-#define IOPMP_SRCMD_W_BASE                          0x1010
-    #define IOPMP_SRCMD_W_MD_SHIFT                  1
-    #define IOPMP_SRCMD_W_MD_MASK                   GENMASK_32(31, 1)
+#define IOPMP_SRCMD_W_BASE                          0x1010U
+    #define IOPMP_SRCMD_W_MD_SHIFT                  1U
+    #define IOPMP_SRCMD_W_MD_MASK                   GENMASK_32(31U, 1U)
 
-#define IOPMP_SRCMD_WH_BASE                         0x1014
-    #define IOPMP_SRCMD_WH_MDH_SHIFT                0
-    #define IOPMP_SRCMD_WH_MDH_MASK                 GENMASK_32(31, 0)
+#define IOPMP_SRCMD_WH_BASE                         0x1014U
+    #define IOPMP_SRCMD_WH_MDH_SHIFT                0U
+    #define IOPMP_SRCMD_WH_MDH_MASK                 GENMASK_32(31U, 0U)
 
-#define IOPMP_SRCMD_X_BASE                          0x1018
-    #define IOPMP_SRCMD_X_MD_SHIFT                  1
-    #define IOPMP_SRCMD_X_MD_MASK                   GENMASK_32(31, 1)
+#define IOPMP_SRCMD_X_BASE                          0x1018U
+    #define IOPMP_SRCMD_X_MD_SHIFT                  1U
+    #define IOPMP_SRCMD_X_MD_MASK                   GENMASK_32(31U, 1U)
 
-#define IOPMP_SRCMD_XH_BASE                         0x101C
-    #define IOPMP_SRCMD_XH_MDH_SHIFT                0
-    #define IOPMP_SRCMD_XH_MDH_MASK                 GENMASK_32(31, 0)
+#define IOPMP_SRCMD_XH_BASE                         0x101CU
+    #define IOPMP_SRCMD_XH_MDH_SHIFT                0U
+    #define IOPMP_SRCMD_XH_MDH_MASK                 GENMASK_32(31U, 0U)
 
-#define IOPMP_SRCMD_STRIDE                          0x0020
+#define IOPMP_SRCMD_STRIDE                          0x0020U
 
 /* Entry Array Registers */
-#define IOPMP_ENTRY_ADDR_BASE                       0x0000
-#define IOPMP_ENTRY_ADDRH_BASE                      0x0004
-#define IOPMP_ENTRY_CFG_BASE                        0x0008
-#define IOPMP_ENTRY_USER_CFG_BASE                   0x000C
-#define IOPMP_ENTRY_STRIDE                          0x0010
+#define IOPMP_ENTRY_ADDR_BASE                       0x0000U
+#define IOPMP_ENTRY_ADDRH_BASE                      0x0004U
+#define IOPMP_ENTRY_CFG_BASE                        0x0008U
+#define IOPMP_ENTRY_USER_CFG_BASE                   0x000CU
+#define IOPMP_ENTRY_STRIDE                          0x0010U
 
 /******************************************************************************/
 /* Helper macros                                                              */
@@ -307,11 +307,11 @@ static uint32_t read_ ## name(IOPMP_t *iopmp, uint32_t idx)             \
     }                                                                   \
     return 0;                                                           \
 }
-DECLARE_FUNC_READ_SRCMD_H(srcmd_enh,   (iopmp->md_num > 31));
-DECLARE_FUNC_READ_SRCMD_H(srcmd_permh, (iopmp->rrid_num > 16));
-DECLARE_FUNC_READ_SRCMD_H(srcmd_rh,    (iopmp->md_num > 31));
-DECLARE_FUNC_READ_SRCMD_H(srcmd_wh,    (iopmp->md_num > 31));
-DECLARE_FUNC_READ_SRCMD_H(srcmd_xh,    (iopmp->md_num > 31));
+DECLARE_FUNC_READ_SRCMD_H(srcmd_enh,   (iopmp->md_num > 31U));
+DECLARE_FUNC_READ_SRCMD_H(srcmd_permh, (iopmp->rrid_num > 16U));
+DECLARE_FUNC_READ_SRCMD_H(srcmd_rh,    (iopmp->md_num > 31U));
+DECLARE_FUNC_READ_SRCMD_H(srcmd_wh,    (iopmp->md_num > 31U));
+DECLARE_FUNC_READ_SRCMD_H(srcmd_xh,    (iopmp->md_num > 31U));
 
 /* Helper functions to read 64-bit value from SRCMD registers */
 #define DECLARE_FUNC_READ_SRCMD_64(name)                                \
@@ -347,11 +347,11 @@ static void write_ ## name(IOPMP_t *iopmp, uint32_t idx, uint32_t val)  \
         io_write32(get_addr_of_##name(iopmp, idx), val);                \
     }                                                                   \
 }
-DECLARE_FUNC_WRITE_SRCMD_H(srcmd_enh,   (iopmp->md_num > 31));
-DECLARE_FUNC_WRITE_SRCMD_H(srcmd_permh, (iopmp->rrid_num > 16));
-DECLARE_FUNC_WRITE_SRCMD_H(srcmd_rh,    (iopmp->md_num > 31));
-DECLARE_FUNC_WRITE_SRCMD_H(srcmd_wh,    (iopmp->md_num > 31));
-DECLARE_FUNC_WRITE_SRCMD_H(srcmd_xh,    (iopmp->md_num > 31));
+DECLARE_FUNC_WRITE_SRCMD_H(srcmd_enh,   (iopmp->md_num > 31U));
+DECLARE_FUNC_WRITE_SRCMD_H(srcmd_permh, (iopmp->rrid_num > 16U));
+DECLARE_FUNC_WRITE_SRCMD_H(srcmd_rh,    (iopmp->md_num > 31U));
+DECLARE_FUNC_WRITE_SRCMD_H(srcmd_wh,    (iopmp->md_num > 31U));
+DECLARE_FUNC_WRITE_SRCMD_H(srcmd_xh,    (iopmp->md_num > 31U));
 
 /* Helper functions to write 64-bit value into SRCMD registers */
 #define DECLARE_FUNC_WRITE_SRCMD_64(name)                               \
@@ -359,7 +359,7 @@ static void write_ ## name ## _64(IOPMP_t *iopmp, uint32_t idx,         \
                                   uint64_t val)                         \
 {                                                                       \
     write_##name##h(iopmp, idx, val >> 32);                             \
-    write_##name(iopmp, idx, val & 0xFFFFFFFF);                         \
+    write_##name(iopmp, idx, val & 0xFFFFFFFFU);                        \
 }
 DECLARE_FUNC_WRITE_SRCMD_64(srcmd_en);
 DECLARE_FUNC_WRITE_SRCMD_64(srcmd_perm);
@@ -421,7 +421,7 @@ static void detect_stall_function(IOPMP_t *iopmp)
      */
     if (iopmp->stall_en != 0U) {
         /* Assume all MDs selectable; iopmp_probe_stall_by_md() narrows it */
-        iopmp->stall_md_mask = GENMASK_64((iopmp->md_num - 1), 0);
+        iopmp->stall_md_mask = GENMASK_64((iopmp->md_num - 1U), 0U);
         /*
          * If RRIDSCP is not implemented, it always returns zero. One can test
          * if it is implemented by writing a zero and then reading it back. Any
@@ -445,7 +445,7 @@ enum iopmp_error detect_entry_addr_bits(IOPMP_t *iopmp)
     uint64_t val = 0;
     uintptr_t entry;
     uint32_t entrylck_f;
-    int i;
+    uint32_t i;
 
     entrylck_f = EXTRACT_FIELD(io_read32(iopmp->addr + IOPMP_ENTRYLCK_BASE),
                                IOPMP_ENTRYLCK_F);
@@ -464,11 +464,11 @@ enum iopmp_error detect_entry_addr_bits(IOPMP_t *iopmp)
             continue;
         }
 
-        io_write32(entry + IOPMP_ENTRY_ADDR_BASE, 0xFFFFFFFF);
+        io_write32(entry + IOPMP_ENTRY_ADDR_BASE, 0xFFFFFFFFU);
         val = io_read32(entry + IOPMP_ENTRY_ADDR_BASE);
         io_write32(entry + IOPMP_ENTRY_ADDR_BASE, 0);       /* Clear */
         if (iopmp->addrh_en != 0U) {
-            io_write32(entry + IOPMP_ENTRY_ADDRH_BASE, 0xFFFFFFFF);
+            io_write32(entry + IOPMP_ENTRY_ADDRH_BASE, 0xFFFFFFFFU);
             val |= (uint64_t)io_read32(entry + IOPMP_ENTRY_ADDRH_BASE) << 32;
             io_write32(entry + IOPMP_ENTRY_ADDRH_BASE, 0);  /* Clear */
         }
@@ -560,7 +560,7 @@ static enum iopmp_error resume_transactions_common(IOPMP_t *iopmp)
 {
     uint32_t rb_mdstallh, rb_mdstall_md;
 
-    if (iopmp->md_num > 31) {
+    if (iopmp->md_num > 31U) {
         io_write32(iopmp->addr + IOPMP_MDSTALLH_BASE, 0);
     }
     io_write32(iopmp->addr + IOPMP_MDSTALL_BASE, 0);
@@ -568,14 +568,14 @@ static enum iopmp_error resume_transactions_common(IOPMP_t *iopmp)
      * MDSTALL.md and MDSTALLH.mdh are WARL fields. Read them back to check the
      * values.
      */
-    if (iopmp->md_num > 31) {
+    if (iopmp->md_num > 31U) {
         rb_mdstallh = io_read32(iopmp->addr + IOPMP_MDSTALLH_BASE);
     } else {
         rb_mdstallh = 0;
     }
     rb_mdstall_md = io_read32(iopmp->addr + IOPMP_MDSTALL_BASE);
     rb_mdstall_md = EXTRACT_FIELD(rb_mdstall_md, IOPMP_MDSTALL_MD);
-    if (rb_mdstallh != 0 || rb_mdstall_md != 0) {
+    if (rb_mdstallh != 0U || rb_mdstall_md != 0U) {
         return IOPMP_ERR_ILLEGAL_VALUE;
     }
 
@@ -602,7 +602,7 @@ static enum iopmp_error stall_by_mds_common(IOPMP_t *iopmp, uint64_t *mds,
     uint32_t rb_mdstall_md, rb_mdstallh;
 
     mdstallh = mds_req >> 31;           /* mds[62:31] */
-    mdstall_md = mds_req & 0x7FFFFFFF;  /* mds[30: 0] */
+    mdstall_md = mds_req & 0x7FFFFFFFU;  /* mds[30: 0] */
     mdstall = MAKE_FIELD_32(mdstall_md, IOPMP_MDSTALL_MD) |
               MAKE_FIELD_32(exempt, IOPMP_MDSTALL_EXEMPT);
     /* Write MD_STALLH first then MD_STALL to take effect. */
@@ -691,7 +691,7 @@ bool generic_poll_mdstall(IOPMP_t *iopmp, bool polling, bool stall_or_resume)
     }
 
     mdstall = io_read32(iopmp->addr + IOPMP_MDSTALL_BASE);
-    return EXTRACT_FIELD(mdstall, IOPMP_MDSTALL_IS_BUSY) == false;
+    return EXTRACT_FIELD(mdstall, IOPMP_MDSTALL_IS_BUSY) == 0U;
 }
 
 enum iopmp_error generic_set_rridscp(IOPMP_t *iopmp, uint32_t *rrid,
@@ -851,7 +851,7 @@ enum iopmp_error generic_capture_error(IOPMP_t *iopmp,
 
     /* Check ERR_INFO.v first */
     err_info = io_read32(iopmp->addr + IOPMP_ERR_INFO_BASE);
-    if ((err_info & IOPMP_ERR_INFO_V_MASK) == 0) {
+    if ((err_info & IOPMP_ERR_INFO_V_MASK) == 0U) {
         return IOPMP_ERR_NOT_EXIST; /* No pending error */
     }
 
@@ -1090,7 +1090,7 @@ void mdcfg_fmt_0_get_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
 void mdcfg_fmt_1_2_get_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
                                     uint32_t *entry_top)
 {
-    *entry_top = (iopmp->md_entry_num + 1) * (mdidx + 1);
+    *entry_top = ((uint32_t)iopmp->md_entry_num + 1U) * (mdidx + 1U);
 }
 
 enum iopmp_error mdcfg_fmt_0_set_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
@@ -1135,7 +1135,7 @@ enum iopmp_error srcmd_fmt_2_set_md_permission(IOPMP_t *iopmp, uint32_t rrid,
     val  = ((uint32_t)r_req << 0);
     val |= ((uint32_t)w_req << 1);
     /* Set SRCMD_PERM if RRID < 16, otherwise set SRCMD_PERMH */
-    if (rrid < 16) {
+    if (rrid < 16U) {
         srcmd_perm = read_srcmd_perm(iopmp, mdidx);
         shift = rrid << 1;
         mask = IOPMP_SRCMD_PERM_MASK << shift;
@@ -1144,22 +1144,22 @@ enum iopmp_error srcmd_fmt_2_set_md_permission(IOPMP_t *iopmp, uint32_t rrid,
         write_srcmd_perm(iopmp, mdidx, srcmd_perm);
         /* SRCMD_PERM.perm is WARL field. Read it back to check value */
         srcmd_perm = read_srcmd_perm(iopmp, mdidx);
-        *r = ((srcmd_perm & mask) >> shift) & 0b1;
-        *w = ((srcmd_perm & mask) >> (shift + 1)) & 0b1;
+        *r = ((srcmd_perm & mask) >> shift) & 0b1U;
+        *w = ((srcmd_perm & mask) >> (shift + 1U)) & 0b1U;
         if (r_req != *r || w_req != *w) {
             return IOPMP_ERR_ILLEGAL_VALUE;
         }
     } else {
         srcmd_perm = read_srcmd_permh(iopmp, mdidx);
-        shift = (rrid - 16) << 1;
+        shift = (rrid - 16U) << 1;
         mask = IOPMP_SRCMD_PERM_MASK << shift;
         val  = val << shift;
         srcmd_perm = (srcmd_perm & ~mask) | (val & mask);
         write_srcmd_permh(iopmp, mdidx, srcmd_perm);
         /* SRCMD_PERMH.permh is WARL field. Read it back to check value */
         srcmd_perm = read_srcmd_permh(iopmp, mdidx);
-        *r = ((srcmd_perm & mask) >> shift) & 0b1;
-        *w = ((srcmd_perm & mask) >> (shift + 1)) & 0b1;
+        *r = ((srcmd_perm & mask) >> shift) & 0b1U;
+        *w = ((srcmd_perm & mask) >> (shift + 1U)) & 0b1U;
         if (r_req != *r || w_req != *w) {
             return IOPMP_ERR_ILLEGAL_VALUE;
         }
@@ -1376,13 +1376,13 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
     /* Read MDLCK(H) */
     if (iopmp->srcmd_fmt == IOPMP_SRCMD_FMT_1) {
         iopmp->mdlck_lock = true;
-        iopmp->mdlck_md = ((uint64_t)1 << iopmp->md_num) - 1;
+        iopmp->mdlck_md = ((uint64_t)1 << iopmp->md_num) - 1U;
     } else {
         uint32_t mdlck, mdlckh;
         uint64_t mdlck_64;
 
         mdlck = io_read32(iopmp->addr + IOPMP_MDLCK_BASE);
-        if (iopmp->md_num > 31) {
+        if (iopmp->md_num > 31U) {
             mdlckh = io_read32(iopmp->addr + IOPMP_MDLCKH_BASE);
         } else {
             mdlckh = 0;

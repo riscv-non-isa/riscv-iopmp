@@ -324,7 +324,7 @@ typedef struct iopmp_entry IOPMP_Entry_t;
 typedef struct iopmp_err_report IOPMP_ERR_REPORT_t;
 
 /** Maximum supported RRID when srcmd_fmt=2 */
-#define IOPMP_MAX_RRID_SRCMD_FMT_2  32
+#define IOPMP_MAX_RRID_SRCMD_FMT_2  32U
 
 /**
  * \brief Configuration used in srcmd_fmt=2 to set SRCMD_PERM(H)

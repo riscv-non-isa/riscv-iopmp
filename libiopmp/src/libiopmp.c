@@ -24,12 +24,12 @@
 
 extern const struct iopmp_driver *const iopmp_drivers[];
 
-#define IS_ALIGNED(x, a)    (((x) & ((a) - 1)) == 0)
+#define IS_ALIGNED(x, a)    (((x) & ((a) - 1U)) == 0U)
 
 #define MD_ENTRY_NUM_BITS   7
-#define MAX_MD_ENTRY_NUM    ((1UL << MD_ENTRY_NUM_BITS) - 1)
+#define MAX_MD_ENTRY_NUM    ((1UL << MD_ENTRY_NUM_BITS) - 1U)
 
-#define IOPMP_ADDR_SHIFT    2
+#define IOPMP_ADDR_SHIFT    2U
 
 int libiopmp_major_version(void)
 {
@@ -457,7 +457,7 @@ enum iopmp_error iopmp_probe_stall_by_md(IOPMP_t *iopmp, uint64_t *mds)
         return IOPMP_ERR_NOT_ALLOWED;
     }
 
-    *mds = GENMASK_64((iopmp->md_num - 1), 0);
+    *mds = GENMASK_64((iopmp->md_num - 1U), 0U);
     if ((iopmp->ops_override != NULL) &&
         (iopmp->ops_override->stall_by_mds != NULL)) {
         ret = iopmp->ops_override->stall_by_mds(iopmp, mds, false, false);
@@ -577,7 +577,7 @@ enum iopmp_error iopmp_lock_md(IOPMP_t *iopmp, uint64_t *mds, bool mdlck_lock)
     }
 
     /* Check if given 'mds' contains unsupported MD bits */
-    valid_mdlck_md_mask = ((uint64_t)1 << iopmp->md_num) - 1;
+    valid_mdlck_md_mask = ((uint64_t)1 << iopmp->md_num) - 1U;
     if (mds_req > valid_mdlck_md_mask) {
         return IOPMP_ERR_NOT_SUPPORTED;
     }
@@ -917,12 +917,12 @@ enum iopmp_error iopmp_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
      * If HWCFG0.addrh_en=0, IOPMP only implements ERR_MSIADDR which contains
      * bits 33 to 2 of the address.
      */
-    if ((iopmp->addrh_en == 0U) && msiaddr64_req > 0x3FFFFFFFF) {
+    if ((iopmp->addrh_en == 0U) && msiaddr64_req > 0x3FFFFFFFFU) {
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
     /* ERR_CFG.msidata only supports maximum to 11 bits */
-    if (msidata_req > 0x7FF) {
+    if (msidata_req > 0x7FFU) {
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
@@ -1215,7 +1215,7 @@ enum iopmp_error iopmp_get_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
         *lock = true;
     } else if (iopmp->srcmd_fmt == IOPMP_SRCMD_FMT_2) {
         /* Every RRID implicitly associates all implemented memory domains */
-        *mds = GENMASK_64((iopmp->md_num - 1), 0);
+        *mds = GENMASK_64((iopmp->md_num - 1U), 0U);
         *lock = true;
     }
 
@@ -1245,7 +1245,7 @@ enum iopmp_error iopmp_set_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    valid_mds = GENMASK_64((iopmp->md_num - 1), 0);
+    valid_mds = GENMASK_64((iopmp->md_num - 1U), 0U);
     if (mds_set > valid_mds || mds_clr > valid_mds) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
@@ -1413,7 +1413,7 @@ static enum iopmp_error sps_check(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    valid_mds = GENMASK_64((iopmp->md_num - 1), 0);
+    valid_mds = GENMASK_64((iopmp->md_num - 1U), 0U);
     if (mds_set > valid_mds || mds_clr > valid_mds) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
@@ -1747,7 +1747,7 @@ static inline void get_md_entry_association_nocheck(IOPMP_t *iopmp,
     uint32_t md_entry_top_prev, md_entry_top;
 
     if (mdidx != 0U) {
-        get_md_entry_top(iopmp, mdidx - 1, &md_entry_top_prev);
+        get_md_entry_top(iopmp, mdidx - 1U, &md_entry_top_prev);
     } else {
         md_entry_top_prev = 0;
     }
@@ -1822,7 +1822,7 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
     }
 
     if (mdidx_start != 0U) {
-        get_md_entry_top(iopmp, mdidx_start - 1, &prev_top);
+        get_md_entry_top(iopmp, mdidx_start - 1U, &prev_top);
     } else {
         prev_top = 0;
     }
@@ -1936,13 +1936,14 @@ static int encode_entry_pow2(struct iopmp_entry *entry,
     if ((sw_flags & IOPMP_ENTRY_FORCE_OFF) != 0U) {
         match = IOPMP_ENTRY_A_OFF;
     } else {
-        match = (size == 4) ? IOPMP_ENTRY_A_NA4 : IOPMP_ENTRY_A_NAPOT;
+        match = (size == 4U) ? IOPMP_ENTRY_A_NA4 : IOPMP_ENTRY_A_NAPOT;
     }
 
     uint32_t entry_cfg = (hw_flags | match);
 
     /* Encode entry_addr */
-    uint64_t mask = ((uint64_t)1 << (iopmp_ctzll(size) - IOPMP_ADDR_SHIFT)) - 1;
+    uint64_t mask =
+        ((uint64_t)1 << ((uint32_t)iopmp_ctzll(size) - IOPMP_ADDR_SHIFT)) - 1U;
     uint64_t entry_addr = ((addr >> IOPMP_ADDR_SHIFT) & ~mask) | (mask >> 1);
 
     entry->cfg = entry_cfg;
@@ -2030,7 +2031,7 @@ static int encode_entry_tor(struct iopmp_entry *entries,
  */
 static inline bool ispow2(uint64_t val)
 {
-    return (val != 0U) && ((val & (val - 1)) == 0U);
+    return (val != 0U) && ((val & (val - 1U)) == 0U);
 }
 
 /**
@@ -2046,13 +2047,13 @@ static inline bool is_napot(uint64_t addr, uint64_t size)
 {
     uint64_t max_size;
 
-    assert(size >= 4);
+    assert(size >= 4U);
 
     if (ispow2(size) == false) {
         return false;
     }
 
-    if (addr == 0) {
+    if (addr == 0U) {
         max_size = UINT64_MAX;
     } else {
         max_size = addr & -addr;
@@ -2074,7 +2075,7 @@ enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    if (size == 0) {
+    if (size == 0U) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -2090,10 +2091,10 @@ enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
     hw_flags = flags & (IOPMP_ENTRY_RWX | IOPMP_ENTRY_SIE_MASK |
                         IOPMP_ENTRY_SEE_MASK);
     sw_flags = flags & IOPMP_ENTRY_SW_FLAGS_MASK;
-    if ((iopmp->peis == 0U) && ((hw_flags & IOPMP_ENTRY_SIE_MASK) != 0)) {
+    if ((iopmp->peis == 0U) && ((hw_flags & IOPMP_ENTRY_SIE_MASK) != 0U)) {
         return IOPMP_ERR_NOT_SUPPORTED;
     }
-    if ((iopmp->pees == 0U) && ((hw_flags & IOPMP_ENTRY_SEE_MASK) != 0)) {
+    if ((iopmp->pees == 0U) && ((hw_flags & IOPMP_ENTRY_SEE_MASK) != 0U)) {
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
@@ -2108,12 +2109,12 @@ enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    if (((sw_flags & IOPMP_ENTRY_FIRST_TOR) == 0U) && (num_entry < 2)) {
+    if (((sw_flags & IOPMP_ENTRY_FIRST_TOR) == 0U) && (num_entry < 2U)) {
         return IOPMP_ERR_NOT_ALLOWED;
     }
 
     /* The lower bound of TOR entry 0 must be 0 */
-    if ((((sw_flags & IOPMP_ENTRY_FIRST_TOR) != 0U)) && (addr != 0)) {
+    if ((((sw_flags & IOPMP_ENTRY_FIRST_TOR) != 0U)) && (addr != 0U)) {
         return IOPMP_ERR_NOT_ALLOWED;
     }
 
@@ -2284,7 +2285,7 @@ enum iopmp_error iopmp_set_entries_with_md_permission(
     /* Only K=1 gives every entry a MD whose SRCMD_PERM(H) it can carry */
     if (iopmp->srcmd_fmt != IOPMP_SRCMD_FMT_2 ||
         iopmp->mdcfg_fmt != IOPMP_MDCFG_FMT_1 ||
-        iopmp->md_entry_num != 0) {
+        iopmp->md_entry_num != 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
@@ -2304,7 +2305,7 @@ enum iopmp_error iopmp_set_entries_with_md_permission(
     }
 
     /* MDLCK locks the SRCMD_PERM(H) of a MD */
-    md_mask = (((uint64_t)1 << num_entry) - 1) << idx_start;
+    md_mask = (((uint64_t)1 << num_entry) - 1U) << idx_start;
     if ((iopmp->mdlck_md & md_mask) != 0U) {
         return IOPMP_ERR_REG_IS_LOCKED;
     }

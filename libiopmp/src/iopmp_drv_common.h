@@ -21,11 +21,13 @@
 #include "libiopmp_def.h"
 
 /* Generate 32-bit mask[h:l] */
-#define GENMASK_32(h, l) \
-    (((~(uint32_t)0) - ((uint32_t)1 << (l)) + 1) & (~(uint32_t)0 >> (32-1-(h))))
+#define GENMASK_32(h, l)                                            \
+    (((~(uint32_t)0U) - ((uint32_t)1U << (l)) + 1U) &               \
+     (~(uint32_t)0U >> (31U - (h))))
 /* Generate 64-bit mask[h:l] */
-#define GENMASK_64(h, l) \
-    (((~(uint64_t)0) - ((uint64_t)1 << (l)) + 1) & (~(uint64_t)0 >> (64-1-(h))))
+#define GENMASK_64(h, l)                                            \
+    (((~(uint64_t)0U) - ((uint64_t)1U << (l)) + 1U) &               \
+     (~(uint64_t)0U >> (63U - (h))))
 
 /*
  * Extract a specific field in given register.
