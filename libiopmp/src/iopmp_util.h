@@ -20,7 +20,7 @@
 #include <stdio.h>
 
 /* GCOVR_EXCL_START */
-static inline void __assert_func(const char *filename,
+static inline void assert_failed(const char *filename,
                                  int line,
                                  const char *assert_func,
                                  const char *expr)
@@ -36,7 +36,7 @@ static inline void __assert_func(const char *filename,
 
 #ifdef DEBUG
 #define assert(__e) ((__e) ? (void)0 :  \
-                             __assert_func(__FILE__, __LINE__, __func__, #__e))
+                             assert_failed(__FILE__, __LINE__, __func__, #__e))
 #else
 #define assert(__e) ((void)0)
 #endif

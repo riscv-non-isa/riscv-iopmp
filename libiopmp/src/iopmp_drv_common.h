@@ -62,7 +62,7 @@
  *
  * \return 0 ~ 64
  */
-static inline unsigned __iopmp_ctz_64_xlen_32(uint64_t val)
+static inline unsigned iopmp_ctz_64_xlen_32(uint64_t val)
 {
     unsigned num;
     uint32_t lo = val & UINT32_MAX;
@@ -75,7 +75,7 @@ static inline unsigned __iopmp_ctz_64_xlen_32(uint64_t val)
     return num;
 }
 
-#define iopmp_ctzll(VAL)        __iopmp_ctz_64_xlen_32(VAL)
+#define iopmp_ctzll(VAL)        iopmp_ctz_64_xlen_32(VAL)
 #elif __riscv_xlen == 64
 #define iopmp_ctzll(VAL)        __riscv_ctz_64(VAL)
 #endif

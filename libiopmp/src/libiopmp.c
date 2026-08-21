@@ -72,7 +72,7 @@ bool libiopmp_check_version(int major, int minor, int extra)
  * \retval 1 if model is xxx-K
  * \retval 0 if model is not xxx-K
  */
-static bool __is_k_model(IOPMP_t *iopmp)
+static bool is_k_model(IOPMP_t *iopmp)
 {
     return iopmp->mdcfg_fmt == IOPMP_MDCFG_FMT_1 ||
            iopmp->mdcfg_fmt == IOPMP_MDCFG_FMT_2;
@@ -384,10 +384,10 @@ enum iopmp_error iopmp_resume_transactions(IOPMP_t *iopmp, bool polling)
     return ret;
 }
 
-static enum iopmp_error __iopmp_poll_mdstall(IOPMP_t *iopmp,
-                                             bool polling,
-                                             bool stall_or_resume,
-                                             bool *done)
+static enum iopmp_error poll_mdstall_common(IOPMP_t *iopmp,
+                                            bool polling,
+                                            bool stall_or_resume,
+                                            bool *done)
 {
     assert(iopmp_is_initialized(iopmp));
 
@@ -416,7 +416,7 @@ enum iopmp_error iopmp_transactions_are_stalled(IOPMP_t *iopmp, bool polling,
         return IOPMP_ERR_NOT_EXIST;
     }
 
-    return __iopmp_poll_mdstall(iopmp, polling, true, stalled);
+    return poll_mdstall_common(iopmp, polling, true, stalled);
 }
 
 enum iopmp_error iopmp_transactions_are_resumed(IOPMP_t *iopmp, bool polling,
@@ -426,7 +426,7 @@ enum iopmp_error iopmp_transactions_are_resumed(IOPMP_t *iopmp, bool polling,
         return IOPMP_ERR_NOT_EXIST;
     }
 
-    return __iopmp_poll_mdstall(iopmp, polling, false, resumed);
+    return poll_mdstall_common(iopmp, polling, false, resumed);
 }
 
 enum iopmp_error iopmp_probe_stall_by_md(IOPMP_t *iopmp, uint64_t *mds)
@@ -490,9 +490,9 @@ enum iopmp_error iopmp_probe_stall_by_md(IOPMP_t *iopmp, uint64_t *mds)
  * \retval IOPMP_ERR_ILLEGAL_VALUE if the written \p rrid does not match the
  *         actual value. The actual value is output via \p rrid
  */
-static enum iopmp_error __iopmp_set_rridscp(IOPMP_t *iopmp, uint32_t *rrid,
-                                            enum iopmp_rridscp_op op,
-                                            enum iopmp_rridscp_stat *stat)
+static enum iopmp_error set_rridscp_common(IOPMP_t *iopmp, uint32_t *rrid,
+                                           enum iopmp_rridscp_op op,
+                                           enum iopmp_rridscp_stat *stat)
 {
     assert(iopmp_is_initialized(iopmp));
 
@@ -522,13 +522,13 @@ enum iopmp_error iopmp_stall_cherry_pick_rrid(IOPMP_t *iopmp, uint32_t *rrid,
     enum iopmp_rridscp_op op;
 
     op = select ? IOPMP_RRIDSCP_OP_STALL : IOPMP_RRIDSCP_OP_DONT_STALL;
-    return __iopmp_set_rridscp(iopmp, rrid, op, stat);
+    return set_rridscp_common(iopmp, rrid, op, stat);
 }
 
 enum iopmp_error iopmp_query_stall_stat_by_rrid(IOPMP_t *iopmp, uint32_t *rrid,
                                                 enum iopmp_rridscp_stat *stat)
 {
-    return __iopmp_set_rridscp(iopmp, rrid, IOPMP_RRIDSCP_OP_QUERY, stat);
+    return set_rridscp_common(iopmp, rrid, IOPMP_RRIDSCP_OP_QUERY, stat);
 }
 
 enum iopmp_error iopmp_get_locked_md(IOPMP_t *iopmp, uint64_t *mds,
@@ -550,7 +550,7 @@ enum iopmp_error iopmp_lock_md(IOPMP_t *iopmp, uint64_t *mds, bool mdlck_lock)
 {
     enum iopmp_error ret;
     uint64_t valid_mdlck_md_mask;
-    uint64_t __mds;
+    uint64_t mds_req;
 
     assert(iopmp_is_initialized(iopmp));
 
@@ -558,22 +558,22 @@ enum iopmp_error iopmp_lock_md(IOPMP_t *iopmp, uint64_t *mds, bool mdlck_lock)
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    __mds = *mds;
+    mds_req = *mds;
 
     /* Early return for both zero input */
-    if (!__mds && !mdlck_lock) {
+    if (!mds_req && !mdlck_lock) {
         return IOPMP_OK;
     }
 
     /* Check if given 'mds' contains unsupported MD bits */
     valid_mdlck_md_mask = ((uint64_t)1 << iopmp->md_num) - 1;
-    if (__mds > valid_mdlck_md_mask) {
+    if (mds_req > valid_mdlck_md_mask) {
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
     /* Already locked */
     if (iopmp->mdlck_lock) {
-        if ((__mds & iopmp->mdlck_md) == __mds &&
+        if ((mds_req & iopmp->mdlck_md) == mds_req &&
             mdlck_lock == iopmp->mdlck_lock) {
             return IOPMP_OK;
         } else {
@@ -678,7 +678,7 @@ enum iopmp_error iopmp_lock_entries(IOPMP_t *iopmp, uint32_t *entry_num,
                                     bool lock)
 {
     enum iopmp_error ret;
-    uint32_t __entry_num;
+    uint32_t entry_num_req;
 
     assert(iopmp_is_initialized(iopmp));
 
@@ -686,13 +686,13 @@ enum iopmp_error iopmp_lock_entries(IOPMP_t *iopmp, uint32_t *entry_num,
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    __entry_num = *entry_num;
+    entry_num_req = *entry_num;
 
-    if (iopmp->entrylck_f == __entry_num && iopmp->entrylck_lock == lock) {
+    if (iopmp->entrylck_f == entry_num_req && iopmp->entrylck_lock == lock) {
         return IOPMP_OK;                /* ENTRYLCK is already what we want */
     }
 
-    if (__entry_num > iopmp->entry_num) {
+    if (entry_num_req > iopmp->entry_num) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
@@ -700,7 +700,7 @@ enum iopmp_error iopmp_lock_entries(IOPMP_t *iopmp, uint32_t *entry_num,
         return IOPMP_ERR_REG_IS_LOCKED; /* Already locked */
     }
 
-    if (iopmp->entrylck_f > __entry_num) {
+    if (iopmp->entrylck_f > entry_num_req) {
         return IOPMP_ERR_NOT_ALLOWED;   /* Should be monotonically increased */
     }
 
@@ -767,7 +767,7 @@ enum iopmp_error iopmp_set_global_intr(IOPMP_t *iopmp, bool enable)
 enum iopmp_error iopmp_set_global_err_resp(IOPMP_t *iopmp, bool *suppress)
 {
     enum iopmp_error ret;
-    bool __suppress;
+    bool suppress_req;
 
     assert(iopmp_is_initialized(iopmp));
 
@@ -775,10 +775,10 @@ enum iopmp_error iopmp_set_global_err_resp(IOPMP_t *iopmp, bool *suppress)
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    __suppress = *suppress;
+    suppress_req = *suppress;
 
     /* Already suppressed or expressed? */
-    if (iopmp->err_resp_suppress == __suppress) {
+    if (iopmp->err_resp_suppress == suppress_req) {
         return IOPMP_OK;
     }
 
@@ -801,7 +801,7 @@ enum iopmp_error iopmp_set_global_err_resp(IOPMP_t *iopmp, bool *suppress)
 enum iopmp_error iopmp_set_msi_sel(IOPMP_t *iopmp, bool *enable)
 {
     enum iopmp_error ret;
-    bool __enable;
+    bool enable_req;
 
     assert(iopmp_is_initialized(iopmp));
 
@@ -813,10 +813,10 @@ enum iopmp_error iopmp_set_msi_sel(IOPMP_t *iopmp, bool *enable)
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    __enable = *enable;
+    enable_req = *enable;
 
     /* Already enabled or disabled? */
-    if (iopmp->msi_sel == __enable) {
+    if (iopmp->msi_sel == enable_req) {
         return IOPMP_OK;
     }
 
@@ -874,8 +874,8 @@ enum iopmp_error iopmp_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
                                     uint16_t *msidata)
 {
     enum iopmp_error ret;
-    uint64_t __msiaddr64;
-    uint16_t __msidata;
+    uint64_t msiaddr64_req;
+    uint16_t msidata_req;
 
     assert(iopmp_is_initialized(iopmp));
 
@@ -887,11 +887,11 @@ enum iopmp_error iopmp_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    __msiaddr64 = *msiaddr64;
-    __msidata = *msidata;
+    msiaddr64_req = *msiaddr64;
+    msidata_req = *msidata;
 
     /* Already set? */
-    if (iopmp->msiaddr64 == __msiaddr64 && iopmp->msidata == __msidata) {
+    if (iopmp->msiaddr64 == msiaddr64_req && iopmp->msidata == msidata_req) {
         return IOPMP_OK;
     }
 
@@ -899,12 +899,12 @@ enum iopmp_error iopmp_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
      * If HWCFG0.addrh_en=0, IOPMP only implements ERR_MSIADDR which contains
      * bits 33 to 2 of the address.
      */
-    if (!iopmp->addrh_en && __msiaddr64 > 0x3FFFFFFFF) {
+    if (!iopmp->addrh_en && msiaddr64_req > 0x3FFFFFFFF) {
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
     /* ERR_CFG.msidata only supports maximum to 11 bits */
-    if (__msidata > 0x7FF) {
+    if (msidata_req > 0x7FF) {
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
@@ -1372,8 +1372,8 @@ enum iopmp_error iopmp_set_srcmd_perm_cfg(IOPMP_SRCMD_PERM_CFG_t *cfg,
  * \retval IOPMP_ERR_REG_IS_LOCKED if a selected MD has been locked by MDLCK,
  *         or SRCMD_EN(rrid) has been locked by SRCMD_EN.l
  */
-static enum iopmp_error __sps_check(IOPMP_t *iopmp, uint32_t rrid,
-                                    uint64_t mds_set, uint64_t mds_clr)
+static enum iopmp_error sps_check(IOPMP_t *iopmp, uint32_t rrid,
+                                  uint64_t mds_set, uint64_t mds_clr)
 {
     uint64_t valid_mds, srcmd_mds;
     bool is_srcmd_en_locked;
@@ -1420,8 +1420,8 @@ enum iopmp_sps_perm {
  *
  * \return SRCMD_{R|W|X}(rrid).md
  */
-static uint64_t __sps_read(IOPMP_t *iopmp, uint32_t rrid,
-                           enum iopmp_sps_perm perm)
+static uint64_t sps_read(IOPMP_t *iopmp, uint32_t rrid,
+                         enum iopmp_sps_perm perm)
 {
     switch (perm) {
     case IOPMP_SPS_PERM_R:
@@ -1434,7 +1434,7 @@ static uint64_t __sps_read(IOPMP_t *iopmp, uint32_t rrid,
 }
 
 /**
- * \brief (SPS only) Write one of SRCMD_{R|W|X}(rrid), assuming __sps_check()
+ * \brief (SPS only) Write one of SRCMD_{R|W|X}(rrid), assuming sps_check()
  * has already accepted \p rrid, \p mds_set and \p mds_clr
  *
  * \param[in] iopmp             The IOPMP instance
@@ -1449,11 +1449,11 @@ static uint64_t __sps_read(IOPMP_t *iopmp, uint32_t rrid,
  * \retval IOPMP_ERR_ILLEGAL_VALUE if the written \p mds does not match the
  *         actual values
  */
-static enum iopmp_error __sps_apply(IOPMP_t *iopmp, uint32_t rrid,
-                                    uint64_t mds_set, uint64_t mds_clr,
-                                    uint64_t *mds, enum iopmp_sps_perm perm)
+static enum iopmp_error sps_apply(IOPMP_t *iopmp, uint32_t rrid,
+                                  uint64_t mds_set, uint64_t mds_clr,
+                                  uint64_t *mds, enum iopmp_sps_perm perm)
 {
-    *mds = __sps_read(iopmp, rrid, perm);
+    *mds = sps_read(iopmp, rrid, perm);
 
     /* Set new MD bitmap */
     *mds |= mds_set;
@@ -1488,9 +1488,9 @@ static enum iopmp_error __sps_apply(IOPMP_t *iopmp, uint32_t rrid,
  * \retval IOPMP_ERR_ILLEGAL_VALUE if the written \p mds does not match the
  *         actual values
  */
-static enum iopmp_error __sps_set(IOPMP_t *iopmp, uint32_t rrid,
-                                  uint64_t mds_set, uint64_t mds_clr,
-                                  uint64_t *mds, enum iopmp_sps_perm perm)
+static enum iopmp_error sps_set(IOPMP_t *iopmp, uint32_t rrid,
+                                uint64_t mds_set, uint64_t mds_clr,
+                                uint64_t *mds, enum iopmp_sps_perm perm)
 {
     enum iopmp_error ret;
 
@@ -1502,12 +1502,12 @@ static enum iopmp_error __sps_set(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    ret = __sps_check(iopmp, rrid, mds_set, mds_clr);
+    ret = sps_check(iopmp, rrid, mds_set, mds_clr);
     if (ret != IOPMP_OK) {
         return ret;
     }
 
-    return __sps_apply(iopmp, rrid, mds_set, mds_clr, mds, perm);
+    return sps_apply(iopmp, rrid, mds_set, mds_clr, mds, perm);
 }
 
 /**
@@ -1522,8 +1522,8 @@ static enum iopmp_error __sps_set(IOPMP_t *iopmp, uint32_t rrid,
  * \retval IOPMP_ERR_OUT_OF_BOUNDS if given \p rrid is out of bounds
  * \retval IOPMP_ERR_INVALID_PARAMETER if given \p mds is NULL
  */
-static enum iopmp_error __sps_get(IOPMP_t *iopmp, uint32_t rrid, uint64_t *mds,
-                                  enum iopmp_sps_perm perm)
+static enum iopmp_error sps_get(IOPMP_t *iopmp, uint32_t rrid, uint64_t *mds,
+                                enum iopmp_sps_perm perm)
 {
     if (rrid >= iopmp->rrid_num) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
@@ -1533,7 +1533,7 @@ static enum iopmp_error __sps_get(IOPMP_t *iopmp, uint32_t rrid, uint64_t *mds,
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    *mds = __sps_read(iopmp, rrid, perm);
+    *mds = sps_read(iopmp, rrid, perm);
 
     return IOPMP_OK;
 }
@@ -1549,7 +1549,7 @@ enum iopmp_error iopmp_sps_set_rrid_md_read(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    return __sps_set(iopmp, rrid, mds_set, mds_clr, mds, IOPMP_SPS_PERM_R);
+    return sps_set(iopmp, rrid, mds_set, mds_clr, mds, IOPMP_SPS_PERM_R);
 }
 
 enum iopmp_error iopmp_sps_get_rrid_md_read(IOPMP_t *iopmp, uint32_t rrid,
@@ -1561,7 +1561,7 @@ enum iopmp_error iopmp_sps_get_rrid_md_read(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    return __sps_get(iopmp, rrid, mds, IOPMP_SPS_PERM_R);
+    return sps_get(iopmp, rrid, mds, IOPMP_SPS_PERM_R);
 }
 
 enum iopmp_error iopmp_sps_set_rrid_md_write(IOPMP_t *iopmp, uint32_t rrid,
@@ -1575,7 +1575,7 @@ enum iopmp_error iopmp_sps_set_rrid_md_write(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    return __sps_set(iopmp, rrid, mds_set, mds_clr, mds, IOPMP_SPS_PERM_W);
+    return sps_set(iopmp, rrid, mds_set, mds_clr, mds, IOPMP_SPS_PERM_W);
 }
 
 enum iopmp_error iopmp_sps_get_rrid_md_write(IOPMP_t *iopmp, uint32_t rrid,
@@ -1587,7 +1587,7 @@ enum iopmp_error iopmp_sps_get_rrid_md_write(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    return __sps_get(iopmp, rrid, mds, IOPMP_SPS_PERM_W);
+    return sps_get(iopmp, rrid, mds, IOPMP_SPS_PERM_W);
 }
 
 enum iopmp_error iopmp_sps_set_rrid_md_insn_fetch(IOPMP_t *iopmp, uint32_t rrid,
@@ -1601,7 +1601,7 @@ enum iopmp_error iopmp_sps_set_rrid_md_insn_fetch(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    return __sps_set(iopmp, rrid, mds_set, mds_clr, mds, IOPMP_SPS_PERM_X);
+    return sps_set(iopmp, rrid, mds_set, mds_clr, mds, IOPMP_SPS_PERM_X);
 }
 
 enum iopmp_error iopmp_sps_get_rrid_md_insn_fetch(IOPMP_t *iopmp, uint32_t rrid,
@@ -1613,7 +1613,7 @@ enum iopmp_error iopmp_sps_get_rrid_md_insn_fetch(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    return __sps_get(iopmp, rrid, mds, IOPMP_SPS_PERM_X);
+    return sps_get(iopmp, rrid, mds, IOPMP_SPS_PERM_X);
 }
 
 enum iopmp_error iopmp_sps_set_rrid_md_rwx(IOPMP_t *iopmp, uint32_t rrid,
@@ -1644,27 +1644,27 @@ enum iopmp_error iopmp_sps_set_rrid_md_rwx(IOPMP_t *iopmp, uint32_t rrid,
      * union once. It reads SRCMD_EN(rrid) a single time instead of once per
      * permission, and leaves the IOPMP untouched if any of them is rejected.
      */
-    ret = __sps_check(iopmp, rrid,
-                      mds_set_r | mds_set_w | mds_set_x,
-                      mds_clr_r | mds_clr_w | mds_clr_x);
+    ret = sps_check(iopmp, rrid,
+                    mds_set_r | mds_set_w | mds_set_x,
+                    mds_clr_r | mds_clr_w | mds_clr_x);
     if (ret != IOPMP_OK) {
         return ret;
     }
 
-    ret = __sps_apply(iopmp, rrid, mds_set_r, mds_clr_r, mds_r,
-                      IOPMP_SPS_PERM_R);
+    ret = sps_apply(iopmp, rrid, mds_set_r, mds_clr_r, mds_r,
+                    IOPMP_SPS_PERM_R);
     if (ret != IOPMP_OK) {
         return ret;
     }
 
-    ret = __sps_apply(iopmp, rrid, mds_set_w, mds_clr_w, mds_w,
-                      IOPMP_SPS_PERM_W);
+    ret = sps_apply(iopmp, rrid, mds_set_w, mds_clr_w, mds_w,
+                    IOPMP_SPS_PERM_W);
     if (ret != IOPMP_OK) {
         return ret;
     }
 
-    return __sps_apply(iopmp, rrid, mds_set_x, mds_clr_x, mds_x,
-                       IOPMP_SPS_PERM_X);
+    return sps_apply(iopmp, rrid, mds_set_x, mds_clr_x, mds_x,
+                     IOPMP_SPS_PERM_X);
 }
 
 enum iopmp_error iopmp_sps_get_rrid_md_rwx(IOPMP_t *iopmp, uint32_t rrid,
@@ -1679,17 +1679,17 @@ enum iopmp_error iopmp_sps_get_rrid_md_rwx(IOPMP_t *iopmp, uint32_t rrid,
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
-    ret = __sps_get(iopmp, rrid, mds_r, IOPMP_SPS_PERM_R);
+    ret = sps_get(iopmp, rrid, mds_r, IOPMP_SPS_PERM_R);
     if (ret != IOPMP_OK) {
         return ret;
     }
 
-    ret = __sps_get(iopmp, rrid, mds_w, IOPMP_SPS_PERM_W);
+    ret = sps_get(iopmp, rrid, mds_w, IOPMP_SPS_PERM_W);
     if (ret != IOPMP_OK) {
         return ret;
     }
 
-    return __sps_get(iopmp, rrid, mds_x, IOPMP_SPS_PERM_X);
+    return sps_get(iopmp, rrid, mds_x, IOPMP_SPS_PERM_X);
 }
 
 /* The only operation with more than one implementation, and the only one
@@ -1706,10 +1706,10 @@ static void get_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
     }
 }
 
-static inline void __get_md_entry_association_nocheck(IOPMP_t *iopmp,
-                                                      uint32_t mdidx,
-                                                      uint32_t *entry_idx_start,
-                                                      uint32_t *num_entry)
+static inline void get_md_entry_association_nocheck(IOPMP_t *iopmp,
+                                                    uint32_t mdidx,
+                                                    uint32_t *entry_idx_start,
+                                                    uint32_t *num_entry)
 {
     uint32_t md_entry_top_prev, md_entry_top;
 
@@ -1741,8 +1741,7 @@ enum iopmp_error iopmp_get_md_entry_association(IOPMP_t *iopmp, uint32_t mdidx,
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    __get_md_entry_association_nocheck(iopmp, mdidx, entry_idx_start,
-                                       num_entry);
+    get_md_entry_association_nocheck(iopmp, mdidx, entry_idx_start, num_entry);
 
     return IOPMP_OK;
 }
@@ -1755,8 +1754,8 @@ enum iopmp_error iopmp_get_md_entry_association(IOPMP_t *iopmp, uint32_t mdidx,
  *
  * \note This function avoids unsigned integer overflow
  */
-static bool __check_md_idx_range(IOPMP_t *iopmp, uint32_t mdidx_start,
-                                 uint32_t md_num)
+static bool check_md_idx_range(IOPMP_t *iopmp, uint32_t mdidx_start,
+                               uint32_t md_num)
 {
     return mdidx_start < iopmp->md_num &&
            md_num <= (iopmp->md_num - mdidx_start);
@@ -1780,7 +1779,7 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    if (!__check_md_idx_range(iopmp, mdidx_start, md_num)) {
+    if (!check_md_idx_range(iopmp, mdidx_start, md_num)) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
@@ -1826,7 +1825,7 @@ enum iopmp_error iopmp_get_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
 {
     assert(iopmp_is_initialized(iopmp));
 
-    if (!__is_k_model(iopmp)) {
+    if (!is_k_model(iopmp)) {
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
@@ -1890,11 +1889,11 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
  *
  * \return 1
  */
-static int __encode_entry_pow2(struct iopmp_entry *entry,
-                               uint64_t addr, uint64_t size,
-                               enum iopmp_entry_flags hw_flags,
-                               enum iopmp_entry_flags sw_flags,
-                               uint64_t private_data)
+static int encode_entry_pow2(struct iopmp_entry *entry,
+                             uint64_t addr, uint64_t size,
+                             enum iopmp_entry_flags hw_flags,
+                             enum iopmp_entry_flags sw_flags,
+                             uint64_t private_data)
 {
     /* Encode entry_cfg */
     enum iopmp_entry_flags match;
@@ -1935,11 +1934,11 @@ static int __encode_entry_pow2(struct iopmp_entry *entry,
  * \retval 1 if successes and the memory region is encoded as first TOR entry
  * \retval 2 if successes and the memory region is encoded as two TOR entries
  */
-static int __encode_entry_tor(struct iopmp_entry *entries,
-                              uint64_t addr, uint64_t size,
-                              enum iopmp_entry_flags hw_flags,
-                              enum iopmp_entry_flags sw_flags,
-                              uint64_t private_data)
+static int encode_entry_tor(struct iopmp_entry *entries,
+                            uint64_t addr, uint64_t size,
+                            enum iopmp_entry_flags hw_flags,
+                            enum iopmp_entry_flags sw_flags,
+                            uint64_t private_data)
 {
     uint32_t entry_cfg0;
     uint32_t entry_cfg1;
@@ -2065,8 +2064,8 @@ enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
 
     /* NA4 or NAPOT region */
     if (is_napot(addr, size) && !(sw_flags & IOPMP_ENTRY_FORCE_TOR)) {
-        return __encode_entry_pow2(entries, addr, size, hw_flags, sw_flags,
-                                   private_data);
+        return encode_entry_pow2(entries, addr, size, hw_flags, sw_flags,
+                                 private_data);
     }
 
     /* TOR region */
@@ -2083,8 +2082,8 @@ enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
         return IOPMP_ERR_NOT_ALLOWED;
     }
 
-    return __encode_entry_tor(entries, addr, size, hw_flags, sw_flags,
-                              private_data);
+    return encode_entry_tor(entries, addr, size, hw_flags, sw_flags,
+                            private_data);
 }
 
 /**
@@ -2098,9 +2097,9 @@ enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
  * \retval 1 on success
  * \retval 0 on error
  */
-static bool __check_entry_priority(IOPMP_t *iopmp,
-                                   const struct iopmp_entry *entry_array,
-                                   uint32_t idx_start, uint32_t num_entry)
+static bool check_entry_priority(IOPMP_t *iopmp,
+                                 const struct iopmp_entry *entry_array,
+                                 uint32_t idx_start, uint32_t num_entry)
 {
     uint32_t num_prient;
 
@@ -2141,8 +2140,8 @@ static bool __check_entry_priority(IOPMP_t *iopmp,
  *
  * \note This function avoids unsigned integer overflow
  */
-static bool __check_entry_idx_range(IOPMP_t *iopmp, uint32_t idx_start,
-                                    uint32_t num_entry)
+static bool check_entry_idx_range(IOPMP_t *iopmp, uint32_t idx_start,
+                                  uint32_t num_entry)
 {
     return idx_start < iopmp->entry_num &&
            num_entry <= (iopmp->entry_num - idx_start);
@@ -2177,12 +2176,12 @@ static enum iopmp_error check_set_entries(
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    if (!__check_entry_idx_range(iopmp, idx_start, num_entry)) {
+    if (!check_entry_idx_range(iopmp, idx_start, num_entry)) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
     /* Sanity check priority entries */
-    if (!__check_entry_priority(iopmp, entry_array, idx_start, num_entry)) {
+    if (!check_entry_priority(iopmp, entry_array, idx_start, num_entry)) {
         return IOPMP_ERR_INVALID_PRIORITY;
     }
 
@@ -2302,8 +2301,8 @@ enum iopmp_error iopmp_set_entries_to_md(IOPMP_t *iopmp, uint32_t mdidx,
     }
 
     /* Get start index and number of entries this MD has */
-    __get_md_entry_association_nocheck(iopmp, mdidx, &md_entry_idx_start,
-                                       &md_num_entry);
+    get_md_entry_association_nocheck(iopmp, mdidx, &md_entry_idx_start,
+                                     &md_num_entry);
 
     if (num_entry > md_num_entry) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
@@ -2327,7 +2326,7 @@ enum iopmp_error iopmp_get_entries(IOPMP_t *iopmp,
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    if (!__check_entry_idx_range(iopmp, idx_start, num_entry)) {
+    if (!check_entry_idx_range(iopmp, idx_start, num_entry)) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
@@ -2356,8 +2355,8 @@ enum iopmp_error iopmp_get_entries_from_md(IOPMP_t *iopmp, uint32_t mdidx,
     }
 
     /* Get start index and number of entries this MD has */
-    __get_md_entry_association_nocheck(iopmp, mdidx, &md_entry_idx_start,
-                                       &md_num_entry);
+    get_md_entry_association_nocheck(iopmp, mdidx, &md_entry_idx_start,
+                                     &md_num_entry);
 
     if (num_entry > md_num_entry) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
@@ -2380,7 +2379,7 @@ enum iopmp_error iopmp_clear_entries(IOPMP_t *iopmp, uint32_t idx_start,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (!__check_entry_idx_range(iopmp, idx_start, num_entry)) {
+    if (!check_entry_idx_range(iopmp, idx_start, num_entry)) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
@@ -2409,8 +2408,8 @@ enum iopmp_error iopmp_clear_entries_in_md(IOPMP_t *iopmp, uint32_t mdidx)
     }
 
     /* Get start index and number of entries this MD has */
-    __get_md_entry_association_nocheck(iopmp, mdidx, &md_entry_idx_start,
-                                       &md_num_entry);
+    get_md_entry_association_nocheck(iopmp, mdidx, &md_entry_idx_start,
+                                     &md_num_entry);
 
     return iopmp_clear_entries(iopmp, md_entry_idx_start, md_num_entry);
 }
@@ -2419,11 +2418,11 @@ enum iopmp_error iopmp_entries_get_belong_md(IOPMP_t *iopmp, uint32_t idx_start,
                                              uint32_t num_entry, uint64_t *mds)
 {
     uint32_t idx_end, md_base, md_top;
-    uint64_t __mds;
+    uint64_t mds_req;
 
     assert(iopmp_is_initialized(iopmp));
 
-    if (!__check_entry_idx_range(iopmp, idx_start, num_entry)) {
+    if (!check_entry_idx_range(iopmp, idx_start, num_entry)) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
@@ -2439,7 +2438,7 @@ enum iopmp_error iopmp_entries_get_belong_md(IOPMP_t *iopmp, uint32_t idx_start,
 
     idx_end = idx_start + num_entry;
     md_base = 0;
-    __mds = 0;
+    mds_req = 0;
     /* The tops are monotonically increasing, so the top of MD(m-1) is the base
      * of MD(m) and a single walk reads each top exactly once */
     for (uint32_t m = 0; m < iopmp->md_num; m++) {
@@ -2447,11 +2446,11 @@ enum iopmp_error iopmp_entries_get_belong_md(IOPMP_t *iopmp, uint32_t idx_start,
         /* [md_base, md_top) overlaps [idx_start, idx_end). An MD owning no
          * entry can not be hit */
         if (md_base < md_top && md_base < idx_end && idx_start < md_top) {
-            __mds |= (uint64_t)1 << m;
+            mds_req |= (uint64_t)1 << m;
         }
         md_base = md_top;
     }
 
-    *mds = __mds;
+    *mds = mds_req;
     return IOPMP_OK;
 }
