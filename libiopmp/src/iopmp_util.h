@@ -35,10 +35,10 @@ static inline void assert_failed(const char *filename,
 /* GCOVR_EXCL_STOP */
 
 #ifdef DEBUG
-#define assert(__e) ((__e) ? (void)0 :  \
-                             assert_failed(__FILE__, __LINE__, __func__, #__e))
+#define iopmp_assert(expr) ((expr) ? (void)0 :                          \
+        assert_failed(__FILE__, __LINE__, __func__, #expr))
 #else
-#define assert(__e) ((void)0)
+#define iopmp_assert(expr) ((void)0)
 #endif
 
 #endif  /* IOPMP_UTIL_H */

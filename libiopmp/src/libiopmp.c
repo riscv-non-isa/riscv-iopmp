@@ -92,7 +92,7 @@ enum iopmp_error iopmp_init(IOPMP_t *iopmp, uintptr_t addr, uint8_t srcmd_fmt,
         if (srcmd_fmt == drv->srcmd_fmt && mdcfg_fmt == drv->mdcfg_fmt &&
             impid == drv->impid) {
             memset(iopmp, 0, sizeof(*iopmp));
-            assert(drv->init != NULL);
+            iopmp_assert(drv->init != NULL);
             return drv->init(iopmp, addr);
         }
     }
@@ -109,7 +109,7 @@ enum iopmp_error iopmp_init(IOPMP_t *iopmp, uintptr_t addr, uint8_t srcmd_fmt,
 
 enum iopmp_error iopmp_get_vendor_id(IOPMP_t *iopmp, uint32_t *vendor)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (vendor == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
@@ -121,7 +121,7 @@ enum iopmp_error iopmp_get_vendor_id(IOPMP_t *iopmp, uint32_t *vendor)
 
 enum iopmp_error iopmp_get_specver(IOPMP_t *iopmp, uint32_t *specver)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (specver == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
@@ -133,7 +133,7 @@ enum iopmp_error iopmp_get_specver(IOPMP_t *iopmp, uint32_t *specver)
 
 enum iopmp_error iopmp_get_impid(IOPMP_t *iopmp, uint32_t *impid)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (impid == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
@@ -145,7 +145,7 @@ enum iopmp_error iopmp_get_impid(IOPMP_t *iopmp, uint32_t *impid)
 
 enum iopmp_error iopmp_lock_prio_entry_num(IOPMP_t *iopmp)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->non_prio_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -169,7 +169,7 @@ enum iopmp_error iopmp_lock_prio_entry_num(IOPMP_t *iopmp)
 
 enum iopmp_error iopmp_lock_rrid_transl(IOPMP_t *iopmp)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->rrid_transl_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -195,7 +195,7 @@ enum iopmp_error iopmp_lock_rrid_transl(IOPMP_t *iopmp)
 
 enum iopmp_error iopmp_set_enable(IOPMP_t *iopmp)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     /* Already enabled. */
     if (iopmp->enable != 0U) {
@@ -218,7 +218,7 @@ enum iopmp_error iopmp_set_prio_entry_num(IOPMP_t *iopmp, uint16_t *num_entry)
 {
     enum iopmp_error ret;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->non_prio_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -250,7 +250,7 @@ enum iopmp_error iopmp_set_prio_entry_num(IOPMP_t *iopmp, uint16_t *num_entry)
 enum iopmp_error iopmp_get_rrid_transl_prog(IOPMP_t *iopmp,
                                             bool *rrid_transl_prog)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->rrid_transl_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -266,7 +266,7 @@ enum iopmp_error iopmp_get_rrid_transl_prog(IOPMP_t *iopmp,
 
 enum iopmp_error iopmp_get_rrid_transl(IOPMP_t *iopmp, uint16_t *rrid_transl)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->rrid_transl_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -284,7 +284,7 @@ enum iopmp_error iopmp_set_rrid_transl(IOPMP_t *iopmp, uint16_t *rrid_transl)
 {
     enum iopmp_error ret;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->rrid_transl_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -318,7 +318,7 @@ enum iopmp_error iopmp_stall_transactions_by_mds(IOPMP_t *iopmp, uint64_t *mds,
 {
     enum iopmp_error ret;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->stall_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -366,7 +366,7 @@ enum iopmp_error iopmp_resume_transactions(IOPMP_t *iopmp, bool polling)
 {
     enum iopmp_error ret;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->stall_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -395,7 +395,7 @@ static enum iopmp_error poll_mdstall_common(IOPMP_t *iopmp,
                                             bool stall_or_resume,
                                             bool *done)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->stall_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -440,7 +440,7 @@ enum iopmp_error iopmp_probe_stall_by_md(IOPMP_t *iopmp, uint64_t *mds)
 {
     enum iopmp_error ret;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->stall_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -505,7 +505,7 @@ static enum iopmp_error set_rridscp_common(IOPMP_t *iopmp, uint32_t *rrid,
                                            enum iopmp_rridscp_op op,
                                            uint32_t *stat)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->support_stall_by_rrid == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -546,7 +546,7 @@ enum iopmp_error iopmp_query_stall_stat_by_rrid(IOPMP_t *iopmp, uint32_t *rrid,
 enum iopmp_error iopmp_get_locked_md(IOPMP_t *iopmp, uint64_t *mds,
                                      bool *mdlck_lock)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if ((mds == NULL) || (mdlck_lock == NULL)) {
         return IOPMP_ERR_INVALID_PARAMETER;
@@ -564,7 +564,7 @@ enum iopmp_error iopmp_lock_md(IOPMP_t *iopmp, uint64_t *mds, bool mdlck_lock)
     uint64_t valid_mdlck_md_mask;
     uint64_t mds_req;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (mds == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
@@ -614,7 +614,7 @@ enum iopmp_error iopmp_lock_mdcfg(IOPMP_t *iopmp, uint32_t *md_num, bool lock)
     enum iopmp_error ret;
     uint32_t mdcfglck_f;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->mdcfg_fmt != IOPMP_MDCFG_FMT_0) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -658,7 +658,7 @@ enum iopmp_error iopmp_lock_mdcfg(IOPMP_t *iopmp, uint32_t *md_num, bool lock)
 
 enum iopmp_error iopmp_is_mdcfglck_locked(IOPMP_t *iopmp, bool *locked)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->mdcfg_fmt != IOPMP_MDCFG_FMT_0) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -674,7 +674,7 @@ enum iopmp_error iopmp_is_mdcfglck_locked(IOPMP_t *iopmp, bool *locked)
 
 enum iopmp_error iopmp_get_locked_mdcfg_num(IOPMP_t *iopmp, uint32_t *md_num)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->mdcfg_fmt != IOPMP_MDCFG_FMT_0) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -694,7 +694,7 @@ enum iopmp_error iopmp_lock_entries(IOPMP_t *iopmp, uint32_t *entry_num,
     enum iopmp_error ret;
     uint32_t entry_num_req;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (entry_num == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
@@ -734,7 +734,7 @@ enum iopmp_error iopmp_lock_entries(IOPMP_t *iopmp, uint32_t *entry_num,
 
 enum iopmp_error iopmp_lock_err_cfg(IOPMP_t *iopmp)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     /* Already locked? */
     if (iopmp->err_cfg_lock != 0U) {
@@ -756,7 +756,7 @@ enum iopmp_error iopmp_lock_err_cfg(IOPMP_t *iopmp)
 
 enum iopmp_error iopmp_set_global_intr(IOPMP_t *iopmp, bool enable)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     /* Already enabled or disabled? */
     if (iopmp->intr_enable == enable) {
@@ -786,7 +786,7 @@ enum iopmp_error iopmp_set_global_err_resp(IOPMP_t *iopmp, bool *suppress)
     enum iopmp_error ret;
     bool suppress_req;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (suppress == NULL) {
         return IOPMP_ERR_INVALID_PARAMETER;
@@ -821,7 +821,7 @@ enum iopmp_error iopmp_set_msi_sel(IOPMP_t *iopmp, bool *enable)
     enum iopmp_error ret;
     bool enable_req;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->msi_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -857,7 +857,7 @@ enum iopmp_error iopmp_set_msi_sel(IOPMP_t *iopmp, bool *enable)
 
 enum iopmp_error iopmp_get_msi_addr(IOPMP_t *iopmp, uint64_t *msiaddr64)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->msi_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -874,7 +874,7 @@ enum iopmp_error iopmp_get_msi_addr(IOPMP_t *iopmp, uint64_t *msiaddr64)
 
 enum iopmp_error iopmp_get_msi_data(IOPMP_t *iopmp, uint16_t *msidata)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->msi_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -896,7 +896,7 @@ enum iopmp_error iopmp_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
     uint64_t msiaddr64_req;
     uint16_t msidata_req;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->msi_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -950,7 +950,7 @@ enum iopmp_error iopmp_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
 
 enum iopmp_error iopmp_get_and_clear_msi_werr(IOPMP_t *iopmp, bool *msi_werr)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->msi_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -975,7 +975,7 @@ enum iopmp_error iopmp_set_stall_violation_en(IOPMP_t *iopmp, bool *enable)
 {
     enum iopmp_error ret;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->stall_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1008,7 +1008,7 @@ enum iopmp_error iopmp_set_stall_violation_en(IOPMP_t *iopmp, bool *enable)
 
 enum iopmp_error iopmp_invalidate_error(IOPMP_t *iopmp)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     /*
      * The error capture record is optional.
@@ -1032,7 +1032,7 @@ enum iopmp_error iopmp_capture_error(IOPMP_t *iopmp,
                                      IOPMP_ERR_REPORT_t *err_report,
                                      bool invalidate)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->no_err_rec != 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1054,7 +1054,7 @@ enum iopmp_error iopmp_capture_error(IOPMP_t *iopmp,
 enum iopmp_error iopmp_mfr_get_sv_window(IOPMP_t *iopmp, uint16_t *svi,
                                          uint16_t *svw)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->mfr_en == 0U) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1075,7 +1075,7 @@ enum iopmp_error iopmp_mfr_get_sv_window(IOPMP_t *iopmp, uint16_t *svi,
 
 enum iopmp_error iopmp_lock_srcmd_table_fmt_0(IOPMP_t *iopmp, uint32_t rrid)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->srcmd_fmt != IOPMP_SRCMD_FMT_0) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1099,7 +1099,7 @@ enum iopmp_error iopmp_is_srcmd_table_fmt_0_locked(IOPMP_t *iopmp,
 {
     uint64_t mds;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->srcmd_fmt != IOPMP_SRCMD_FMT_0) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1129,7 +1129,7 @@ enum iopmp_error iopmp_lock_srcmd_table_fmt_2(IOPMP_t *iopmp, uint32_t mdidx)
     enum iopmp_error ret;
     uint64_t mds;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->srcmd_fmt != IOPMP_SRCMD_FMT_2) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1167,7 +1167,7 @@ enum iopmp_error iopmp_is_srcmd_table_fmt_2_locked(IOPMP_t *iopmp,
 {
     uint64_t mds, checked_md;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->srcmd_fmt != IOPMP_SRCMD_FMT_2) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1191,7 +1191,7 @@ enum iopmp_error iopmp_is_srcmd_table_fmt_2_locked(IOPMP_t *iopmp,
 enum iopmp_error iopmp_get_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
                                                uint64_t *mds, bool *lock)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (rrid >= iopmp->rrid_num) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
@@ -1234,7 +1234,7 @@ enum iopmp_error iopmp_set_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
     uint64_t valid_mds;
     bool is_srcmd_en_locked;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->srcmd_fmt != IOPMP_SRCMD_FMT_0) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1289,7 +1289,7 @@ enum iopmp_error iopmp_set_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
 enum iopmp_error iopmp_set_md_permission(IOPMP_t *iopmp, uint32_t rrid,
                                          uint32_t mdidx, bool *r, bool *w)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->srcmd_fmt != IOPMP_SRCMD_FMT_2) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1343,7 +1343,7 @@ static enum iopmp_error set_md_permission_multi_nocheck(
 enum iopmp_error iopmp_set_md_permission_multi(IOPMP_t *iopmp, uint32_t mdidx,
                                                IOPMP_SRCMD_PERM_CFG_t *cfg)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->srcmd_fmt != IOPMP_SRCMD_FMT_2) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1578,7 +1578,7 @@ enum iopmp_error iopmp_sps_set_rrid_md_read(IOPMP_t *iopmp, uint32_t rrid,
                                             uint64_t mds_clr,
                                             uint64_t *mds)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (!iopmp_get_support_sps(iopmp)) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1590,7 +1590,7 @@ enum iopmp_error iopmp_sps_set_rrid_md_read(IOPMP_t *iopmp, uint32_t rrid,
 enum iopmp_error iopmp_sps_get_rrid_md_read(IOPMP_t *iopmp, uint32_t rrid,
                                             uint64_t *mds)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (!iopmp_get_support_sps(iopmp)) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1604,7 +1604,7 @@ enum iopmp_error iopmp_sps_set_rrid_md_write(IOPMP_t *iopmp, uint32_t rrid,
                                              uint64_t mds_clr,
                                              uint64_t *mds)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (!iopmp_get_support_sps(iopmp)) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1616,7 +1616,7 @@ enum iopmp_error iopmp_sps_set_rrid_md_write(IOPMP_t *iopmp, uint32_t rrid,
 enum iopmp_error iopmp_sps_get_rrid_md_write(IOPMP_t *iopmp, uint32_t rrid,
                                              uint64_t *mds)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (!iopmp_get_support_sps(iopmp)) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1630,7 +1630,7 @@ enum iopmp_error iopmp_sps_set_rrid_md_insn_fetch(IOPMP_t *iopmp, uint32_t rrid,
                                                   uint64_t mds_clr,
                                                   uint64_t *mds)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (!iopmp_get_support_sps(iopmp)) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1642,7 +1642,7 @@ enum iopmp_error iopmp_sps_set_rrid_md_insn_fetch(IOPMP_t *iopmp, uint32_t rrid,
 enum iopmp_error iopmp_sps_get_rrid_md_insn_fetch(IOPMP_t *iopmp, uint32_t rrid,
                                                   uint64_t *mds)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (!iopmp_get_support_sps(iopmp)) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1664,7 +1664,7 @@ enum iopmp_error iopmp_sps_set_rrid_md_rwx(IOPMP_t *iopmp, uint32_t rrid,
 {
     enum iopmp_error ret;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (!iopmp_get_support_sps(iopmp)) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1708,7 +1708,7 @@ enum iopmp_error iopmp_sps_get_rrid_md_rwx(IOPMP_t *iopmp, uint32_t rrid,
 {
     enum iopmp_error ret;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (!iopmp_get_support_sps(iopmp)) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1767,7 +1767,7 @@ enum iopmp_error iopmp_get_md_entry_association(IOPMP_t *iopmp, uint32_t mdidx,
                                                 uint32_t *entry_idx_start,
                                                 uint32_t *num_entry)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (mdidx >= iopmp->md_num) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
@@ -1805,7 +1805,7 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
     enum iopmp_error ret = IOPMP_OK;    /* md_num=0 skips the loop below */
     uint32_t prev_top, this_top;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->mdcfg_fmt != IOPMP_MDCFG_FMT_0) {
         return IOPMP_ERR_NOT_ALLOWED;   /* Must call iopmp_set_md_entry_num() */
@@ -1860,7 +1860,7 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
 
 enum iopmp_error iopmp_get_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (!is_k_model(iopmp)) {
         return IOPMP_ERR_NOT_SUPPORTED;
@@ -1879,7 +1879,7 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
 {
     enum iopmp_error ret;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (iopmp->mdcfg_fmt != IOPMP_MDCFG_FMT_2) {
         return IOPMP_ERR_NOT_ALLOWED;
@@ -2048,7 +2048,7 @@ static inline bool is_napot(uint64_t addr, uint64_t size)
 {
     uint64_t max_size;
 
-    assert(size >= 4U);
+    iopmp_assert(size >= 4U);
 
     if (ispow2(size) == false) {
         return false;
@@ -2070,7 +2070,7 @@ enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
 {
     uint32_t hw_flags, sw_flags;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if ((entries == NULL) || (num_entry == 0U)) {
         return IOPMP_ERR_INVALID_PARAMETER;
@@ -2264,7 +2264,7 @@ enum iopmp_error iopmp_set_entries(IOPMP_t *iopmp,
 {
     enum iopmp_error ret;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     ret = check_set_entries(iopmp, entry_array, idx_start, num_entry);
     if (ret != IOPMP_OK) {
@@ -2281,7 +2281,7 @@ enum iopmp_error iopmp_set_entries_with_md_permission(
     enum iopmp_error ret;
     uint64_t md_mask;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     /* Only K=1 gives every entry a MD whose SRCMD_PERM(H) it can carry */
     if (iopmp->srcmd_fmt != IOPMP_SRCMD_FMT_2 ||
@@ -2332,7 +2332,7 @@ enum iopmp_error iopmp_set_entries_to_md(IOPMP_t *iopmp, uint32_t mdidx,
 {
     uint32_t md_entry_idx_start, md_num_entry;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (mdidx >= iopmp->md_num) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
@@ -2358,7 +2358,7 @@ enum iopmp_error iopmp_get_entries(IOPMP_t *iopmp,
                                    struct iopmp_entry *entry_array,
                                    uint32_t idx_start, uint32_t num_entry)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if ((entry_array == NULL) || (num_entry == 0U)) {
         return IOPMP_ERR_INVALID_PARAMETER;
@@ -2387,7 +2387,7 @@ enum iopmp_error iopmp_get_entries_from_md(IOPMP_t *iopmp, uint32_t mdidx,
 {
     uint32_t md_entry_idx_start, md_num_entry;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (mdidx >= iopmp->md_num) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
@@ -2412,7 +2412,7 @@ enum iopmp_error iopmp_get_entries_from_md(IOPMP_t *iopmp, uint32_t mdidx,
 enum iopmp_error iopmp_clear_entries(IOPMP_t *iopmp, uint32_t idx_start,
                                      uint32_t num_entry)
 {
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (num_entry > iopmp->entry_num) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
@@ -2441,7 +2441,7 @@ enum iopmp_error iopmp_clear_entries_in_md(IOPMP_t *iopmp, uint32_t mdidx)
 {
     uint32_t md_entry_idx_start, md_num_entry;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (mdidx >= iopmp->md_num) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
@@ -2460,7 +2460,7 @@ enum iopmp_error iopmp_entries_get_belong_md(IOPMP_t *iopmp, uint32_t idx_start,
     uint32_t idx_end, md_base, md_top;
     uint64_t mds_req;
 
-    assert(iopmp_is_initialized(iopmp));
+    iopmp_assert(iopmp_is_initialized(iopmp));
 
     if (!check_entry_idx_range(iopmp, idx_start, num_entry)) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
