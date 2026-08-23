@@ -474,9 +474,10 @@ enum iopmp_error detect_entry_addr_bits(IOPMP_t *iopmp)
         if (io_read32(entry + IOPMP_ENTRY_ADDR_BASE) != 0U) {
             continue;
         }
-        if ((iopmp->addrh_en != 0U) &&
-            (io_read32(entry + IOPMP_ENTRY_ADDRH_BASE) != 0U)) {
-            continue;
+        if (iopmp->addrh_en != 0U) {
+            if (io_read32(entry + IOPMP_ENTRY_ADDRH_BASE) != 0U) {
+                continue;
+            }
         }
 
         io_write32(entry + IOPMP_ENTRY_ADDR_BASE, 0xFFFFFFFFU);
