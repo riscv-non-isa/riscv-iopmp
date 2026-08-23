@@ -866,9 +866,9 @@ static inline uint32_t iopmp_get_md_num(IOPMP_t *iopmp)
  * \retval 1 if HWCFG0.addrh_en = 1
  * \retval 0 if HWCFG0.addrh_en = 0
  */
-static inline uint32_t iopmp_get_addrh_en(IOPMP_t *iopmp)
+static inline bool iopmp_get_addrh_en(IOPMP_t *iopmp)
 {
-    return iopmp->addrh_en;
+    return (iopmp->addrh_en == 1U);
 }
 
 /**
