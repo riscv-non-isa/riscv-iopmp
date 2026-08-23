@@ -338,7 +338,8 @@ struct iopmp_srcmd_perm_config {
 /** Bit position of SRCMD_PERM.w for each RRID */
 #define IOPMP_SRCMD_PERM_W      ((uint32_t)1U << 1U)
 /** Bit mask of SRCMD_PERM for each RRID */
-#define IOPMP_SRCMD_PERM_MASK   (IOPMP_SRCMD_PERM_W | IOPMP_SRCMD_PERM_R)
+#define IOPMP_SRCMD_PERM_MASK   ((uint32_t)(IOPMP_SRCMD_PERM_W |    \
+                                            IOPMP_SRCMD_PERM_R))
 
     /**
      * Bit mask to indicate which RRIDs' permission bits should be configured.
