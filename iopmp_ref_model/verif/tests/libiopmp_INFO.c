@@ -150,13 +150,13 @@ int main(void)
     END_TEST();
 
     START_TEST("Check MDCFG table format");
-    enum iopmp_mdcfg_fmt mdcfg_fmt = iopmp_get_mdcfg_fmt(&iopmp);
-    FAIL_IF(mdcfg_fmt != (enum iopmp_mdcfg_fmt)hwcfg3.mdcfg_fmt);
+    uint32_t mdcfg_fmt = iopmp_get_mdcfg_fmt(&iopmp);
+    FAIL_IF(mdcfg_fmt != (uint32_t)hwcfg3.mdcfg_fmt);
     END_TEST();
 
     START_TEST("Check SRCMD table format");
-    enum iopmp_srcmd_fmt srcmd_fmt = iopmp_get_srcmd_fmt(&iopmp);
-    FAIL_IF(srcmd_fmt != (enum iopmp_srcmd_fmt)hwcfg3.srcmd_fmt);
+    uint32_t srcmd_fmt = iopmp_get_srcmd_fmt(&iopmp);
+    FAIL_IF(srcmd_fmt != (uint32_t)hwcfg3.srcmd_fmt);
     END_TEST();
 
     START_TEST("Check IOPMP supports TOR or not");

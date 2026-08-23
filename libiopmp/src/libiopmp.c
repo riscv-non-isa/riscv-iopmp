@@ -491,7 +491,7 @@ enum iopmp_error iopmp_probe_stall_by_md(IOPMP_t *iopmp, uint64_t *mds)
  * \param[in] iopmp             The IOPMP instance to be set
  * \param[in,out] rrid          Input the RRID to be stalled. Output WARL value
  * \param[in] op                The desired operation of RRIDSCP
- * \param[out] stat             The pointer to store enum iopmp_rridscp_stat
+ * \param[out] stat             The pointer to store the RRIDSCP.stat
  *
  * \retval IOPMP_OK if successes
  * \retval IOPMP_ERR_INVALID_PARAMETER if given \p rrid is NULL or invalid
@@ -502,7 +502,7 @@ enum iopmp_error iopmp_probe_stall_by_md(IOPMP_t *iopmp, uint64_t *mds)
  */
 static enum iopmp_error set_rridscp_common(IOPMP_t *iopmp, uint32_t *rrid,
                                            enum iopmp_rridscp_op op,
-                                           enum iopmp_rridscp_stat *stat)
+                                           uint32_t *stat)
 {
     assert(iopmp_is_initialized(iopmp));
 
@@ -528,7 +528,7 @@ static enum iopmp_error set_rridscp_common(IOPMP_t *iopmp, uint32_t *rrid,
 
 enum iopmp_error iopmp_stall_cherry_pick_rrid(IOPMP_t *iopmp, uint32_t *rrid,
                                               bool select,
-                                              enum iopmp_rridscp_stat *stat)
+                                              uint32_t *stat)
 {
     enum iopmp_rridscp_op op;
 
@@ -537,7 +537,7 @@ enum iopmp_error iopmp_stall_cherry_pick_rrid(IOPMP_t *iopmp, uint32_t *rrid,
 }
 
 enum iopmp_error iopmp_query_stall_stat_by_rrid(IOPMP_t *iopmp, uint32_t *rrid,
-                                                enum iopmp_rridscp_stat *stat)
+                                                uint32_t *stat)
 {
     return set_rridscp_common(iopmp, rrid, IOPMP_RRIDSCP_OP_QUERY, stat);
 }

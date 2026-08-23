@@ -2047,7 +2047,7 @@ int main(void)
     val_u64 = 0x8;
     ret = iopmp_stall_transactions_by_mds(&iopmp, &val_u64, false, true);
     FAIL_IF(ret != IOPMP_OK);
-    enum iopmp_rridscp_stat stat = {0};
+    uint32_t stat = 0U;
     val_u32 = 5;
     ret = iopmp_stall_cherry_pick_rrid(&iopmp, &val_u32, true, &stat);
     FAIL_IF(ret != IOPMP_OK);
@@ -2098,7 +2098,7 @@ int main(void)
     val_u64 = 0x8;
     ret = iopmp_stall_transactions_by_mds(&iopmp, &val_u64, false, true);
     FAIL_IF(ret != IOPMP_OK);
-    enum iopmp_rridscp_stat stat = {0};
+    uint32_t stat = 0U;
     val_u32 = 5;
     ret = iopmp_stall_cherry_pick_rrid(&iopmp, &val_u32, true, &stat);
     FAIL_IF(ret != IOPMP_OK);
@@ -3152,7 +3152,7 @@ int main(void)
     END_TEST();
 
     START_TEST("Cherry pick a RRID with invalid arguments");
-    enum iopmp_rridscp_stat stat;
+    uint32_t stat;
     val_u32 = CFG_RRID_NUM;
     FAIL_IF(iopmp_stall_cherry_pick_rrid(&iopmp, &val_u32, true, &stat) != IOPMP_ERR_OUT_OF_BOUNDS);
     FAIL_IF(iopmp_stall_cherry_pick_rrid(&iopmp, NULL, true, &stat) != IOPMP_ERR_INVALID_PARAMETER);

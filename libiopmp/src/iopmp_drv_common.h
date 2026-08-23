@@ -589,7 +589,7 @@ enum iopmp_error generic_set_prio_entry_num(IOPMP_t *iopmp,
  * \param[in] iopmp             The IOPMP instance to be set
  * \param[in,out] rrid          Input the RRID to be stalled. Output WARL value
  * \param[in] op                The operation of RRIDSCP
- * \param[out] stat             The pointer to store enum iopmp_rridscp_stat
+ * \param[out] stat             The pointer to store the RRIDSCP.stat
  *
  * \retval IOPMP_OK if successes
  * \retval IOPMP_ERR_ILLEGAL_VALUE if the written \p rrid does not match the
@@ -597,7 +597,7 @@ enum iopmp_error generic_set_prio_entry_num(IOPMP_t *iopmp,
  */
 enum iopmp_error generic_set_rridscp(IOPMP_t *iopmp, uint32_t *rrid,
                                      enum iopmp_rridscp_op op,
-                                     enum iopmp_rridscp_stat *stat);
+                                     uint32_t *stat);
 
 /**
  * \brief Set IOPMP HWCFG3.rrid_transl

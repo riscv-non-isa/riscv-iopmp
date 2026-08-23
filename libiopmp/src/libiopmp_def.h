@@ -67,7 +67,7 @@ struct iopmp_operations_override {
     /** Write RRIDSCP with given op and return the stat. */
     enum iopmp_error (*set_rridscp)(IOPMP_t *iopmp, uint32_t *rrid,
                                     enum iopmp_rridscp_op op,
-                                    enum iopmp_rridscp_stat *stat);
+                                    uint32_t *stat);
 
     /** Lock entry[0] ~ entry[@entry_num - 1]. Lock ENTRYLCK if @lock is true */
     enum iopmp_error (*lock_entries)(IOPMP_t *iopmp, uint32_t *entry_num,

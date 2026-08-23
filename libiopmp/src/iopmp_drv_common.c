@@ -696,7 +696,7 @@ bool generic_poll_mdstall(IOPMP_t *iopmp, bool polling, bool stall_or_resume)
 
 enum iopmp_error generic_set_rridscp(IOPMP_t *iopmp, uint32_t *rrid,
                                      enum iopmp_rridscp_op op,
-                                     enum iopmp_rridscp_stat *stat)
+                                     uint32_t *stat)
 {
     uint32_t rridscp;
     uint32_t rrid_req = *rrid;

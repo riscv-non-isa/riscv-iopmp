@@ -252,52 +252,50 @@ struct iopmp_entry {
 };
 
 /** Indicated the transaction type of the first captured violation */
-enum iopmp_errinfo_ttype {
-    /** Reserved */
-    IOPMP_ERRINFO_TTYPE_RSVD       = 0x00,
-    /** Read access */
-    IOPMP_ERRINFO_TTYPE_READ       = 0x01,
-    /** Write access/AMO */
-    IOPMP_ERRINFO_TTYPE_WRITE      = 0x02,
-    /** Instruction fetch */
-    IOPMP_ERRINFO_TTYPE_INST_FETCH = 0x03,
-};
+/** Reserved */
+#define IOPMP_ERRINFO_TTYPE_RSVD        0x00U
+/** Read access */
+#define IOPMP_ERRINFO_TTYPE_READ        0x01U
+/** Write access/AMO */
+#define IOPMP_ERRINFO_TTYPE_WRITE       0x02U
+/** Instruction fetch */
+#define IOPMP_ERRINFO_TTYPE_INST_FETCH  0x03U
+
 
 /** Indicated the type of violation */
-enum iopmp_errinfo_etype {
-    /** No error */
-    IOPMP_ERRINFO_ETYPE_NONE         = 0x00,
-    /** Illegal read access */
-    IOPMP_ERRINFO_ETYPE_READ         = 0x01,
-    /** Illegal write access/AMO */
-    IOPMP_ERRINFO_ETYPE_WRITE        = 0x02,
-    /** Illegal instruction fetch */
-    IOPMP_ERRINFO_ETYPE_INST_FETCH   = 0x03,
-    /** Partial hit on a priority rule */
-    IOPMP_ERRINFO_ETYPE_PART_HIT     = 0x04,
-    /** Not hit any rule */
-    IOPMP_ERRINFO_ETYPE_NOT_HIT      = 0x05,
-    /** Unknown RRID */
-    IOPMP_ERRINFO_ETYPE_UNKNOWN_RRID = 0x06,
-    /** Error due to a stalled transaction */
-    IOPMP_ERRINFO_ETYPE_STALL        = 0x07,
-    /** N/A, reserved for future */
-    IOPMP_ERRINFO_ETYPE_RESERVED_0   = 0x08,
-    /** N/A, reserved for future */
-    IOPMP_ERRINFO_ETYPE_RESERVED_1   = 0x09,
-    /** N/A, reserved for future */
-    IOPMP_ERRINFO_ETYPE_RESERVED_2   = 0x0A,
-    /** N/A, reserved for future */
-    IOPMP_ERRINFO_ETYPE_RESERVED_3   = 0x0B,
-    /** N/A, reserved for future */
-    IOPMP_ERRINFO_ETYPE_RESERVED_4   = 0x0C,
-    /** N/A, reserved for future */
-    IOPMP_ERRINFO_ETYPE_RESERVED_5   = 0x0D,
-    /** User-defined error */
-    IOPMP_ERRINFO_ETYPE_USER_DEF_0   = 0x0E,
-    /** User-defined error */
-    IOPMP_ERRINFO_ETYPE_USER_DEF_1   = 0x0F,
-};
+/** No error */
+#define IOPMP_ERRINFO_ETYPE_NONE        0x00U
+/** Illegal read access */
+#define IOPMP_ERRINFO_ETYPE_READ        0x01U
+/** Illegal write access/AMO */
+#define IOPMP_ERRINFO_ETYPE_WRITE       0x02U
+/** Illegal instruction fetch */
+#define IOPMP_ERRINFO_ETYPE_INST_FETCH  0x03U
+/** Partial hit on a priority rule */
+#define IOPMP_ERRINFO_ETYPE_PART_HIT    0x04U
+/** Not hit any rule */
+#define IOPMP_ERRINFO_ETYPE_NOT_HIT     0x05U
+/** Unknown RRID */
+#define IOPMP_ERRINFO_ETYPE_UNKNOWN_ID  0x06U
+/** Error due to a stalled transaction */
+#define IOPMP_ERRINFO_ETYPE_STALL       0x07U
+/** N/A, reserved for future */
+#define IOPMP_ERRINFO_ETYPE_RESERVED_0  0x08U
+/** N/A, reserved for future */
+#define IOPMP_ERRINFO_ETYPE_RESERVED_1  0x09U
+/** N/A, reserved for future */
+#define IOPMP_ERRINFO_ETYPE_RESERVED_2  0x0AU
+/** N/A, reserved for future */
+#define IOPMP_ERRINFO_ETYPE_RESERVED_3  0x0BU
+/** N/A, reserved for future */
+#define IOPMP_ERRINFO_ETYPE_RESERVED_4  0x0CU
+/** N/A, reserved for future */
+#define IOPMP_ERRINFO_ETYPE_RESERVED_5  0x0DU
+/** User-defined error */
+#define IOPMP_ERRINFO_ETYPE_USER_DEF_0  0x0EU
+/** User-defined error */
+#define IOPMP_ERRINFO_ETYPE_USER_DEF_1  0x0FU
+
 
 /** Structure represents an IOPMP error report */
 struct iopmp_err_report {
@@ -308,9 +306,9 @@ struct iopmp_err_report {
     /** Indicates the index pointing to the entry that catches the violation */
     uint32_t eid;
     /** Indicated the transaction type of the first captured violation */
-    enum iopmp_errinfo_ttype ttype;
+    uint32_t ttype;
     /** Indicated the type of violation */
-    enum iopmp_errinfo_etype etype;
+    uint32_t etype;
     /** Indicate the write access to trigger an IOPMP originated MSI failed */
     bool msi_werr;
     /** Indicate there is a subsequent violation caught in ERR_MFR */
@@ -376,42 +374,29 @@ typedef struct iopmp_srcmd_perm_config IOPMP_SRCMD_PERM_CFG_t;
 /******************************************************************************/
 /* Supported IOPMP implementation ID                                          */
 /******************************************************************************/
-/** Enumerate implementation ID of IOPMP */
-enum iopmp_impid {
-    /** The implementation ID of IOPMP is not specified */
-    IOPMP_IMPID_NOT_SPECIFIED = 0xFFFFFFFF,
-};
+/** The implementation ID of IOPMP is not specified */
+#define IOPMP_IMPID_NOT_SPECIFIED   0xFFFFFFFFU
 
 /******************************************************************************/
 /* MDCFG_FMT and SRCMD_FMT and models                                         */
 /******************************************************************************/
-/** Enumerate the SRCMD table format */
-enum iopmp_srcmd_fmt {
-    /** Format 0. SRCMD_EN(s) and SRCMD_ENH(s) are available */
-    IOPMP_SRCMD_FMT_0,
-    /** Format 1. No SRCMD Table */
-    IOPMP_SRCMD_FMT_1,
-    /** Format 2. SRCMD_PERM(m) and SRCMD_PERMH(m) are available */
-    IOPMP_SRCMD_FMT_2,
-    /** Reserved */
-    IOPMP_SRCMD_FMT_RESERVED,
-    /** Maximum number of SRCMD table formats */
-    IOPMP_SRCMD_FMT_MAX,
-};
+/** SRCMD Table Format 0. SRCMD_EN(s) and SRCMD_ENH(s) are available */
+#define IOPMP_SRCMD_FMT_0           0U
+/** SRCMD Table Format 1. No SRCMD Table */
+#define IOPMP_SRCMD_FMT_1           1U
+/** SRCMD Table Format 2. SRCMD_PERM(m) and SRCMD_PERMH(m) are available */
+#define IOPMP_SRCMD_FMT_2           2U
+/** Reserved */
+#define IOPMP_SRCMD_FMT_RESERVED    3U
 
-/** Enumerate the MDCFG table format */
-enum iopmp_mdcfg_fmt {
-    /** Format 0. MDCFG Table is implemented */
-    IOPMP_MDCFG_FMT_0,
-    /** Format 1. No MDCFG Table. HWCFG3.md_entry_num is fixed */
-    IOPMP_MDCFG_FMT_1,
-    /** Format 2. No MDCFG Table. HWCFG3.md_entry_num is programmable */
-    IOPMP_MDCFG_FMT_2,
-    /** Reserved */
-    IOPMP_MDCFG_FMT_RESERVED,
-    /** Maximum number of MDCFG table formats */
-    IOPMP_MDCFG_FMT_MAX,
-};
+/** MDCFG Table Format 0. MDCFG Table is implemented */
+#define IOPMP_MDCFG_FMT_0           0U
+/** MDCFG Table Format 1. No MDCFG Table. HWCFG3.md_entry_num is fixed */
+#define IOPMP_MDCFG_FMT_1           1U
+/** MDCFG Table Format 2. No MDCFG Table. HWCFG3.md_entry_num is programmable */
+#define IOPMP_MDCFG_FMT_2           2U
+/** Reserved */
+#define IOPMP_MDCFG_FMT_RESERVED    3U
 
 /** Enumerate well-defined IOPMP models */
 enum iopmp_model {
@@ -462,16 +447,15 @@ enum iopmp_rridscp_op {
 };
 
 /** The states of RRIDSCP.stat field */
-enum iopmp_rridscp_stat {
-    /** RRIDSCP is not implemented */
-    IOPMP_RRIDSCP_STAT_NOT_IMPL = 0,
-    /** Transactions associated with selected RRID are stalled */
-    IOPMP_RRIDSCP_STAT_STALLED = 1,
-    /** Transactions associated with selected RRID are not stalled */
-    IOPMP_RRIDSCP_STAT_NOT_STALLED = 2,
-    /** Unimplemented or unselectable RRID */
-    IOPMP_RRIDSCP_STAT_ERR_RRID = 3
-};
+/** RRIDSCP is not implemented */
+#define IOPMP_RRIDSCP_STAT_NOT_IMPL     0U
+/** Transactions associated with selected RRID are stalled */
+#define IOPMP_RRIDSCP_STAT_STALLED      1U
+/** Transactions associated with selected RRID are not stalled */
+#define IOPMP_RRIDSCP_STAT_NOT_STALLED  2U
+/** Selected RRID is not valid */
+#define IOPMP_RRIDSCP_STAT_ERR_RRID     3U
+
 
 /******************************************************************************/
 /* The flags used when calling iopmp_encode_entry()                           */
@@ -695,7 +679,7 @@ static inline uint32_t iopmp_get_granularity(IOPMP_t *iopmp)
  *
  * \return HWCFG3.mdcfg_fmt of the IOPMP
  */
-static inline enum iopmp_mdcfg_fmt iopmp_get_mdcfg_fmt(IOPMP_t *iopmp)
+static inline uint32_t iopmp_get_mdcfg_fmt(IOPMP_t *iopmp)
 {
     return iopmp->mdcfg_fmt;
 }
@@ -707,7 +691,7 @@ static inline enum iopmp_mdcfg_fmt iopmp_get_mdcfg_fmt(IOPMP_t *iopmp)
  *
  * \return HWCFG3.srcmd_fmt of the IOPMP
  */
-static inline enum iopmp_srcmd_fmt iopmp_get_srcmd_fmt(IOPMP_t *iopmp)
+static inline uint32_t iopmp_get_srcmd_fmt(IOPMP_t *iopmp)
 {
     return iopmp->srcmd_fmt;
 }
@@ -1124,7 +1108,7 @@ static inline bool iopmp_err_report_is_part_hit(IOPMP_ERR_REPORT_t *err_report)
  *
  * \return The transaction type
  */
-static inline enum iopmp_errinfo_ttype
+static inline uint32_t
 iopmp_err_report_get_ttype(IOPMP_ERR_REPORT_t *err_report)
 {
     return err_report->ttype;
@@ -1152,7 +1136,7 @@ static inline bool iopmp_err_report_get_msi_werr(IOPMP_ERR_REPORT_t *err_report)
  *
  * \return The type of violation
  */
-static inline enum iopmp_errinfo_etype
+static inline uint32_t
 iopmp_err_report_get_etype(IOPMP_ERR_REPORT_t *err_report)
 {
     return err_report->etype;
@@ -1456,7 +1440,7 @@ enum iopmp_error iopmp_probe_stall_by_md(IOPMP_t *iopmp, uint64_t *mds);
  * \param[in] iopmp             The IOPMP instance to be set
  * \param[in,out] rrid          Input the RRID to be stalled. Output WARL value
  * \param[in] select            Set true select or false to deselect
- * \param[out] stat             The pointer to store enum iopmp_rridscp_stat
+ * \param[out] stat             The pointer to store the RRIDSCP.stat
  *
  * \retval IOPMP_OK if successes
  * \retval IOPMP_ERR_INVALID_PARAMETER if given \p rrid is NULL or invalid
@@ -1474,14 +1458,14 @@ enum iopmp_error iopmp_probe_stall_by_md(IOPMP_t *iopmp, uint64_t *mds);
  */
 enum iopmp_error iopmp_stall_cherry_pick_rrid(IOPMP_t *iopmp, uint32_t *rrid,
                                               bool select,
-                                              enum iopmp_rridscp_stat *stat);
+                                              uint32_t *stat);
 
 /**
  * \brief Query the stall status of given RRID
  *
  * \param[in] iopmp             The IOPMP instance to be queried
  * \param[in,out] rrid          Input the RRID to be queried. Output WARL value
- * \param[out] stat             The pointer to store enum iopmp_rridscp_stat
+ * \param[out] stat             The pointer to store the RRIDSCP.stat
  *
  * \retval Positive value for stall status of \p rrid
  * \retval IOPMP_ERR_OUT_OF_BOUNDS if given \p rrid is out of bounds
@@ -1497,7 +1481,7 @@ enum iopmp_error iopmp_stall_cherry_pick_rrid(IOPMP_t *iopmp, uint32_t *rrid,
  *       iopmp_transactions_are_stalled().
  */
 enum iopmp_error iopmp_query_stall_stat_by_rrid(IOPMP_t *iopmp, uint32_t *rrid,
-                                                enum iopmp_rridscp_stat *stat);
+                                                uint32_t *stat);
 
 /**
  * \brief Get locked MDs and MDLCK.l
