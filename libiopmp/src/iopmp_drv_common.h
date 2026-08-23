@@ -56,7 +56,7 @@
 #ifdef __riscv_zbb
 #include <riscv_bitmanip.h>
 
-#if __riscv_xlen == 32
+#if defined(__riscv_xlen) && (__riscv_xlen == 32)
 /**
  * \brief Count trailing zeros in 64-bit value for RV32 using Zbb instruction
  *
@@ -78,7 +78,7 @@ static inline unsigned iopmp_ctz_64_xlen_32(uint64_t val)
 }
 
 #define iopmp_ctzll(VAL)        iopmp_ctz_64_xlen_32(VAL)
-#elif __riscv_xlen == 64
+#elif defined(__riscv_xlen) && (__riscv_xlen == 64)
 #define iopmp_ctzll(VAL)        __riscv_ctz_64(VAL)
 #endif
 #else   /* __riscv_zbb is not defined */
