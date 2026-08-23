@@ -372,8 +372,8 @@ DECLARE_FUNC_WRITE_SRCMD_H(srcmd_xh,    (iopmp->md_num > 31U));
 static void write_ ## name ## _64(IOPMP_t *iopmp, uint32_t idx,         \
                                   uint64_t val)                         \
 {                                                                       \
-    write_##name##h(iopmp, idx, val >> 32);                             \
-    write_##name(iopmp, idx, val & 0xFFFFFFFFU);                        \
+    write_##name##h(iopmp, idx, (uint32_t)(val >> 32));                 \
+    write_##name(iopmp, idx, (uint32_t)(val & 0xFFFFFFFFU));            \
 }
 DECLARE_FUNC_WRITE_SRCMD_64(srcmd_en);
 DECLARE_FUNC_WRITE_SRCMD_64(srcmd_perm);
@@ -542,7 +542,7 @@ enum iopmp_error generic_set_prio_entry_num(IOPMP_t *iopmp, uint16_t *num_entry)
 
     /* HWCFG2.prio_entry is WARL field. Read it back to check the value */
     hwcfg2 = io_read32(iopmp->addr + IOPMP_HWCFG2_BASE);
-    *num_entry = EXTRACT_FIELD(hwcfg2, IOPMP_HWCFG2_PRIO_ENTRY);
+    *num_entry = (uint16_t)EXTRACT_FIELD(hwcfg2, IOPMP_HWCFG2_PRIO_ENTRY);
 
     return (prio_entry_req == *num_entry) ? IOPMP_OK : IOPMP_ERR_ILLEGAL_VALUE;
 }
@@ -557,7 +557,7 @@ enum iopmp_error generic_set_rrid_transl(IOPMP_t *iopmp, uint16_t *rrid_transl)
 
     /* HWCFG3.rrid_transl is WARL field. Read it back to check the value */
     hwcfg3 = io_read32(iopmp->addr + IOPMP_HWCFG3_BASE);
-    *rrid_transl = EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_RRID_TRANSL);
+    *rrid_transl = (uint16_t)EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_RRID_TRANSL);
 
     return (rrid_transl_req == *rrid_transl) ? IOPMP_OK :
                                                IOPMP_ERR_ILLEGAL_VALUE;
@@ -617,8 +617,8 @@ static enum iopmp_error stall_by_mds_common(IOPMP_t *iopmp, uint64_t *mds,
     uint32_t mdstall, mdstall_md, mdstallh;
     uint32_t rb_mdstall_md, rb_mdstallh;
 
-    mdstallh = mds_req >> 31;           /* mds[62:31] */
-    mdstall_md = mds_req & 0x7FFFFFFFU;  /* mds[30: 0] */
+    mdstallh = (uint32_t)(mds_req >> 31);           /* mds[62:31] */
+    mdstall_md = (uint32_t)(mds_req & 0x7FFFFFFFU);  /* mds[30: 0] */
     mdstall = MAKE_FIELD_32(mdstall_md, IOPMP_MDSTALL_MD) |
               MAKE_FIELD_32(exempt, IOPMP_MDSTALL_EXEMPT);
     /* Write MD_STALLH first then MD_STALL to take effect. */
@@ -798,21 +798,21 @@ enum iopmp_error generic_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
                   (msidata_req << IOPMP_ERR_CFG_MSIDATA_SHIFT));
     /* ERR_CFG.msidata is WARL field. Read it back to check the value */
     err_cfg = io_read32(iopmp->addr + IOPMP_ERR_CFG_BASE);
-    *msidata = EXTRACT_FIELD(err_cfg, IOPMP_ERR_CFG_MSIDATA);
+    *msidata = (uint16_t)EXTRACT_FIELD(err_cfg, IOPMP_ERR_CFG_MSIDATA);
 
     if (iopmp->addrh_en == 0U) {
         /* Write bits 33 to 2 of the address into ERR_MSIADDR */
-        err_msiaddr = msiaddr64_req >> 2;
+        err_msiaddr = (uint32_t)(msiaddr64_req >> 2);
         io_write32(iopmp->addr + IOPMP_ERR_MSIADDR_BASE, err_msiaddr);
         /* ERR_MSIADDR.msiaddr is WARL field. Read it back to check the value */
         *msiaddr64 =
             (uint64_t)io_read32(iopmp->addr + IOPMP_ERR_MSIADDR_BASE) << 2;
     } else {
         /* Write bits 31 to 0 of the address into ERR_MSIADDR */
-        err_msiaddr = msiaddr64_req & UINT32_MAX;
+        err_msiaddr = (uint32_t)(msiaddr64_req & UINT32_MAX);
         io_write32(iopmp->addr + IOPMP_ERR_MSIADDR_BASE, err_msiaddr);
         /* Write bits 63 to 32 of the address into ERR_MSIADDRH */
-        err_msiaddrh = msiaddr64_req >> 32;
+        err_msiaddrh = (uint32_t)(msiaddr64_req >> 32);
         io_write32(iopmp->addr + IOPMP_ERR_MSIADDRH_BASE, err_msiaddrh);
 
         /*
@@ -924,8 +924,8 @@ enum iopmp_error generic_get_sv_window(IOPMP_t *iopmp, uint16_t *svi,
     err_mfr = io_read32(iopmp->addr + IOPMP_ERR_MFR_BASE);
     if ((err_mfr & IOPMP_ERR_MFR_SVS_MASK) != 0U) {
         /* Subsequent violation found */
-        *svi = EXTRACT_FIELD(err_mfr, IOPMP_ERR_MFR_SVI);
-        *svw = EXTRACT_FIELD(err_mfr, IOPMP_ERR_MFR_SVW);
+        *svi = (uint16_t)EXTRACT_FIELD(err_mfr, IOPMP_ERR_MFR_SVI);
+        *svw = (uint16_t)EXTRACT_FIELD(err_mfr, IOPMP_ERR_MFR_SVW);
         return IOPMP_OK;
     }
 
@@ -941,9 +941,11 @@ enum iopmp_error generic_set_entries(IOPMP_t *iopmp,
 
     for (i = 0; i < num_entry; i++) {
         io_write32(e + IOPMP_ENTRY_CFG_BASE, 0);
-        io_write32(e + IOPMP_ENTRY_ADDR_BASE, entry_array[i].addr & UINT32_MAX);
+        io_write32(e + IOPMP_ENTRY_ADDR_BASE,
+                   (uint32_t)(entry_array[i].addr & UINT32_MAX));
         if (iopmp->addrh_en == 1U) {
-            io_write32(e + IOPMP_ENTRY_ADDRH_BASE, entry_array[i].addr >> 32);
+            io_write32(e + IOPMP_ENTRY_ADDRH_BASE,
+                       (uint32_t)(entry_array[i].addr >> 32));
         }
         io_write32(e + IOPMP_ENTRY_CFG_BASE, entry_array[i].cfg);
 
@@ -1035,8 +1037,8 @@ enum iopmp_error srcmd_fmt_0_2_set_md_lock(IOPMP_t *iopmp, uint64_t *mds,
     if (lock_mdlck) {
         mdlck_64 |= IOPMP_MDLCK_L_MASK;
     }
-    mdlckh = mdlck_64 >> 32;
-    mdlck  = mdlck_64 & UINT32_MAX;
+    mdlckh = (uint32_t)(mdlck_64 >> 32);
+    mdlck  = (uint32_t)(mdlck_64 & UINT32_MAX);
 
     /* Write MDLCKH first */
     if (mdlckh != 0U) {
@@ -1288,8 +1290,10 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
 
     if (hwcfg3_en) {
         hwcfg3 = io_read32(addr + IOPMP_HWCFG3_BASE);
-        hwcfg3_mdcfg_fmt = EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_MDCFG_FMT);
-        hwcfg3_srcmd_fmt = EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_SRCMD_FMT);
+        hwcfg3_mdcfg_fmt =
+            (uint8_t)EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_MDCFG_FMT);
+        hwcfg3_srcmd_fmt =
+            (uint8_t)EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_SRCMD_FMT);
     } else {
         hwcfg3 = 0;
         /* The Full Model is the default IOPMP configuration */
@@ -1310,7 +1314,7 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
     data = io_read32(iopmp->addr + IOPMP_VERSION_BASE);
     /* Record into local data structure */
     iopmp->vendor = EXTRACT_FIELD(data, IOPMP_VERSION_VENDOR);
-    iopmp->specver = EXTRACT_FIELD(data, IOPMP_VERSION_SPECVER);
+    iopmp->specver = (uint8_t)EXTRACT_FIELD(data, IOPMP_VERSION_SPECVER);
 
     /* Read IMPLEMENTATION */
     data = io_read32(iopmp->addr + IOPMP_IMPLEMENTATION_BASE);
@@ -1318,31 +1322,34 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
     iopmp->impid = EXTRACT_FIELD(data, IOPMP_IMPLEMENTATION_IMPID);
 
     /* Record HWCFG0 into local data structure */
-    iopmp->enable = EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_ENABLE);
-    iopmp->no_err_rec = EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_NO_ERR_REC);
-    iopmp->md_num = EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_MD_NUM);
-    iopmp->addrh_en = EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_ADDRH_EN);
-    iopmp->tor_en = EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_TOR_EN);
+    iopmp->enable = (uint8_t)EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_ENABLE);
+    iopmp->no_err_rec = (uint8_t)EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_NO_ERR_REC);
+    iopmp->md_num = (uint8_t)EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_MD_NUM);
+    iopmp->addrh_en = (uint8_t)EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_ADDRH_EN);
+    iopmp->tor_en = (uint8_t)EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_TOR_EN);
 
     /* Read HWCFG1 */
     data = io_read32(iopmp->addr + IOPMP_HWCFG1_BASE);
     /* Record into local data structure */
-    iopmp->rrid_num = EXTRACT_FIELD(data, IOPMP_HWCFG1_RRID_NUM);
-    iopmp->entry_num = EXTRACT_FIELD(data, IOPMP_HWCFG1_ENTRY_NUM);
+    iopmp->rrid_num = (uint16_t)EXTRACT_FIELD(data, IOPMP_HWCFG1_RRID_NUM);
+    iopmp->entry_num = (uint16_t)EXTRACT_FIELD(data, IOPMP_HWCFG1_ENTRY_NUM);
 
     /* Read HWCFG2 if it is implemented */
     if (hwcfg2_en) {
         /* Record into local data structure */
         data = io_read32(iopmp->addr + IOPMP_HWCFG2_BASE);
-        iopmp->prio_entry_num = EXTRACT_FIELD(data, IOPMP_HWCFG2_PRIO_ENTRY);
-        iopmp->prio_ent_prog = EXTRACT_FIELD(data, IOPMP_HWCFG2_PRIO_ENT_PROG);
-        iopmp->non_prio_en = EXTRACT_FIELD(data, IOPMP_HWCFG2_NON_PRIO_EN);
-        iopmp->msi_en = EXTRACT_FIELD(data, IOPMP_HWCFG2_MSI_EN);
-        iopmp->peis = EXTRACT_FIELD(data, IOPMP_HWCFG2_PEIS);
-        iopmp->pees = EXTRACT_FIELD(data, IOPMP_HWCFG2_PEES);
-        iopmp->sps_en = EXTRACT_FIELD(data, IOPMP_HWCFG2_SPS_EN);
-        iopmp->stall_en = EXTRACT_FIELD(data, IOPMP_HWCFG2_STALL_EN);
-        iopmp->mfr_en = EXTRACT_FIELD(data, IOPMP_HWCFG2_MFR_EN);
+        iopmp->prio_entry_num =
+            (uint16_t)EXTRACT_FIELD(data, IOPMP_HWCFG2_PRIO_ENTRY);
+        iopmp->prio_ent_prog =
+            (uint8_t)EXTRACT_FIELD(data, IOPMP_HWCFG2_PRIO_ENT_PROG);
+        iopmp->non_prio_en =
+            (uint8_t)EXTRACT_FIELD(data, IOPMP_HWCFG2_NON_PRIO_EN);
+        iopmp->msi_en = (uint8_t)EXTRACT_FIELD(data, IOPMP_HWCFG2_MSI_EN);
+        iopmp->peis = (uint8_t)EXTRACT_FIELD(data, IOPMP_HWCFG2_PEIS);
+        iopmp->pees = (uint8_t)EXTRACT_FIELD(data, IOPMP_HWCFG2_PEES);
+        iopmp->sps_en = (uint8_t)EXTRACT_FIELD(data, IOPMP_HWCFG2_SPS_EN);
+        iopmp->stall_en = (uint8_t)EXTRACT_FIELD(data, IOPMP_HWCFG2_STALL_EN);
+        iopmp->mfr_en = (uint8_t)EXTRACT_FIELD(data, IOPMP_HWCFG2_MFR_EN);
     } else {
         /* All entries are priority entries */
         iopmp->prio_entry_num = iopmp->entry_num;
@@ -1353,15 +1360,17 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
         /* Record into local data structure */
         iopmp->mdcfg_fmt = hwcfg3_mdcfg_fmt;
         iopmp->srcmd_fmt = hwcfg3_srcmd_fmt;
-        iopmp->md_entry_num = EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_MD_ENTRY_NUM);
-        iopmp->xinr = EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_XINR);
-        iopmp->no_x = EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_NO_X);
-        iopmp->no_w = EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_NO_W);
-        iopmp->rrid_transl_en = EXTRACT_FIELD(hwcfg3,
-                                              IOPMP_HWCFG3_RRID_TRANSL_EN);
-        iopmp->rrid_transl_prog = EXTRACT_FIELD(hwcfg3,
-                                                IOPMP_HWCFG3_RRID_TRANSL_PROG);
-        iopmp->rrid_transl = EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_RRID_TRANSL);
+        iopmp->md_entry_num =
+            (uint8_t)EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_MD_ENTRY_NUM);
+        iopmp->xinr = (uint8_t)EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_XINR);
+        iopmp->no_x = (uint8_t)EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_NO_X);
+        iopmp->no_w = (uint8_t)EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_NO_W);
+        iopmp->rrid_transl_en =
+            (uint8_t)EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_RRID_TRANSL_EN);
+        iopmp->rrid_transl_prog =
+            (uint8_t)EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_RRID_TRANSL_PROG);
+        iopmp->rrid_transl =
+            (uint16_t)EXTRACT_FIELD(hwcfg3, IOPMP_HWCFG3_RRID_TRANSL);
     }
 
     /* Read ENTRY_OFFSET */
@@ -1372,11 +1381,12 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
     /* Read ERR_CFG */
     data = io_read32(iopmp->addr + IOPMP_ERR_CFG_BASE);
     /* Record into local data structure */
-    iopmp->err_cfg_lock = EXTRACT_FIELD(data, IOPMP_ERR_CFG_L);
-    iopmp->intr_enable = EXTRACT_FIELD(data, IOPMP_ERR_CFG_IE);
-    iopmp->msi_sel = EXTRACT_FIELD(data, IOPMP_ERR_CFG_MSI_SEL);
-    iopmp->stall_violation_en = EXTRACT_FIELD(data, IOPMP_ERR_CFG_STALL_VIO_EN);
-    iopmp->msidata = EXTRACT_FIELD(data, IOPMP_ERR_CFG_MSIDATA);
+    iopmp->err_cfg_lock = (uint8_t)EXTRACT_FIELD(data, IOPMP_ERR_CFG_L);
+    iopmp->intr_enable = (uint8_t)EXTRACT_FIELD(data, IOPMP_ERR_CFG_IE);
+    iopmp->msi_sel = (uint8_t)EXTRACT_FIELD(data, IOPMP_ERR_CFG_MSI_SEL);
+    iopmp->stall_violation_en =
+        (uint8_t)EXTRACT_FIELD(data, IOPMP_ERR_CFG_STALL_VIO_EN);
+    iopmp->msidata = (uint16_t)EXTRACT_FIELD(data, IOPMP_ERR_CFG_MSIDATA);
 
     /* Read ERR_MSIADDR and ERR_MSIADDRH */
     if (iopmp->msi_en == 1U) {
@@ -1406,7 +1416,7 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
         }
         mdlck_64 = ((uint64_t)mdlckh << 32) | mdlck;
 
-        iopmp->mdlck_lock = EXTRACT_FIELD(mdlck, IOPMP_MDLCK_L);
+        iopmp->mdlck_lock = (uint8_t)EXTRACT_FIELD(mdlck, IOPMP_MDLCK_L);
         iopmp->mdlck_md = mdlck_64 >> IOPMP_MDLCK_MD_SHIFT;
     }
 
@@ -1414,15 +1424,15 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
     if (iopmp->mdcfg_fmt == IOPMP_MDCFG_FMT_0) {
         data = io_read32(iopmp->addr + IOPMP_MDCFGLCK_BASE);
         /* Record into local data structure */
-        iopmp->mdcfglck_lock = EXTRACT_FIELD(data, IOPMP_MDCFGLCK_L);
-        iopmp->mdcfglck_f = EXTRACT_FIELD(data, IOPMP_MDCFGLCK_F);
+        iopmp->mdcfglck_lock = (uint8_t)EXTRACT_FIELD(data, IOPMP_MDCFGLCK_L);
+        iopmp->mdcfglck_f = (uint8_t)EXTRACT_FIELD(data, IOPMP_MDCFGLCK_F);
     }
 
     /* Read ENTRYLCK */
     data = io_read32(iopmp->addr + IOPMP_ENTRYLCK_BASE);
     /* Record into local data structure */
-    iopmp->entrylck_lock = EXTRACT_FIELD(data, IOPMP_ENTRYLCK_L);
-    iopmp->entrylck_f = EXTRACT_FIELD(data, IOPMP_ENTRYLCK_F);
+    iopmp->entrylck_lock = (uint8_t)EXTRACT_FIELD(data, IOPMP_ENTRYLCK_L);
+    iopmp->entrylck_f = (uint16_t)EXTRACT_FIELD(data, IOPMP_ENTRYLCK_F);
 
     /* Detect if this IOPMP supports stall transactions */
     detect_stall_function(iopmp);

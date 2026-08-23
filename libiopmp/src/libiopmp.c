@@ -651,7 +651,7 @@ enum iopmp_error iopmp_lock_mdcfg(IOPMP_t *iopmp, uint32_t *md_num, bool lock)
     }
     /* Update local data cache */
     iopmp->mdcfglck_lock = lock ? 1U : 0U;
-    iopmp->mdcfglck_f = *md_num;
+    iopmp->mdcfglck_f = (uint8_t)*md_num;
 
     return ret;
 }
@@ -727,7 +727,7 @@ enum iopmp_error iopmp_lock_entries(IOPMP_t *iopmp, uint32_t *entry_num,
         ret = generic_lock_entries(iopmp, entry_num, lock);
     }
     iopmp->entrylck_lock = lock ? 1U : 0U;
-    iopmp->entrylck_f = *entry_num;
+    iopmp->entrylck_f = (uint16_t)*entry_num;
 
     return ret;
 }
@@ -1910,7 +1910,7 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
     } else {
         ret = mdcfg_fmt_2_set_md_entry_num(iopmp, md_entry_num);
     }
-    iopmp->md_entry_num = *md_entry_num;    /* Update local cache */
+    iopmp->md_entry_num = (uint8_t)*md_entry_num;   /* Update local cache */
 
     return ret;
 }
