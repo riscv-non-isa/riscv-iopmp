@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __IOPMP_DRV_COMMON_H__
-#define __IOPMP_DRV_COMMON_H__
+#ifndef IOPMP_DRV_COMMON_H
+#define IOPMP_DRV_COMMON_H
 
 #include "libiopmp.h"
 #include "libiopmp_def.h"
@@ -87,18 +87,18 @@ static inline unsigned iopmp_ctz_64_xlen_32(uint64_t val)
 
 #ifdef ENABLE_IO_WEAK_FUNCTIONS
 /* Define IO functions as weak so that application code can override them */
-#define __IOPMP_IO_FUNC_ATTR    __attribute__((weak))
+#define IOPMP_IO_FUNC_ATTR      __attribute__((weak))
 #else
-#define __IOPMP_IO_FUNC_ATTR    static inline
+#define IOPMP_IO_FUNC_ATTR      static inline
 #endif
 
 /* GCOVR_EXCL_START */
-__IOPMP_IO_FUNC_ATTR uint32_t io_read32(uintptr_t addr)
+IOPMP_IO_FUNC_ATTR uint32_t io_read32(uintptr_t addr)
 {
     return *(volatile uint32_t *)addr;
 }
 
-__IOPMP_IO_FUNC_ATTR void io_write32(uintptr_t addr, uint32_t val)
+IOPMP_IO_FUNC_ATTR void io_write32(uintptr_t addr, uint32_t val)
 {
     *(volatile uint32_t *)addr = val;
 }

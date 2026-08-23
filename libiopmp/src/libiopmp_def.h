@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __LIBIOPMP_DEF_H__
-#define __LIBIOPMP_DEF_H__
+#ifndef LIBIOPMP_DEF_H
+#define LIBIOPMP_DEF_H
 
 #include "libiopmp.h"
 
@@ -168,4 +168,4 @@ struct iopmp_operations_override {
                                          uint32_t *md_entry_num);
 };
 
-#endif  /* __LIBIOPMP_DEF_H__ */
+#endif  /* LIBIOPMP_DEF_H */

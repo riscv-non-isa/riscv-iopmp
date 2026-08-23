@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __LIBIOPMP_H__
-#define __LIBIOPMP_H__
+#ifndef LIBIOPMP_H
+#define LIBIOPMP_H
 
 #include <stdbool.h>
 #include <stddef.h>

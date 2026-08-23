@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __IOPMP_UTIL_H__
-#define __IOPMP_UTIL_H__
+#ifndef IOPMP_UTIL_H
+#define IOPMP_UTIL_H
 
 #include <stdio.h>
 
@@ -41,4 +41,4 @@ static inline void assert_failed(const char *filename,
 #define assert(__e) ((void)0)
 #endif
 
-#endif  /* __IOPMP_UTIL_H__ */
+#endif  /* IOPMP_UTIL_H */
