@@ -75,7 +75,7 @@ static const struct iopmp_operations_override vendor_example_ops = {
     .lock_entries = vendor_example_lock_entries,
 };
 
-const struct iopmp_driver iopmp_drv_vendor_example;
+extern const struct iopmp_driver iopmp_drv_vendor_example;
 
 static enum iopmp_error vendor_example_init(IOPMP_t *iopmp, uintptr_t addr)
 {
