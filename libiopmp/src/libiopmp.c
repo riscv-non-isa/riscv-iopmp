@@ -22,7 +22,6 @@
 #include "iopmp_drv_common.h"
 #include "iopmp_util.h"
 
-extern const struct iopmp_driver *const iopmp_drivers[];
 
 #define IS_ALIGNED(x, a)    (((x) & ((a) - 1U)) == 0U)
 

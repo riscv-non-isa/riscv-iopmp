@@ -19,6 +19,20 @@
 
 #include "iopmp_drv_common.h"
 
+#ifdef ENABLE_IO_WEAK_FUNCTIONS
+/* GCOVR_EXCL_START */
+__attribute__((weak)) uint32_t io_read32(uintptr_t addr)
+{
+    return *(volatile uint32_t *)addr;
+}
+
+__attribute__((weak)) void io_write32(uintptr_t addr, uint32_t val)
+{
+    *(volatile uint32_t *)addr = val;
+}
+/* GCOVR_EXCL_STOP */
+#endif
+
 /******************************************************************************/
 /* Memory-mapped offsets for standard IOPMP                                   */
 /******************************************************************************/

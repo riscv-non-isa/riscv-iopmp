@@ -85,24 +85,25 @@ static inline unsigned iopmp_ctz_64_xlen_32(uint64_t val)
 #define iopmp_ctzll(VAL)        __builtin_ctzll(VAL)
 #endif
 
-#ifdef ENABLE_IO_WEAK_FUNCTIONS
-/* Define IO functions as weak so that application code can override them */
-#define IOPMP_IO_FUNC_ATTR      __attribute__((weak))
-#else
-#define IOPMP_IO_FUNC_ATTR      static inline
-#endif
+/* Defined by the generated translation unit, NULL-terminated */
+extern const struct iopmp_driver *const iopmp_drivers[];
 
+#ifdef ENABLE_IO_WEAK_FUNCTIONS
+uint32_t io_read32(uintptr_t addr);
+void io_write32(uintptr_t addr, uint32_t val);
+#else
 /* GCOVR_EXCL_START */
-IOPMP_IO_FUNC_ATTR uint32_t io_read32(uintptr_t addr)
+static inline uint32_t io_read32(uintptr_t addr)
 {
     return *(volatile uint32_t *)addr;
 }
 
-IOPMP_IO_FUNC_ATTR void io_write32(uintptr_t addr, uint32_t val)
+static inline void io_write32(uintptr_t addr, uint32_t val)
 {
     *(volatile uint32_t *)addr = val;
 }
 /* GCOVR_EXCL_STOP */
+#endif
 
 /**
  * \brief Detect writable bits of ENTRY_ADDR(H) and IOPMP granularity
