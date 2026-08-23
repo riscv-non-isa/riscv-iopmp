@@ -476,6 +476,8 @@ enum iopmp_error iopmp_probe_stall_by_md(IOPMP_t *iopmp, uint64_t *mds)
         /* A narrower read-back is the answer, not a failure, and
          * stall_by_mds() has already resumed on our behalf */
         ret = IOPMP_OK;
+    } else {
+        /* Any other error is reported as it is */
     }
 
     if (ret == IOPMP_OK) {
@@ -1217,6 +1219,8 @@ enum iopmp_error iopmp_get_rrid_md_association(IOPMP_t *iopmp, uint32_t rrid,
         /* Every RRID implicitly associates all implemented memory domains */
         *mds = GENMASK_64((iopmp->md_num - 1U), 0U);
         *lock = true;
+    } else {
+        /* iopmp_init() rejects any other format, so this cannot be reached */
     }
 
     return IOPMP_OK;
