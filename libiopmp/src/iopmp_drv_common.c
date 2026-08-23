@@ -643,7 +643,7 @@ static enum iopmp_error stall_by_mds_common(IOPMP_t *iopmp, uint64_t *mds,
     *mds = ((uint64_t)rb_mdstallh << 31) | rb_mdstall_md;
     if (rb_mdstallh != mdstallh || rb_mdstall_md != mdstall_md) {
         /* Resume transactions due to error */
-        resume_transactions_common(iopmp);
+        (void)resume_transactions_common(iopmp);
         return IOPMP_ERR_ILLEGAL_VALUE;
     }
 

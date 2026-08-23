@@ -91,7 +91,7 @@ enum iopmp_error iopmp_init(IOPMP_t *iopmp, uintptr_t addr, uint8_t srcmd_fmt,
         drv = iopmp_drivers[i];
         if (srcmd_fmt == drv->srcmd_fmt && mdcfg_fmt == drv->mdcfg_fmt &&
             impid == drv->impid) {
-            memset(iopmp, 0, sizeof(*iopmp));
+            (void)memset(iopmp, 0, sizeof(*iopmp));
             iopmp_assert(drv->init != NULL);
             return drv->init(iopmp, addr);
         }
@@ -102,7 +102,7 @@ enum iopmp_error iopmp_init(IOPMP_t *iopmp, uintptr_t addr, uint8_t srcmd_fmt,
     }
 
     /* Every model the specification defines initializes the same way */
-    memset(iopmp, 0, sizeof(*iopmp));
+    (void)memset(iopmp, 0, sizeof(*iopmp));
 
     return iopmp_drv_init_common(iopmp, addr, srcmd_fmt, mdcfg_fmt, NULL);
 }

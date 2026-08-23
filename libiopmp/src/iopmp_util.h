@@ -25,8 +25,8 @@ static inline void assert_failed(const char *filename,
                                  const char *assert_func,
                                  const char *expr)
 {
-    printf("%s:%d: assertion \"%s\" failed in function %s\n",
-           filename, line, expr, assert_func);
+    (void)printf("%s:%d: assertion \"%s\" failed in function %s\n",
+                 filename, line, expr, assert_func);
 
     while (1) {
         /* A failed assertion is not recoverable: hang here */
