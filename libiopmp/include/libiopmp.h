@@ -208,27 +208,27 @@ struct iopmp_entry {
     union {
         struct {
             /** ENTRY_CFG.r */
-            uint32_t r   : 1;
+            unsigned int r   : 1;
             /** ENTRY_CFG.w */
-            uint32_t w   : 1;
+            unsigned int w   : 1;
             /** ENTRY_CFG.x */
-            uint32_t x   : 1;
+            unsigned int x   : 1;
             /** ENTRY_CFG.a */
-            uint32_t a   : 2;
+            unsigned int a   : 2;
             /** ENTRY_CFG.sire */
-            uint32_t sire: 1;
+            unsigned int sire: 1;
             /** ENTRY_CFG.siwe */
-            uint32_t siwe: 1;
+            unsigned int siwe: 1;
             /** ENTRY_CFG.sixe */
-            uint32_t sixe: 1;
+            unsigned int sixe: 1;
             /** ENTRY_CFG.sere */
-            uint32_t sere: 1;
+            unsigned int sere: 1;
             /** ENTRY_CFG.sewe */
-            uint32_t sewe: 1;
+            unsigned int sewe: 1;
             /** ENTRY_CFG.sexe */
-            uint32_t sexe: 1;
+            unsigned int sexe: 1;
             /** ENTRY_CFG.rsv */
-            uint32_t rsv : 21;
+            unsigned int rsv : 21;
         };
         /** ENTRY_CFG */
         uint32_t cfg;
