@@ -1369,7 +1369,7 @@ void iopmp_set_srcmd_perm_cfg_nocheck(IOPMP_SRCMD_PERM_CFG_t *cfg,
 {
     uint64_t shift, mask, val;
 
-    shift = (rrid << 1);
+    shift = (uint64_t)rrid << 1;
     mask  = (uint64_t)IOPMP_SRCMD_PERM_MASK << shift;
     val   = (((uint64_t)w << 1) | ((uint64_t)r << 0)) << shift;
     cfg->srcmd_perm_mask |= mask;

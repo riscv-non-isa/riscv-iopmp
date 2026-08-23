@@ -507,7 +507,7 @@ enum iopmp_error detect_entry_addr_bits(IOPMP_t *iopmp)
      * the index of the least significant bit set, the PMP granularity is
      * 2^(G+2) bytes.
      */
-    iopmp->granularity = (uint32_t)1 << (iopmp_ctzll(val) + 2);
+    iopmp->granularity = (uint32_t)1U << ((uint32_t)iopmp_ctzll(val) + 2U);
 
     return IOPMP_OK;
 }
@@ -538,7 +538,7 @@ enum iopmp_error generic_set_prio_entry_num(IOPMP_t *iopmp, uint16_t *num_entry)
     uint32_t hwcfg2;
 
     write_hwcfg2(iopmp, IOPMP_HWCFG2_PRIO_ENTRY_MASK,
-                 (prio_entry_req << IOPMP_HWCFG2_PRIO_ENTRY_SHIFT));
+                 MAKE_FIELD_32(prio_entry_req, IOPMP_HWCFG2_PRIO_ENTRY));
 
     /* HWCFG2.prio_entry is WARL field. Read it back to check the value */
     hwcfg2 = io_read32(iopmp->addr + IOPMP_HWCFG2_BASE);
@@ -553,7 +553,7 @@ enum iopmp_error generic_set_rrid_transl(IOPMP_t *iopmp, uint16_t *rrid_transl)
     uint32_t hwcfg3;
 
     write_hwcfg3(iopmp, IOPMP_HWCFG3_RRID_TRANSL_MASK,
-                 (rrid_transl_req << IOPMP_HWCFG3_RRID_TRANSL_SHIFT));
+                 MAKE_FIELD_32(rrid_transl_req, IOPMP_HWCFG3_RRID_TRANSL));
 
     /* HWCFG3.rrid_transl is WARL field. Read it back to check the value */
     hwcfg3 = io_read32(iopmp->addr + IOPMP_HWCFG3_BASE);
@@ -795,7 +795,7 @@ enum iopmp_error generic_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
     uint16_t msidata_req = *msidata;
 
     write_err_cfg(iopmp, IOPMP_ERR_CFG_MSIDATA_MASK,
-                  (msidata_req << IOPMP_ERR_CFG_MSIDATA_SHIFT));
+                  MAKE_FIELD_32(msidata_req, IOPMP_ERR_CFG_MSIDATA));
     /* ERR_CFG.msidata is WARL field. Read it back to check the value */
     err_cfg = io_read32(iopmp->addr + IOPMP_ERR_CFG_BASE);
     *msidata = (uint16_t)EXTRACT_FIELD(err_cfg, IOPMP_ERR_CFG_MSIDATA);

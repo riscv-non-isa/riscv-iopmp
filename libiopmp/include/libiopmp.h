@@ -181,9 +181,9 @@ enum iopmp_prient_flags {
     /** User sets this flag to indicate the entry's priority doesn't matter */
     IOPMP_PRIENT_ANY = 0,
     /** User sets this flag to indicate the entry must be priority entry */
-    IOPMP_PRIENT_PRIORITY = (1 << 0),
+    IOPMP_PRIENT_PRIORITY = 1,
     /** User sets this flag to indicate the entry must be non-priority entry */
-    IOPMP_PRIENT_NON_PRIORITY = (1 << 1),
+    IOPMP_PRIENT_NON_PRIORITY = 2,
 };
 
 /**
