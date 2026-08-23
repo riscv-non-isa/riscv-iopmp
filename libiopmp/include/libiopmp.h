@@ -334,9 +334,9 @@ typedef struct iopmp_err_report IOPMP_ERR_REPORT_t;
  */
 struct iopmp_srcmd_perm_config {
 /** Bit position of SRCMD_PERM.r for each RRID */
-#define IOPMP_SRCMD_PERM_R      (1 << 0)
+#define IOPMP_SRCMD_PERM_R      ((uint32_t)1U << 0U)
 /** Bit position of SRCMD_PERM.w for each RRID */
-#define IOPMP_SRCMD_PERM_W      (1 << 1)
+#define IOPMP_SRCMD_PERM_W      ((uint32_t)1U << 1U)
 /** Bit mask of SRCMD_PERM for each RRID */
 #define IOPMP_SRCMD_PERM_MASK   (IOPMP_SRCMD_PERM_W | IOPMP_SRCMD_PERM_R)
 
@@ -633,7 +633,7 @@ bool libiopmp_check_version(int major, int minor, int extra);
  */
 static inline bool iopmp_is_initialized(IOPMP_t *iopmp)
 {
-    return (iopmp != NULL) && (iopmp->init != 0U);
+    return (iopmp != NULL) && (iopmp->init == 1U);
 }
 
 /**
@@ -706,7 +706,7 @@ static inline uint32_t iopmp_get_srcmd_fmt(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_support_tor(IOPMP_t *iopmp)
 {
-    return iopmp->tor_en;
+    return (iopmp->tor_en == 1U);
 }
 
 /**
@@ -719,7 +719,7 @@ static inline bool iopmp_get_support_tor(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_support_sps(IOPMP_t *iopmp)
 {
-    return iopmp->sps_en;
+    return (iopmp->sps_en == 1U);
 }
 
 /**
@@ -732,7 +732,7 @@ static inline bool iopmp_get_support_sps(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_support_programmable_prio_entry(IOPMP_t *iopmp)
 {
-    return iopmp->prio_ent_prog;
+    return (iopmp->prio_ent_prog == 1U);
 }
 
 /**
@@ -745,7 +745,7 @@ static inline bool iopmp_get_support_programmable_prio_entry(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_support_rrid_transl(IOPMP_t *iopmp)
 {
-    return iopmp->rrid_transl_en;
+    return (iopmp->rrid_transl_en == 1U);
 }
 
 /**
@@ -771,7 +771,7 @@ static inline bool iopmp_get_support_chk_x(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_no_x(IOPMP_t *iopmp)
 {
-    return iopmp->no_x;
+    return (iopmp->no_x == 1U);
 }
 
 /**
@@ -785,7 +785,7 @@ static inline bool iopmp_get_no_x(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_no_w(IOPMP_t *iopmp)
 {
-    return iopmp->no_w;
+    return (iopmp->no_w == 1U);
 }
 
 /**
@@ -803,7 +803,7 @@ static inline bool iopmp_get_no_w(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_support_stall(IOPMP_t *iopmp)
 {
-    return iopmp->stall_en;
+    return (iopmp->stall_en == 1U);
 }
 
 /**
@@ -816,7 +816,7 @@ static inline bool iopmp_get_support_stall(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_support_peis(IOPMP_t *iopmp)
 {
-    return iopmp->peis;
+    return (iopmp->peis == 1U);
 }
 
 /**
@@ -829,7 +829,7 @@ static inline bool iopmp_get_support_peis(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_support_pees(IOPMP_t *iopmp)
 {
-    return iopmp->pees;
+    return (iopmp->pees == 1U);
 }
 
 /**
@@ -842,7 +842,7 @@ static inline bool iopmp_get_support_pees(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_support_mfr(IOPMP_t *iopmp)
 {
-    return iopmp->mfr_en;
+    return (iopmp->mfr_en == 1U);
 }
 
 /**
@@ -881,7 +881,7 @@ static inline uint32_t iopmp_get_addrh_en(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_enable(IOPMP_t *iopmp)
 {
-    return iopmp->enable;
+    return (iopmp->enable == 1U);
 }
 
 /**
@@ -930,7 +930,7 @@ static inline uint16_t iopmp_get_prio_entry_num(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_support_stall_by_rrid(IOPMP_t *iopmp)
 {
-    return iopmp->support_stall_by_rrid;
+    return (iopmp->support_stall_by_rrid == 1U);
 }
 
 /**
@@ -943,7 +943,7 @@ static inline bool iopmp_get_support_stall_by_rrid(IOPMP_t *iopmp)
  */
 static inline bool iopmp_is_err_cfg_locked(IOPMP_t *iopmp)
 {
-    return iopmp->err_cfg_lock;
+    return (iopmp->err_cfg_lock == 1U);
 }
 
 /**
@@ -956,7 +956,7 @@ static inline bool iopmp_is_err_cfg_locked(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_global_intr(IOPMP_t *iopmp)
 {
-    return iopmp->intr_enable;
+    return (iopmp->intr_enable == 1U);
 }
 
 /**
@@ -969,7 +969,7 @@ static inline bool iopmp_get_global_intr(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_global_err_resp(IOPMP_t *iopmp)
 {
-    return iopmp->err_resp_suppress;
+    return (iopmp->err_resp_suppress == 1U);
 }
 
 /**
@@ -982,7 +982,7 @@ static inline bool iopmp_get_global_err_resp(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_stall_violation_en(IOPMP_t *iopmp)
 {
-    return iopmp->stall_violation_en;
+    return (iopmp->stall_violation_en == 1U);
 }
 
 /**
@@ -995,7 +995,7 @@ static inline bool iopmp_get_stall_violation_en(IOPMP_t *iopmp)
  */
 static inline bool iopmp_get_msi_sel(IOPMP_t *iopmp)
 {
-    return iopmp->msi_sel;
+    return (iopmp->msi_sel == 1U);
 }
 
 /**
@@ -1008,7 +1008,7 @@ static inline bool iopmp_get_msi_sel(IOPMP_t *iopmp)
  */
 static inline bool iopmp_is_mdlck_locked(IOPMP_t *iopmp)
 {
-    return iopmp->mdlck_lock;
+    return (iopmp->mdlck_lock == 1U);
 }
 
 /**
@@ -1021,7 +1021,7 @@ static inline bool iopmp_is_mdlck_locked(IOPMP_t *iopmp)
  */
 static inline bool iopmp_is_entrylck_locked(IOPMP_t *iopmp)
 {
-    return iopmp->entrylck_lock;
+    return (iopmp->entrylck_lock == 1U);
 }
 
 /**

@@ -434,7 +434,7 @@ static void detect_stall_function(IOPMP_t *iopmp)
      * HWCFG2.stall_en indicates if the IOPMP implements stall-related features,
      * which are MDSTALL, MDSTALLH, and RRIDSCP registers.
      */
-    if (iopmp->stall_en != 0U) {
+    if (iopmp->stall_en == 1U) {
         /* Assume all MDs selectable; iopmp_probe_stall_by_md() narrows it */
         iopmp->stall_md_mask = GENMASK_64((iopmp->md_num - 1U), 0U);
         /*
@@ -474,7 +474,7 @@ enum iopmp_error detect_entry_addr_bits(IOPMP_t *iopmp)
         if (io_read32(entry + IOPMP_ENTRY_ADDR_BASE) != 0U) {
             continue;
         }
-        if (iopmp->addrh_en != 0U) {
+        if (iopmp->addrh_en == 1U) {
             if (io_read32(entry + IOPMP_ENTRY_ADDRH_BASE) != 0U) {
                 continue;
             }
@@ -483,7 +483,7 @@ enum iopmp_error detect_entry_addr_bits(IOPMP_t *iopmp)
         io_write32(entry + IOPMP_ENTRY_ADDR_BASE, 0xFFFFFFFFU);
         val = io_read32(entry + IOPMP_ENTRY_ADDR_BASE);
         io_write32(entry + IOPMP_ENTRY_ADDR_BASE, 0);       /* Clear */
-        if (iopmp->addrh_en != 0U) {
+        if (iopmp->addrh_en == 1U) {
             io_write32(entry + IOPMP_ENTRY_ADDRH_BASE, 0xFFFFFFFFU);
             val |= (uint64_t)io_read32(entry + IOPMP_ENTRY_ADDRH_BASE) << 32;
             io_write32(entry + IOPMP_ENTRY_ADDRH_BASE, 0);  /* Clear */
@@ -755,7 +755,7 @@ void generic_lock_err_cfg(IOPMP_t *iopmp)
 void generic_set_global_intr(IOPMP_t *iopmp, bool enable)
 {
     write_err_cfg(iopmp, IOPMP_ERR_CFG_IE_MASK,
-                  (enable << IOPMP_ERR_CFG_IE_SHIFT));
+                  MAKE_FIELD_32(enable ? 1U : 0U, IOPMP_ERR_CFG_IE));
 }
 
 enum iopmp_error generic_set_global_err_resp(IOPMP_t *iopmp, bool *suppress)
@@ -764,10 +764,10 @@ enum iopmp_error generic_set_global_err_resp(IOPMP_t *iopmp, bool *suppress)
     bool suppress_req = *suppress;
 
     write_err_cfg(iopmp, IOPMP_ERR_CFG_RS_MASK,
-                  (*suppress << IOPMP_ERR_CFG_RS_SHIFT));
+                  MAKE_FIELD_32(*suppress ? 1U : 0U, IOPMP_ERR_CFG_RS));
     /* ERR_CFG.rs is WARL. Read it back to check the value */
     err_cfg = io_read32(iopmp->addr + IOPMP_ERR_CFG_BASE);
-    *suppress = EXTRACT_FIELD(err_cfg, IOPMP_ERR_CFG_RS);
+    *suppress = (EXTRACT_FIELD(err_cfg, IOPMP_ERR_CFG_RS) == 1U);
 
     return suppress_req == *suppress ? IOPMP_OK : IOPMP_ERR_ILLEGAL_VALUE;
 }
@@ -778,10 +778,10 @@ enum iopmp_error generic_set_msi_sel(IOPMP_t *iopmp, bool *enable)
     bool enable_req = *enable;
 
     write_err_cfg(iopmp, IOPMP_ERR_CFG_MSI_SEL_MASK,
-                  (enable_req << IOPMP_ERR_CFG_MSI_SEL_SHIFT));
+                  MAKE_FIELD_32(enable_req ? 1U : 0U, IOPMP_ERR_CFG_MSI_SEL));
     /* ERR_CFG.msi_sel is WARL. Read it back to check the value */
     err_cfg = io_read32(iopmp->addr + IOPMP_ERR_CFG_BASE);
-    *enable = EXTRACT_FIELD(err_cfg, IOPMP_ERR_CFG_MSI_SEL);
+    *enable = (EXTRACT_FIELD(err_cfg, IOPMP_ERR_CFG_MSI_SEL) == 1U);
 
     return enable_req == *enable ? IOPMP_OK : IOPMP_ERR_ILLEGAL_VALUE;
 }
@@ -833,7 +833,7 @@ void generic_get_and_clear_msi_werr(IOPMP_t *iopmp, bool *msi_werr)
     uint32_t err_info;
 
     err_info = io_read32(iopmp->addr + IOPMP_ERR_INFO_BASE);
-    *msi_werr = EXTRACT_FIELD(err_info, IOPMP_ERR_INFO_MSI_WERR);
+    *msi_werr = (EXTRACT_FIELD(err_info, IOPMP_ERR_INFO_MSI_WERR) == 1U);
 
     /* ERR_INFO.msi_werr is W1C */
     io_write32(iopmp->addr + IOPMP_ERR_INFO_BASE, IOPMP_ERR_INFO_MSI_WERR_MASK);
@@ -845,10 +845,10 @@ enum iopmp_error generic_set_stall_violation_en(IOPMP_t *iopmp, bool *enable)
     bool enable_req = *enable;
 
     write_err_cfg(iopmp, IOPMP_ERR_CFG_STALL_VIO_EN_MASK,
-                  (*enable << IOPMP_ERR_CFG_STALL_VIO_EN_SHIFT));
+                  MAKE_FIELD_32(*enable ? 1U : 0U, IOPMP_ERR_CFG_STALL_VIO_EN));
     /* ERR_CFG.stall_violation_en is WARL. Read it back to check the value */
     err_cfg = io_read32(iopmp->addr + IOPMP_ERR_CFG_BASE);
-    *enable = EXTRACT_FIELD(err_cfg, IOPMP_ERR_CFG_STALL_VIO_EN);
+    *enable = (EXTRACT_FIELD(err_cfg, IOPMP_ERR_CFG_STALL_VIO_EN) == 1U);
 
     return enable_req == *enable ? IOPMP_OK : IOPMP_ERR_ILLEGAL_VALUE;
 }
@@ -873,7 +873,7 @@ enum iopmp_error generic_capture_error(IOPMP_t *iopmp,
 
     /* Read ERR_REQADDR, ERR_REQADDRH, and ERR_REQID from IOPMP */
     err_reqaddr  = io_read32(iopmp->addr + IOPMP_ERR_REQADDR_BASE);
-    if (iopmp->addrh_en != 0U) {
+    if (iopmp->addrh_en == 1U) {
         err_reqaddrh = io_read32(iopmp->addr + IOPMP_ERR_REQADDRH_BASE);
     } else {
         err_reqaddrh = 0;
@@ -886,9 +886,10 @@ enum iopmp_error generic_capture_error(IOPMP_t *iopmp,
     err_report->rrid = EXTRACT_FIELD(err_reqid, IOPMP_ERR_REQID_RRID);
     err_report->eid = EXTRACT_FIELD(err_reqid, IOPMP_ERR_REQID_EID);
     err_report->ttype = EXTRACT_FIELD(err_info, IOPMP_ERR_INFO_TTYPE);
-    err_report->msi_werr = EXTRACT_FIELD(err_info, IOPMP_ERR_INFO_MSI_WERR);
+    err_report->msi_werr =
+        (EXTRACT_FIELD(err_info, IOPMP_ERR_INFO_MSI_WERR) == 1U);
     err_report->etype = EXTRACT_FIELD(err_info, IOPMP_ERR_INFO_ETYPE);
-    err_report->svc = EXTRACT_FIELD(err_info, IOPMP_ERR_INFO_SVC);
+    err_report->svc = (EXTRACT_FIELD(err_info, IOPMP_ERR_INFO_SVC) == 1U);
 
     /* A driver may have replaced only invalidate_error, so honour it here */
     if (invalidate) {
@@ -911,7 +912,7 @@ enum iopmp_error generic_get_sv_window(IOPMP_t *iopmp, uint16_t *svi,
     bool svc;
 
     err_info = io_read32(iopmp->addr + IOPMP_ERR_INFO_BASE);
-    svc = EXTRACT_FIELD(err_info, IOPMP_ERR_INFO_SVC);
+    svc = (EXTRACT_FIELD(err_info, IOPMP_ERR_INFO_SVC) == 1U);
     if (!svc) {
         return IOPMP_ERR_NOT_EXIST;
     }
@@ -941,7 +942,7 @@ enum iopmp_error generic_set_entries(IOPMP_t *iopmp,
     for (i = 0; i < num_entry; i++) {
         io_write32(e + IOPMP_ENTRY_CFG_BASE, 0);
         io_write32(e + IOPMP_ENTRY_ADDR_BASE, entry_array[i].addr & UINT32_MAX);
-        if (iopmp->addrh_en != 0U) {
+        if (iopmp->addrh_en == 1U) {
             io_write32(e + IOPMP_ENTRY_ADDRH_BASE, entry_array[i].addr >> 32);
         }
         io_write32(e + IOPMP_ENTRY_CFG_BASE, entry_array[i].cfg);
@@ -961,7 +962,7 @@ void generic_get_entries(IOPMP_t *iopmp, struct iopmp_entry *entry_array,
 
     for (i = 0; i < num_entry; i++) {
         /* Read ENTRY_ADDR(idx), ENTRY_ADDRH(idx), and ENTRY_CFG(idx) from IP */
-        if (iopmp->addrh_en != 0U) {
+        if (iopmp->addrh_en == 1U) {
             addrh = io_read32(e + IOPMP_ENTRY_ADDRH_BASE);
         }
         addr = io_read32(e + IOPMP_ENTRY_ADDR_BASE);
@@ -983,7 +984,7 @@ void generic_clear_entries(IOPMP_t *iopmp, uint32_t idx_start,
     for (i = 0; i < num_entry; i++) {
         io_write32(e + IOPMP_ENTRY_CFG_BASE, 0);
         io_write32(e + IOPMP_ENTRY_ADDR_BASE, 0);
-        if (iopmp->addrh_en != 0U) {
+        if (iopmp->addrh_en == 1U) {
             io_write32(e + IOPMP_ENTRY_ADDRH_BASE, 0);
         }
 
@@ -1000,7 +1001,7 @@ void srcmd_fmt_0_get_association_rrid_md(IOPMP_t *iopmp, uint32_t rrid,
     uint64_t srcmd_en_64 = read_srcmd_en_64(iopmp, rrid);
 
     *mds = srcmd_en_64 >> IOPMP_SRCMD_EN_MD_SHIFT;
-    *lock = EXTRACT_FIELD(srcmd_en_64, IOPMP_SRCMD_EN_L);
+    *lock = (EXTRACT_FIELD(srcmd_en_64, IOPMP_SRCMD_EN_L) == 1U);
 }
 
 enum iopmp_error srcmd_fmt_0_set_association_rrid_md(IOPMP_t *iopmp,
@@ -1160,8 +1161,8 @@ enum iopmp_error srcmd_fmt_2_set_md_permission(IOPMP_t *iopmp, uint32_t rrid,
         write_srcmd_perm(iopmp, mdidx, srcmd_perm);
         /* SRCMD_PERM.perm is WARL field. Read it back to check value */
         srcmd_perm = read_srcmd_perm(iopmp, mdidx);
-        *r = ((srcmd_perm & mask) >> shift) & 0b1U;
-        *w = ((srcmd_perm & mask) >> (shift + 1U)) & 0b1U;
+        *r = ((((srcmd_perm & mask) >> shift) & 0b1U) == 1U);
+        *w = ((((srcmd_perm & mask) >> (shift + 1U)) & 0b1U) == 1U);
         if (r_req != *r || w_req != *w) {
             return IOPMP_ERR_ILLEGAL_VALUE;
         }
@@ -1174,8 +1175,8 @@ enum iopmp_error srcmd_fmt_2_set_md_permission(IOPMP_t *iopmp, uint32_t rrid,
         write_srcmd_permh(iopmp, mdidx, srcmd_perm);
         /* SRCMD_PERMH.permh is WARL field. Read it back to check value */
         srcmd_perm = read_srcmd_permh(iopmp, mdidx);
-        *r = ((srcmd_perm & mask) >> shift) & 0b1U;
-        *w = ((srcmd_perm & mask) >> (shift + 1U)) & 0b1U;
+        *r = ((((srcmd_perm & mask) >> shift) & 0b1U) == 1U);
+        *w = ((((srcmd_perm & mask) >> (shift + 1U)) & 0b1U) == 1U);
         if (r_req != *r || w_req != *w) {
             return IOPMP_ERR_ILLEGAL_VALUE;
         }
@@ -1282,8 +1283,8 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
 
     /* Read HWCFG0 and HWCFG3 first to check srcmd_fmt and mdcfg_fmt */
     hwcfg0 = io_read32(addr + IOPMP_HWCFG0_BASE);
-    hwcfg2_en = EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_HWCFG2_EN);
-    hwcfg3_en = EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_HWCFG3_EN);
+    hwcfg2_en = (EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_HWCFG2_EN) == 1U);
+    hwcfg3_en = (EXTRACT_FIELD(hwcfg0, IOPMP_HWCFG0_HWCFG3_EN) == 1U);
 
     if (hwcfg3_en) {
         hwcfg3 = io_read32(addr + IOPMP_HWCFG3_BASE);
@@ -1378,10 +1379,10 @@ iopmp_drv_init_common(IOPMP_t *iopmp, uintptr_t addr,
     iopmp->msidata = EXTRACT_FIELD(data, IOPMP_ERR_CFG_MSIDATA);
 
     /* Read ERR_MSIADDR and ERR_MSIADDRH */
-    if (iopmp->msi_en != 0U) {
+    if (iopmp->msi_en == 1U) {
         uint32_t msiaddr, msiaddrh = 0;
         msiaddr = io_read32(iopmp->addr + IOPMP_ERR_MSIADDR_BASE);
-        if (iopmp->addrh_en != 0U) {
+        if (iopmp->addrh_en == 1U) {
             msiaddrh = io_read32(iopmp->addr + IOPMP_ERR_MSIADDRH_BASE);
         } else {
             msiaddr = msiaddr << 2; /* ERR_MSIADDR contains address[33:2] */

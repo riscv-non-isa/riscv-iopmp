@@ -198,7 +198,7 @@ enum iopmp_error iopmp_set_enable(IOPMP_t *iopmp)
     iopmp_assert(iopmp_is_initialized(iopmp));
 
     /* Already enabled. */
-    if (iopmp->enable != 0U) {
+    if (iopmp->enable == 1U) {
         return IOPMP_OK;
     }
 
@@ -260,7 +260,7 @@ enum iopmp_error iopmp_get_rrid_transl_prog(IOPMP_t *iopmp,
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    *rrid_transl_prog = iopmp->rrid_transl_prog;
+    *rrid_transl_prog = (iopmp->rrid_transl_prog == 1U);
     return IOPMP_OK;
 }
 
@@ -331,7 +331,7 @@ enum iopmp_error iopmp_stall_transactions_by_mds(IOPMP_t *iopmp, uint64_t *mds,
      * stall states being undefined.
      * Thus, we forbid the operation if IOPMP is stalling some transactions.
      */
-    if (iopmp->is_stalling != 0U) {
+    if (iopmp->is_stalling == 1U) {
         return IOPMP_ERR_NOT_ALLOWED;
     }
 
@@ -429,7 +429,7 @@ enum iopmp_error iopmp_transactions_are_stalled(IOPMP_t *iopmp, bool polling,
 enum iopmp_error iopmp_transactions_are_resumed(IOPMP_t *iopmp, bool polling,
                                                 bool *resumed)
 {
-    if (iopmp->is_stalling != 0U) {
+    if (iopmp->is_stalling == 1U) {
         return IOPMP_ERR_NOT_EXIST;
     }
 
@@ -452,7 +452,7 @@ enum iopmp_error iopmp_probe_stall_by_md(IOPMP_t *iopmp, uint64_t *mds)
 
     /* The probe stalls and then resumes, which MDSTALL forbids in the middle
      * of a stall that is already in progress */
-    if (iopmp->is_stalling != 0U) {
+    if (iopmp->is_stalling == 1U) {
         return IOPMP_ERR_NOT_ALLOWED;
     }
 
@@ -553,7 +553,7 @@ enum iopmp_error iopmp_get_locked_md(IOPMP_t *iopmp, uint64_t *mds,
     }
 
     *mds = iopmp->mdlck_md;
-    *mdlck_lock = iopmp->mdlck_lock;
+    *mdlck_lock = (iopmp->mdlck_lock == 1U);
 
     return IOPMP_OK;
 }
@@ -584,7 +584,7 @@ enum iopmp_error iopmp_lock_md(IOPMP_t *iopmp, uint64_t *mds, bool mdlck_lock)
     }
 
     /* Already locked */
-    if (iopmp->mdlck_lock != 0U) {
+    if (iopmp->mdlck_lock == 1U) {
         if ((mds_req & iopmp->mdlck_md) == mds_req &&
             mdlck_lock == iopmp->mdlck_lock) {
             return IOPMP_OK;
@@ -603,7 +603,7 @@ enum iopmp_error iopmp_lock_md(IOPMP_t *iopmp, uint64_t *mds, bool mdlck_lock)
      * MDLCK.md and MDLCKH.mdh are WARL fields. We always update local data
      * cache for them.
      */
-    iopmp->mdlck_lock = mdlck_lock;
+    iopmp->mdlck_lock = mdlck_lock ? 1U : 0U;
     iopmp->mdlck_md = *mds;
 
     return ret;
@@ -634,7 +634,7 @@ enum iopmp_error iopmp_lock_mdcfg(IOPMP_t *iopmp, uint32_t *md_num, bool lock)
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (iopmp->mdcfglck_lock != 0U) {
+    if (iopmp->mdcfglck_lock == 1U) {
         return IOPMP_ERR_REG_IS_LOCKED; /* Already locked */
     }
 
@@ -650,7 +650,7 @@ enum iopmp_error iopmp_lock_mdcfg(IOPMP_t *iopmp, uint32_t *md_num, bool lock)
         ret = mdcfg_fmt_0_lock_mdcfg(iopmp, md_num, lock);
     }
     /* Update local data cache */
-    iopmp->mdcfglck_lock = lock;
+    iopmp->mdcfglck_lock = lock ? 1U : 0U;
     iopmp->mdcfglck_f = *md_num;
 
     return ret;
@@ -668,7 +668,7 @@ enum iopmp_error iopmp_is_mdcfglck_locked(IOPMP_t *iopmp, bool *locked)
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    *locked = iopmp->mdcfglck_lock;
+    *locked = (iopmp->mdcfglck_lock == 1U);
     return IOPMP_OK;
 }
 
@@ -710,7 +710,7 @@ enum iopmp_error iopmp_lock_entries(IOPMP_t *iopmp, uint32_t *entry_num,
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }
 
-    if (iopmp->entrylck_lock != 0U) {
+    if (iopmp->entrylck_lock == 1U) {
         return IOPMP_ERR_REG_IS_LOCKED; /* Already locked */
     }
 
@@ -726,7 +726,7 @@ enum iopmp_error iopmp_lock_entries(IOPMP_t *iopmp, uint32_t *entry_num,
     } else {
         ret = generic_lock_entries(iopmp, entry_num, lock);
     }
-    iopmp->entrylck_lock = lock;
+    iopmp->entrylck_lock = lock ? 1U : 0U;
     iopmp->entrylck_f = *entry_num;
 
     return ret;
@@ -737,7 +737,7 @@ enum iopmp_error iopmp_lock_err_cfg(IOPMP_t *iopmp)
     iopmp_assert(iopmp_is_initialized(iopmp));
 
     /* Already locked? */
-    if (iopmp->err_cfg_lock != 0U) {
+    if (iopmp->err_cfg_lock == 1U) {
         return IOPMP_OK;
     }
 
@@ -764,7 +764,7 @@ enum iopmp_error iopmp_set_global_intr(IOPMP_t *iopmp, bool enable)
     }
 
     /* Already locked? */
-    if (iopmp->err_cfg_lock != 0U) {
+    if (iopmp->err_cfg_lock == 1U) {
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
@@ -776,7 +776,7 @@ enum iopmp_error iopmp_set_global_intr(IOPMP_t *iopmp, bool enable)
     } else {
         generic_set_global_intr(iopmp, enable);
     }
-    iopmp->intr_enable = enable;    /* update local cache */
+    iopmp->intr_enable = enable ? 1U : 0U;    /* update local cache */
 
     return IOPMP_OK;
 }
@@ -800,7 +800,7 @@ enum iopmp_error iopmp_set_global_err_resp(IOPMP_t *iopmp, bool *suppress)
     }
 
     /* Already locked? */
-    if (iopmp->err_cfg_lock != 0U) {
+    if (iopmp->err_cfg_lock == 1U) {
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
@@ -811,7 +811,7 @@ enum iopmp_error iopmp_set_global_err_resp(IOPMP_t *iopmp, bool *suppress)
     } else {
         ret = generic_set_global_err_resp(iopmp, suppress);
     }
-    iopmp->err_resp_suppress = *suppress;   /* update local cache */
+    iopmp->err_resp_suppress = *suppress ? 1U : 0U;   /* update local cache */
 
     return ret;
 }
@@ -839,7 +839,7 @@ enum iopmp_error iopmp_set_msi_sel(IOPMP_t *iopmp, bool *enable)
     }
 
     /* Already locked? */
-    if (iopmp->err_cfg_lock != 0U) {
+    if (iopmp->err_cfg_lock == 1U) {
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
@@ -850,7 +850,7 @@ enum iopmp_error iopmp_set_msi_sel(IOPMP_t *iopmp, bool *enable)
     } else {
         ret = generic_set_msi_sel(iopmp, enable);
     }
-    iopmp->msi_sel = *enable;   /* update local cache */
+    iopmp->msi_sel = *enable ? 1U : 0U;   /* update local cache */
 
     return ret;
 }
@@ -928,7 +928,7 @@ enum iopmp_error iopmp_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
     }
 
     /* Already locked? */
-    if (iopmp->err_cfg_lock != 0U) {
+    if (iopmp->err_cfg_lock == 1U) {
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
@@ -990,7 +990,7 @@ enum iopmp_error iopmp_set_stall_violation_en(IOPMP_t *iopmp, bool *enable)
     }
 
     /* Already locked? */
-    if (iopmp->err_cfg_lock != 0U) {
+    if (iopmp->err_cfg_lock == 1U) {
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
@@ -1001,7 +1001,7 @@ enum iopmp_error iopmp_set_stall_violation_en(IOPMP_t *iopmp, bool *enable)
     } else {
         ret = generic_set_stall_violation_en(iopmp, enable);
     }
-    iopmp->stall_violation_en = *enable;
+    iopmp->stall_violation_en = *enable ? 1U : 0U;
 
     return ret;
 }
@@ -1014,7 +1014,7 @@ enum iopmp_error iopmp_invalidate_error(IOPMP_t *iopmp)
      * The error capture record is optional.
      * If it is not implemented, ERR_INFO.v should be wired to zero.
      */
-    if (iopmp->no_err_rec != 0U) {
+    if (iopmp->no_err_rec == 1U) {
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
@@ -1034,7 +1034,7 @@ enum iopmp_error iopmp_capture_error(IOPMP_t *iopmp,
 {
     iopmp_assert(iopmp_is_initialized(iopmp));
 
-    if (iopmp->no_err_rec != 0U) {
+    if (iopmp->no_err_rec == 1U) {
         return IOPMP_ERR_NOT_SUPPORTED;
     }
 
@@ -1144,7 +1144,7 @@ enum iopmp_error iopmp_lock_srcmd_table_fmt_2(IOPMP_t *iopmp, uint32_t mdidx)
         return IOPMP_OK;
     }
 
-    if (iopmp->mdlck_lock != 0U) {
+    if (iopmp->mdlck_lock == 1U) {
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
@@ -1894,7 +1894,7 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
     }
 
     /* HWCFG3.md_entry_num is locked if HWCFG0.enable is 1 */
-    if (iopmp->enable != 0U) {
+    if (iopmp->enable == 1U) {
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
