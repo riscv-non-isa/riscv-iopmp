@@ -66,16 +66,10 @@ struct iopmp_instance {
      */
     uint64_t stall_md_mask;
 
-    /** Cache of MDLCK.l */
-    uint8_t mdlck_lock;
     /** Cache of MDLCK.md */
     uint64_t mdlck_md;
-    /** Cache of MDCFGLCK.l */
-    uint8_t mdcfglck_lock;
     /** Cache of MDCFGLCK.f */
     uint8_t mdcfglck_f;
-    /** Cache of ENTRYLCK.l */
-    uint8_t entrylck_lock;
     /** Cache of ENTRYLCK.f */
     uint16_t entrylck_f;
 
@@ -92,6 +86,12 @@ struct iopmp_instance {
     struct {
         /** Flag to indicate the IOPMP instance has been initialized */
         unsigned int init : 1;
+        /** Cache of MDLCK.l */
+        unsigned int mdlck_lock : 1;
+        /** Cache of MDCFGLCK.l */
+        unsigned int mdcfglck_lock : 1;
+        /** Cache of ENTRYLCK.l */
+        unsigned int entrylck_lock : 1;
         /** Flag to indicate the MDCFG format */
         unsigned int mdcfg_fmt : 2;
         /** Flag to indicate the SRCMD format */
