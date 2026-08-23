@@ -279,7 +279,8 @@ __attribute__((weak)) void io_write32(uintptr_t addr, uint32_t val)
 /* Helper functions to get base address of MDCFG registers */
 static inline uintptr_t get_addr_of_mdcfg(IOPMP_t *iopmp, uint32_t mdidx)
 {
-    return iopmp->addr + IOPMP_MDCFG_BASE + (mdidx * IOPMP_MDCFG_STRIDE);
+    return iopmp->addr + IOPMP_MDCFG_BASE +
+           ((uintptr_t)mdidx * IOPMP_MDCFG_STRIDE);
 }
 
 /* Helper functions to get base address of SRCMD registers */
@@ -287,7 +288,8 @@ static inline uintptr_t get_addr_of_mdcfg(IOPMP_t *iopmp, uint32_t mdidx)
 static inline uintptr_t get_addr_of_ ## name(IOPMP_t *iopmp,            \
                                              uint32_t idx)              \
 {                                                                       \
-    return iopmp->addr + (base) + ((idx) * IOPMP_SRCMD_STRIDE);         \
+    return iopmp->addr + (base) +                                       \
+           ((uintptr_t)(idx) * IOPMP_SRCMD_STRIDE);                     \
 }
 DECLARE_FUNC_GET_ADDR_OF_SRCMD(srcmd_en,    IOPMP_SRCMD_EN_BASE);
 DECLARE_FUNC_GET_ADDR_OF_SRCMD(srcmd_enh,   IOPMP_SRCMD_ENH_BASE);
@@ -387,7 +389,7 @@ static inline uintptr_t get_addr_of_ ## name(IOPMP_t *iopmp,            \
                                              uint32_t idx)              \
 {                                                                       \
     return iopmp->addr_entry_array + (base) +                           \
-           ((idx) * IOPMP_ENTRY_STRIDE);                                \
+           ((uintptr_t)(idx) * IOPMP_ENTRY_STRIDE);                     \
 }
 DECLARE_FUNC_GET_ADDR_OF_ENTRY(entry,       IOPMP_ENTRY_ADDR_BASE);
 DECLARE_FUNC_GET_ADDR_OF_ENTRY(entry_addr,  IOPMP_ENTRY_ADDR_BASE);

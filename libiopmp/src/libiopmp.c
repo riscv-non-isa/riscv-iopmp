@@ -2080,8 +2080,8 @@ enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
-    if ((IS_ALIGNED(addr, iopmp->granularity) == 0U) ||
-        (IS_ALIGNED(size, iopmp->granularity) == 0U)) {
+    if ((IS_ALIGNED(addr, (uint64_t)iopmp->granularity) == 0U) ||
+        (IS_ALIGNED(size, (uint64_t)iopmp->granularity) == 0U)) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
