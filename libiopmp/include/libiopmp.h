@@ -367,8 +367,8 @@ typedef struct iopmp_srcmd_perm_config IOPMP_SRCMD_PERM_CFG_t;
 #define IOPMP_SRCMD_PERM_CFG_SET_DIRECT(cfg, mask, val) \
     do {                                                \
         IOPMP_SRCMD_PERM_CFG_t *cfg_p = (cfg);          \
-        cfg_p->srcmd_perm_mask = mask;                  \
-        cfg_p->srcmd_perm_val  = val;                   \
+        cfg_p->srcmd_perm_mask = (mask);                \
+        cfg_p->srcmd_perm_val  = (val);                 \
     } while (0);
 
 /******************************************************************************/
