@@ -771,7 +771,8 @@ enum iopmp_error generic_set_msi_info(IOPMP_t *iopmp, uint64_t *msiaddr64,
         err_msiaddr = __msiaddr64 >> 2;
         io_write32(iopmp->addr + IOPMP_ERR_MSIADDR_BASE, err_msiaddr);
         /* ERR_MSIADDR.msiaddr is WARL field. Read it back to check the value */
-        *msiaddr64 = io_read32(iopmp->addr + IOPMP_ERR_MSIADDR_BASE) << 2;
+        *msiaddr64 =
+            (uint64_t)io_read32(iopmp->addr + IOPMP_ERR_MSIADDR_BASE) << 2;
     } else {
         /* Write bits 31 to 0 of the address into ERR_MSIADDR */
         err_msiaddr = __msiaddr64 & UINT32_MAX;

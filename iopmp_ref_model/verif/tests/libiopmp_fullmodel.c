@@ -2156,6 +2156,20 @@ int main(void)
     write_register(&iopmp_dev, ERR_INFO_OFFSET, 0, 4);
     END_TEST();)
 
+    START_TEST_IF(iopmp_dev.reg_file.hwcfg2.msi_en,
+                  "ERR_MSIADDR alone carries an MSI address above 4G",
+    uint64_t msiaddr64;
+    uint16_t msidata;
+    /* Without ERR_MSIADDRH, ERR_MSIADDR alone carries bits 33:2 */
+    cfg.addrh_en = false;
+    FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
+    msiaddr64 = 0x100000000ULL;
+    msidata = 0x8F;
+    FAIL_IF(iopmp_set_msi_info(&iopmp, &msiaddr64, &msidata) != IOPMP_OK);
+    FAIL_IF(msiaddr64 != 0x100000000ULL);
+    cfg.addrh_en = true;
+    END_TEST();)
+
     START_TEST_IF(iopmp_dev.reg_file.hwcfg2.msi_en, "Test MSI Write error",
     uint64_t read_data;
     uint64_t msiaddr64;
