@@ -160,6 +160,11 @@ int main(void)
             IOPMP_ERR_NOT_ALLOWED);
     END_TEST();
 
+    START_TEST("HWCFG3.md_entry_num rejects a value wider than its field");
+    val_u32 = 128;  /* md_entry_num is bits 10:4, so 127 is the largest */
+    FAIL_IF(iopmp_set_md_entry_num(&iopmp, &val_u32) != IOPMP_ERR_OUT_OF_BOUNDS);
+    END_TEST();
+
     START_TEST("MDCFG_FMT=2 programs HWCFG3.md_entry_num");
     val_u32 = 7;    /* K=8 */
     FAIL_IF(iopmp_set_md_entry_num(&iopmp, &val_u32) != IOPMP_OK);

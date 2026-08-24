@@ -26,7 +26,7 @@ extern const struct iopmp_driver *const iopmp_drivers[];
 
 #define IS_ALIGNED(x, a)    (((x) & ((a) - 1)) == 0)
 
-#define MD_ENTRY_NUM_BITS   8
+#define MD_ENTRY_NUM_BITS   7
 #define MAX_MD_ENTRY_NUM    ((1UL << MD_ENTRY_NUM_BITS) - 1)
 
 #define IOPMP_ADDR_SHIFT    2
@@ -1707,7 +1707,7 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
     if (iopmp->enable)
         return IOPMP_ERR_REG_IS_LOCKED;
 
-    /* HWCFG3.md_entry_num only has 8 bits */
+    /* HWCFG3.md_entry_num is bits 10:4 of the register */
     if (*md_entry_num > MAX_MD_ENTRY_NUM)
         return IOPMP_ERR_OUT_OF_BOUNDS;
 
