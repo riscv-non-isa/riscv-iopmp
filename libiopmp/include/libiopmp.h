@@ -253,49 +253,48 @@ struct iopmp_entry {
 
 /** Indicated the transaction type of the first captured violation */
 /** Reserved */
-#define IOPMP_ERRINFO_TTYPE_RSVD        0x00U
+#define IOPMP_TTYPE_RSVD          0x00U
 /** Read access */
-#define IOPMP_ERRINFO_TTYPE_READ        0x01U
+#define IOPMP_TTYPE_READ          0x01U
 /** Write access/AMO */
-#define IOPMP_ERRINFO_TTYPE_WRITE       0x02U
+#define IOPMP_TTYPE_WRITE         0x02U
 /** Instruction fetch */
-#define IOPMP_ERRINFO_TTYPE_INST_FETCH  0x03U
+#define IOPMP_TTYPE_INST_FETCH    0x03U
 
 
 /** Indicated the type of violation */
 /** No error */
-#define IOPMP_ERRINFO_ETYPE_NONE        0x00U
+#define IOPMP_ETYPE_NONE          0x00U
 /** Illegal read access */
-#define IOPMP_ERRINFO_ETYPE_READ        0x01U
+#define IOPMP_ETYPE_READ          0x01U
 /** Illegal write access/AMO */
-#define IOPMP_ERRINFO_ETYPE_WRITE       0x02U
+#define IOPMP_ETYPE_WRITE         0x02U
 /** Illegal instruction fetch */
-#define IOPMP_ERRINFO_ETYPE_INST_FETCH  0x03U
+#define IOPMP_ETYPE_INST_FETCH    0x03U
 /** Partial hit on a priority rule */
-#define IOPMP_ERRINFO_ETYPE_PART_HIT    0x04U
+#define IOPMP_ETYPE_PARTIAL_HIT   0x04U
 /** Not hit any rule */
-#define IOPMP_ERRINFO_ETYPE_NOT_HIT     0x05U
+#define IOPMP_ETYPE_NOT_HIT       0x05U
 /** Unknown RRID */
-#define IOPMP_ERRINFO_ETYPE_UNKNOWN_ID  0x06U
+#define IOPMP_ETYPE_UNKNOWN_RRID  0x06U
 /** Error due to a stalled transaction */
-#define IOPMP_ERRINFO_ETYPE_STALL       0x07U
+#define IOPMP_ETYPE_STALL         0x07U
 /** N/A, reserved for future */
-#define IOPMP_ERRINFO_ETYPE_RESERVED_0  0x08U
+#define IOPMP_ETYPE_RESERVED_0    0x08U
 /** N/A, reserved for future */
-#define IOPMP_ERRINFO_ETYPE_RESERVED_1  0x09U
+#define IOPMP_ETYPE_RESERVED_1    0x09U
 /** N/A, reserved for future */
-#define IOPMP_ERRINFO_ETYPE_RESERVED_2  0x0AU
+#define IOPMP_ETYPE_RESERVED_2    0x0AU
 /** N/A, reserved for future */
-#define IOPMP_ERRINFO_ETYPE_RESERVED_3  0x0BU
+#define IOPMP_ETYPE_RESERVED_3    0x0BU
 /** N/A, reserved for future */
-#define IOPMP_ERRINFO_ETYPE_RESERVED_4  0x0CU
+#define IOPMP_ETYPE_RESERVED_4    0x0CU
 /** N/A, reserved for future */
-#define IOPMP_ERRINFO_ETYPE_RESERVED_5  0x0DU
+#define IOPMP_ETYPE_RESERVED_5    0x0DU
 /** User-defined error */
-#define IOPMP_ERRINFO_ETYPE_USER_DEF_0  0x0EU
+#define IOPMP_ETYPE_USER_DEF_0    0x0EU
 /** User-defined error */
-#define IOPMP_ERRINFO_ETYPE_USER_DEF_1  0x0FU
-
+#define IOPMP_ETYPE_USER_DEF_1    0x0FU
 
 /** Structure represents an IOPMP error report */
 struct iopmp_err_report {
@@ -1085,7 +1084,7 @@ static inline uint32_t iopmp_err_report_get_eid(IOPMP_ERR_REPORT_t *err_report)
  */
 static inline bool iopmp_err_report_is_no_hit(IOPMP_ERR_REPORT_t *err_report)
 {
-    return err_report->etype == IOPMP_ERRINFO_ETYPE_NOT_HIT;
+    return err_report->etype == IOPMP_ETYPE_NOT_HIT;
 }
 
 /**
@@ -1099,7 +1098,7 @@ static inline bool iopmp_err_report_is_no_hit(IOPMP_ERR_REPORT_t *err_report)
  */
 static inline bool iopmp_err_report_is_part_hit(IOPMP_ERR_REPORT_t *err_report)
 {
-    return err_report->etype == IOPMP_ERRINFO_ETYPE_PART_HIT;
+    return err_report->etype == IOPMP_ETYPE_PARTIAL_HIT;
 }
 
 /**

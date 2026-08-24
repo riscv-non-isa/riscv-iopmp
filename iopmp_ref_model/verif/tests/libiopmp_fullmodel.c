@@ -1920,8 +1920,8 @@ int main(void)
     error_record_chk(&iopmp_dev, ILLEGAL_INSTR_FETCH, INSTR_FETCH, 360, 1);
     ret = iopmp_capture_error(&iopmp, &err_report, false);
     FAIL_IF(ret != IOPMP_OK);
-    FAIL_IF((err_report.etype != IOPMP_ERRINFO_ETYPE_INST_FETCH));
-    FAIL_IF((err_report.ttype != IOPMP_ERRINFO_TTYPE_INST_FETCH));
+    FAIL_IF((err_report.etype != IOPMP_ETYPE_INST_FETCH));
+    FAIL_IF((err_report.ttype != IOPMP_TTYPE_INST_FETCH));
     FAIL_IF((err_report.addr != (360 >> 2)));
     FAIL_IF((err_report.rrid != 2));
     write_register(&iopmp_dev, ERR_INFO_OFFSET, 0, 4);
@@ -2011,8 +2011,8 @@ int main(void)
     error_record_chk(&iopmp_dev, ILLEGAL_INSTR_FETCH, INSTR_FETCH, 360, 1);
     ret = iopmp_capture_error(&iopmp, &err_report, false);
     FAIL_IF(ret != IOPMP_OK);
-    FAIL_IF((err_report.etype != IOPMP_ERRINFO_ETYPE_INST_FETCH));
-    FAIL_IF((err_report.ttype != IOPMP_ERRINFO_TTYPE_INST_FETCH));
+    FAIL_IF((err_report.etype != IOPMP_ETYPE_INST_FETCH));
+    FAIL_IF((err_report.ttype != IOPMP_TTYPE_INST_FETCH));
     FAIL_IF((err_report.addr != (360 >> 2)));
     FAIL_IF((err_report.rrid != 2));
     write_register(&iopmp_dev, ERR_INFO_OFFSET, 0, 4);
@@ -2931,8 +2931,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(iopmp_err_report_get_addr(&err_report) != (364 >> 2));
     FAIL_IF(iopmp_err_report_get_rrid(&err_report) != 2);
-    FAIL_IF(iopmp_err_report_get_ttype(&err_report) != IOPMP_ERRINFO_TTYPE_READ);
-    FAIL_IF(iopmp_err_report_get_etype(&err_report) != IOPMP_ERRINFO_ETYPE_NOT_HIT);
+    FAIL_IF(iopmp_err_report_get_ttype(&err_report) != IOPMP_TTYPE_READ);
+    FAIL_IF(iopmp_err_report_get_etype(&err_report) != IOPMP_ETYPE_NOT_HIT);
     FAIL_IF(iopmp_err_report_is_no_hit(&err_report) != true);
     FAIL_IF(iopmp_err_report_is_part_hit(&err_report) != false);
     FAIL_IF(iopmp_err_report_get_msi_werr(&err_report) != false);
