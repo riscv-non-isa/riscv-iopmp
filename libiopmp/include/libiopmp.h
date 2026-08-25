@@ -2218,13 +2218,14 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num);
  * \param[in] size              Size of the memory region
  * \param[in] flags             Flags of the entry for this memory region
  * \param[in] private_data      Private data that can be used in specific model
+ * \param[out] num_encoded      Number of entries written into \p entries : 1
+ *                              for a NAPOT entry or a TOR entry 0, 2 for a
+ *                              pair of TOR entries
  *
- * \retval 1 if successes and the memory region is encoded as NAPOT entry or as
- *         TOR entry 0
- * \retval 2 if successes and the memory region is encoded as two TOR entries
- * \retval IOPMP_ERR_INVALID_PARAMETER if given \p entries is NULL or
- *         \p num_entry is 0 or \p size is 0 or \p addr or \p size is not
- *         aligned to IOPMP granularity
+ * \retval IOPMP_OK if the memory region is encoded
+ * \retval IOPMP_ERR_INVALID_PARAMETER if given \p entries or \p num_encoded
+ *         is NULL or \p num_entry is 0 or \p size is 0 or \p addr or \p size
+ *         is not aligned to IOPMP granularity
  * \retval IOPMP_ERR_NOT_SUPPORTED if memory region should be encoded as TOR
  *         entry, but \p iopmp does not support TOR entry; or \p flags contain
  *         unsupported hardware features such as per-entry interrupt/error
@@ -2245,8 +2246,8 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num);
  * \note In general, a TOR region will be encoded into two entries. However, the
  *       specification permits the PMP entry 0 having TOR address-matching mode.
  *       In this case, caller must provide IOPMP_ENTRY_FIRST_TOR via \p flags
- *       parameter. The API returns 1 whereas the entry is encoded as TOR
- *       address-matching mode.
+ *       parameter. The API sets \p num_encoded to 1 whereas the entry is
+ *       encoded as TOR address-matching mode.
  * \note If caller wants to encode TOR entries on an NAPOT-able region, caller
  *       must provide IOPMP_ENTRY_FORCE_TOR via \p flags parameter.
  * \note If caller wants to specify the entry is whether a priority entry or a
@@ -2263,7 +2264,8 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num);
 enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
                                     uint32_t num_entry, uint64_t addr,
                                     uint64_t size, uint32_t flags,
-                                    uint64_t private_data);
+                                    uint64_t private_data,
+                                    uint32_t *num_encoded);
 
 /**
  * \brief Set IOPMP entries together with the MD permissions that go with them

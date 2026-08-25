@@ -96,6 +96,7 @@ int main(void)
 {
     IOPMP_t iopmp = {0};
     enum iopmp_error ret;
+    uint32_t num_encoded;
     uint32_t val_u32;
     uint64_t val_u64;
     struct iopmp_entry entries[8] = {0};
@@ -166,8 +167,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4,
-                             IOPMP_ENTRY_FORCE_OFF | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single OFF entry
+                             IOPMP_ENTRY_FORCE_OFF | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single OFF entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_OFF | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -199,8 +200,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4,
-                             IOPMP_ENTRY_FORCE_OFF | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single OFF entry
+                             IOPMP_ENTRY_FORCE_OFF | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single OFF entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_OFF | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -232,8 +233,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4,
-                             IOPMP_ENTRY_FORCE_OFF | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single OFF entry
+                             IOPMP_ENTRY_FORCE_OFF | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single OFF entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_OFF | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -265,8 +266,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4,
-                             IOPMP_ENTRY_FORCE_OFF | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single OFF entry
+                             IOPMP_ENTRY_FORCE_OFF | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single OFF entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_OFF | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -299,8 +300,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 2, 0, 368,
-                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 2);  // Two TOR entries
+                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 2);  // Two TOR entries
     FAIL_IF(entries[0].addr != 0);
     FAIL_IF(entries[0].cfg != IOPMP_ENTRY_R);
     FAIL_IF(entries[1].addr != (368 >> 2));
@@ -334,8 +335,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 2, 0, 368,
-                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 2);  // Two TOR entries
+                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 2);  // Two TOR entries
     FAIL_IF(entries[0].addr != 0);
     FAIL_IF(entries[0].cfg != IOPMP_ENTRY_R);
     FAIL_IF(entries[1].addr != (368 >> 2));
@@ -367,8 +368,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 2, 0, 368,
-                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 2);  // Two TOR entries
+                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 2);  // Two TOR entries
     FAIL_IF(entries[0].addr != 0);
     FAIL_IF(entries[0].cfg != IOPMP_ENTRY_R);
     FAIL_IF(entries[1].addr != (368 >> 2));
@@ -400,8 +401,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 2, 0, 368,
-                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 2);  // Two TOR entries
+                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 2);  // Two TOR entries
     FAIL_IF(entries[0].addr != 0);
     FAIL_IF(entries[0].cfg != IOPMP_ENTRY_R);
     FAIL_IF(entries[1].addr != (368 >> 2));
@@ -438,8 +439,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 2, 0, 368,
-                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 2);  // Two TOR entries
+                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 2);  // Two TOR entries
     FAIL_IF(entries[0].addr != 0);
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_W | IOPMP_ENTRY_R));
     FAIL_IF(entries[1].addr != (368 >> 2));
@@ -474,8 +475,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 2, 0, 368,
-                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_W, 0);
-    FAIL_IF(ret != 2);  // Two TOR entries
+                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_W, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 2);  // Two TOR entries
     FAIL_IF(entries[0].addr != 0);
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_W));
     FAIL_IF(entries[1].addr != (368 >> 2));
@@ -512,8 +513,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 2, 0, 368,
-                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_W, 0);
-    FAIL_IF(ret != 2);  // Two TOR entries
+                             IOPMP_ENTRY_FORCE_TOR | IOPMP_ENTRY_W, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 2);  // Two TOR entries
     FAIL_IF(entries[0].addr != 0);
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_W));
     FAIL_IF(entries[1].addr != (368 >> 2));
@@ -546,8 +547,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NA4 entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NA4 entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NA4 | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -578,8 +579,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, 0, 0);
-    FAIL_IF(ret != 1);  // Single NA4 entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, 0, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NA4 entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != IOPMP_ENTRY_A_NA4);
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -611,8 +612,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NA4 entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NA4 entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NA4 | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -646,8 +647,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NA4 entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NA4 entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NA4 | IOPMP_ENTRY_W | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -678,8 +679,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_W, 0);
-    FAIL_IF(ret != 1);  // Single NA4 entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_W, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NA4 entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NA4 | IOPMP_ENTRY_W));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -710,8 +711,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NA4 entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NA4 entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NA4 | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -743,8 +744,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NA4 entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NA4 entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NA4 | IOPMP_ENTRY_W | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -776,8 +777,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4,
-                             IOPMP_ENTRY_X | IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NA4 entry
+                             IOPMP_ENTRY_X | IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NA4 entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NA4 | IOPMP_ENTRY_X | IOPMP_ENTRY_W | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -809,8 +810,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4,
-                             IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NA4 entry
+                             IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NA4 entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NA4 | IOPMP_ENTRY_W | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -843,8 +844,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4,
-                             IOPMP_ENTRY_X | IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NA4 entry
+                             IOPMP_ENTRY_X | IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NA4 entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NA4 | IOPMP_ENTRY_X | IOPMP_ENTRY_W | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -875,8 +876,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NA4 entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NA4 entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NA4 | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -907,8 +908,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NA4 entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 364, 4, IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NA4 entry
     FAIL_IF(entries[0].addr != (364 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NA4 | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -939,8 +940,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -971,8 +972,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, 0, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, 0, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != IOPMP_ENTRY_A_NAPOT);
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1003,8 +1004,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, 0, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, 0, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != IOPMP_ENTRY_A_NAPOT);
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1039,8 +1040,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8,
-                             IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+                             IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_W | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1071,8 +1072,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_W, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_W, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_W));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1103,8 +1104,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, 0, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, 0, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != IOPMP_ENTRY_A_NAPOT);
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1135,8 +1136,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1168,8 +1169,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 17);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 296, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 296, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (296 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1184,14 +1185,14 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 4, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 25);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, 0, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, 0, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != IOPMP_ENTRY_A_NAPOT);
     ret = iopmp_set_entry(&iopmp, entries, 18);
     FAIL_IF(ret != IOPMP_OK);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 20);
@@ -1223,8 +1224,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, 0, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, 0, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != IOPMP_ENTRY_A_NAPOT);
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1259,8 +1260,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1295,8 +1296,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1330,8 +1331,8 @@ int main(void)
     val_u32 = 2;
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_ERR_REG_IS_LOCKED);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1366,8 +1367,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1402,8 +1403,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1438,8 +1439,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 5);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 4);
@@ -1470,8 +1471,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1504,8 +1505,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 5);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 4);
@@ -1545,8 +1546,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1586,8 +1587,8 @@ int main(void)
     val_u32 = 2;
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_ERR_REG_IS_LOCKED);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1628,8 +1629,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1680,8 +1681,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 31, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1716,8 +1717,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 31, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1751,8 +1752,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8,
-                             IOPMP_ENTRY_SIXE | IOPMP_ENTRY_R, 0);  // Address Mode is NAPOT, with read permission and ixe suppression
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+                             IOPMP_ENTRY_SIXE | IOPMP_ENTRY_R, 0, &num_encoded);  // Address Mode is NAPOT, with read permission and ixe suppression
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_SIXE | IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1786,8 +1787,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 31, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1824,8 +1825,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8,
-                             IOPMP_ENTRY_SEXE | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+                             IOPMP_ENTRY_SEXE | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_SEXE | IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R));    // Address Mode is NAPOT, with read permission and exe suppression
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1864,8 +1865,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8,
-                             IOPMP_ENTRY_SEXE | IOPMP_ENTRY_R, 0);  // Address Mode is NAPOT, with read permission and exe suppression
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+                             IOPMP_ENTRY_SEXE | IOPMP_ENTRY_R, 0, &num_encoded);  // Address Mode is NAPOT, with read permission and exe suppression
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_SEXE | IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1902,8 +1903,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 31, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1952,8 +1953,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8,
-                             IOPMP_ENTRY_SEXE | IOPMP_ENTRY_SIXE | IOPMP_ENTRY_R, 0);  // Address Mode is NAPOT, with read permission and ixe/exe suppression
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+                             IOPMP_ENTRY_SEXE | IOPMP_ENTRY_SIXE | IOPMP_ENTRY_R, 0, &num_encoded);  // Address Mode is NAPOT, with read permission and ixe/exe suppression
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_SEXE | IOPMP_ENTRY_SIXE | IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -1993,8 +1994,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 31, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -2036,8 +2037,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -2087,8 +2088,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 3, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_X, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_X));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -2139,8 +2140,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8,
-                             IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+                             IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_W | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -2202,8 +2203,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 31, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -2253,8 +2254,8 @@ int main(void)
     ret = iopmp_set_md_entry_association(&iopmp, 31, &val_u32);
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
-    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+    ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8, IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 1);
@@ -2525,11 +2526,11 @@ int main(void)
     FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
     FAIL_IF(program_full_mdcfg_table(&iopmp) != 0);
     ret = iopmp_encode_entry(&iopmp, &entries[0], 1, 0x1000, 0x1000,
-                             IOPMP_ENTRY_RW, 0);
-    FAIL_IF(ret != 1);
+                             IOPMP_ENTRY_RW, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);
     ret = iopmp_encode_entry(&iopmp, &entries[1], 1, 0x8000, 0x4000,
-                             IOPMP_ENTRY_RX, 0);
-    FAIL_IF(ret != 1);
+                             IOPMP_ENTRY_RX, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);
     ret = iopmp_set_entries(&iopmp, entries, 0, 2);
     FAIL_IF(ret != IOPMP_OK);
     ret = iopmp_get_entries(&iopmp, rb_entries, 0, 2);
@@ -2542,8 +2543,8 @@ int main(void)
 
     START_TEST("Write and read back a single entry");
     ret = iopmp_encode_entry(&iopmp, &entries[2], 1, 0x20000, 0x10000,
-                             IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);
+                             IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);
     ret = iopmp_set_entry(&iopmp, &entries[2], 5);
     FAIL_IF(ret != IOPMP_OK);
     memset(&rb_entries[2], 0, sizeof(rb_entries[2]));
@@ -2774,49 +2775,50 @@ int main(void)
     /**********************************************************************/
     START_TEST("Encode entry with invalid arguments");
     FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
-    FAIL_IF(iopmp_encode_entry(&iopmp, NULL, 1, 0x1000, 0x1000, IOPMP_ENTRY_R, 0) != IOPMP_ERR_INVALID_PARAMETER);
-    FAIL_IF(iopmp_encode_entry(&iopmp, entries, 0, 0x1000, 0x1000, IOPMP_ENTRY_R, 0) != IOPMP_ERR_INVALID_PARAMETER);
-    FAIL_IF(iopmp_encode_entry(&iopmp, entries, 1, 0x1000, 0, IOPMP_ENTRY_R, 0) != IOPMP_ERR_INVALID_PARAMETER);
+    FAIL_IF(iopmp_encode_entry(&iopmp, NULL, 1, 0x1000, 0x1000, IOPMP_ENTRY_R, 0, &num_encoded) != IOPMP_ERR_INVALID_PARAMETER);
+    FAIL_IF(iopmp_encode_entry(&iopmp, entries, 0, 0x1000, 0x1000, IOPMP_ENTRY_R, 0, &num_encoded) != IOPMP_ERR_INVALID_PARAMETER);
+    FAIL_IF(iopmp_encode_entry(&iopmp, entries, 1, 0x1000, 0, IOPMP_ENTRY_R, 0, &num_encoded) != IOPMP_ERR_INVALID_PARAMETER);
+    FAIL_IF(iopmp_encode_entry(&iopmp, entries, 1, 0x1000, 0x1000, IOPMP_ENTRY_R, 0, NULL) != IOPMP_ERR_INVALID_PARAMETER);
     /* The granularity is 4 bytes, so a 2-byte region is not encodable */
-    FAIL_IF(iopmp_encode_entry(&iopmp, entries, 1, 0x1000, 2, IOPMP_ENTRY_R, 0) != IOPMP_ERR_INVALID_PARAMETER);
-    FAIL_IF(iopmp_encode_entry(&iopmp, entries, 1, 0x1002, 4, IOPMP_ENTRY_R, 0) != IOPMP_ERR_INVALID_PARAMETER);
+    FAIL_IF(iopmp_encode_entry(&iopmp, entries, 1, 0x1000, 2, IOPMP_ENTRY_R, 0, &num_encoded) != IOPMP_ERR_INVALID_PARAMETER);
+    FAIL_IF(iopmp_encode_entry(&iopmp, entries, 1, 0x1002, 4, IOPMP_ENTRY_R, 0, &num_encoded) != IOPMP_ERR_INVALID_PARAMETER);
     END_TEST();
 
     START_TEST("Encode a TOR region needing two entries");
     /* 0x1000 ~ 0x2800 is not a NAPOT region */
-    ret = iopmp_encode_entry(&iopmp, entries, 2, 0x1000, 0x1800, IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 2);
+    ret = iopmp_encode_entry(&iopmp, entries, 2, 0x1000, 0x1800, IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 2);
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_OFF | IOPMP_ENTRY_R));
     FAIL_IF(entries[0].addr != (0x1000 >> 2));
     FAIL_IF(entries[1].cfg != (IOPMP_ENTRY_A_TOR | IOPMP_ENTRY_R));
     FAIL_IF(entries[1].addr != (0x2800 >> 2));
     /* ... but only if the caller offers room for two entries */
-    FAIL_IF(iopmp_encode_entry(&iopmp, entries, 1, 0x1000, 0x1800, IOPMP_ENTRY_R, 0) != IOPMP_ERR_NOT_ALLOWED);
+    FAIL_IF(iopmp_encode_entry(&iopmp, entries, 1, 0x1000, 0x1800, IOPMP_ENTRY_R, 0, &num_encoded) != IOPMP_ERR_NOT_ALLOWED);
     END_TEST();
 
     START_TEST("Encode the first TOR entry");
     ret = iopmp_encode_entry(&iopmp, entries, 1, 0, 0x1800,
-                             IOPMP_ENTRY_FIRST_TOR | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);
+                             IOPMP_ENTRY_FIRST_TOR | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_TOR | IOPMP_ENTRY_R));
     FAIL_IF(entries[0].addr != (0x1800 >> 2));
     /* The first TOR entry must start from address 0 */
     FAIL_IF(iopmp_encode_entry(&iopmp, entries, 1, 0x1000, 0x1800,
-                               IOPMP_ENTRY_FIRST_TOR | IOPMP_ENTRY_R, 0) != IOPMP_ERR_NOT_ALLOWED);
+                               IOPMP_ENTRY_FIRST_TOR | IOPMP_ENTRY_R, 0, &num_encoded) != IOPMP_ERR_NOT_ALLOWED);
     END_TEST();
 
     START_TEST("Encode entry carrying the priority software flags");
     ret = iopmp_encode_entry(&iopmp, entries, 1, 0x1000, 0x1000,
-                             IOPMP_ENTRY_R | IOPMP_ENTRY_PRIO, 0);
-    FAIL_IF(ret != 1);
+                             IOPMP_ENTRY_R | IOPMP_ENTRY_PRIO, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);
     FAIL_IF(entries[0].prient_flag != IOPMP_PRIENT_PRIORITY);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 0x1000, 0x1000,
-                             IOPMP_ENTRY_R | IOPMP_ENTRY_NON_PRIO, 0);
-    FAIL_IF(ret != 1);
+                             IOPMP_ENTRY_R | IOPMP_ENTRY_NON_PRIO, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);
     FAIL_IF(entries[0].prient_flag != IOPMP_PRIENT_NON_PRIORITY);
     ret = iopmp_encode_entry(&iopmp, entries, 2, 0x1000, 0x1800,
-                             IOPMP_ENTRY_R | IOPMP_ENTRY_PRIO, 0);
-    FAIL_IF(ret != 2);
+                             IOPMP_ENTRY_R | IOPMP_ENTRY_PRIO, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 2);
     FAIL_IF(entries[0].prient_flag != IOPMP_PRIENT_PRIORITY);
     FAIL_IF(entries[1].prient_flag != IOPMP_PRIENT_PRIORITY);
     END_TEST();
@@ -3288,8 +3290,8 @@ int main(void)
     val_u32 = iopmp_get_granularity(&iopmp);
     /* Occupy entry 0 ~ 3 so that the probe has to skip over them */
     ret = iopmp_encode_entry(&iopmp, entries, 1, 0x1000, 0x1000,
-                             IOPMP_ENTRY_RW, 0);
-    FAIL_IF(ret != 1);
+                             IOPMP_ENTRY_RW, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);
     for (uint32_t i = 0; i < 4; i++)
         FAIL_IF(iopmp_set_entry(&iopmp, entries, i) != IOPMP_OK);
     /* Re-initializing must still detect the very same granularity */
@@ -3305,8 +3307,8 @@ int main(void)
     cfg.prio_entry = 4;
     FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 0x1000, 0x1000,
-                             IOPMP_ENTRY_RW, 0);
-    FAIL_IF(ret != 1);
+                             IOPMP_ENTRY_RW, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);
     for (uint32_t i = 0; i < 8; i++)
         FAIL_IF(iopmp_set_entry(&iopmp, entries, i) != IOPMP_OK);
     /* Nothing is left to probe, so libiopmp must report it rather than
@@ -3412,8 +3414,8 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK);
     FAIL_IF(val_u32 != 2);
     ret = iopmp_encode_entry(&iopmp, entries, 1, 360, 8,
-                             IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0);
-    FAIL_IF(ret != 1);  // Single NAPOT entry
+                             IOPMP_ENTRY_W | IOPMP_ENTRY_R, 0, &num_encoded);
+    FAIL_IF(ret != IOPMP_OK || num_encoded != 1);  // Single NAPOT entry
     FAIL_IF(entries[0].addr != (360 >> 2));
     FAIL_IF(entries[0].cfg != (IOPMP_ENTRY_A_NAPOT | IOPMP_ENTRY_W | IOPMP_ENTRY_R));
     ret = iopmp_set_entry(&iopmp, entries, 0);

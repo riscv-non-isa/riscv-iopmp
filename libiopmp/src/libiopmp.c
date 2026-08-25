@@ -1927,10 +1927,10 @@ enum iopmp_error iopmp_set_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)
  *
  * \return 1
  */
-static int encode_entry_pow2(struct iopmp_entry *entry,
-                             uint64_t addr, uint64_t size,
-                             uint32_t hw_flags, uint32_t sw_flags,
-                             uint64_t private_data)
+static uint32_t encode_entry_pow2(struct iopmp_entry *entry,
+                                  uint64_t addr, uint64_t size,
+                                  uint32_t hw_flags, uint32_t sw_flags,
+                                  uint64_t private_data)
 {
     /* Encode entry_cfg */
     uint32_t match;
@@ -1956,7 +1956,7 @@ static int encode_entry_pow2(struct iopmp_entry *entry,
         IOPMP_PRIENT_ANY;
     entry->private_data = private_data;
 
-    return 1;
+    return 1U;
 }
 
 /**
@@ -1972,10 +1972,10 @@ static int encode_entry_pow2(struct iopmp_entry *entry,
  * \retval 1 if successes and the memory region is encoded as first TOR entry
  * \retval 2 if successes and the memory region is encoded as two TOR entries
  */
-static int encode_entry_tor(struct iopmp_entry *entries,
-                            uint64_t addr, uint64_t size,
-                            uint32_t hw_flags, uint32_t sw_flags,
-                            uint64_t private_data)
+static uint32_t encode_entry_tor(struct iopmp_entry *entries,
+                                 uint64_t addr, uint64_t size,
+                                 uint32_t hw_flags, uint32_t sw_flags,
+                                 uint64_t private_data)
 {
     uint32_t entry_cfg0;
     uint32_t entry_cfg1;
@@ -1995,7 +1995,7 @@ static int encode_entry_tor(struct iopmp_entry *entries,
                 IOPMP_PRIENT_NON_PRIORITY : IOPMP_PRIENT_ANY;
         entries[0].private_data = private_data;
 
-        return 1;
+        return 1U;
     }
 
     entry_cfg0 |= IOPMP_ENTRY_A_OFF;
@@ -2019,7 +2019,7 @@ static int encode_entry_tor(struct iopmp_entry *entries,
         IOPMP_PRIENT_ANY;
     entries[1].private_data = private_data;
 
-    return 2;
+    return 2U;
 }
 
 /**
@@ -2066,13 +2066,14 @@ static inline bool is_napot(uint64_t addr, uint64_t size)
 enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
                                     uint32_t num_entry, uint64_t addr,
                                     uint64_t size, uint32_t flags,
-                                    uint64_t private_data)
+                                    uint64_t private_data,
+                                    uint32_t *num_encoded)
 {
     uint32_t hw_flags, sw_flags;
 
     iopmp_assert(iopmp_is_initialized(iopmp));
 
-    if ((entries == NULL) || (num_entry == 0U)) {
+    if ((entries == NULL) || (num_entry == 0U) || (num_encoded == NULL)) {
         return IOPMP_ERR_INVALID_PARAMETER;
     }
 
@@ -2101,8 +2102,9 @@ enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
 
     /* NA4 or NAPOT region */
     if (is_napot(addr, size) && ((sw_flags & IOPMP_ENTRY_FORCE_TOR) == 0U)) {
-        return encode_entry_pow2(entries, addr, size, hw_flags, sw_flags,
-                                 private_data);
+        *num_encoded = encode_entry_pow2(entries, addr, size, hw_flags,
+                                         sw_flags, private_data);
+        return IOPMP_OK;
     }
 
     /* TOR region */
@@ -2119,8 +2121,9 @@ enum iopmp_error iopmp_encode_entry(IOPMP_t *iopmp, struct iopmp_entry *entries,
         return IOPMP_ERR_NOT_ALLOWED;
     }
 
-    return encode_entry_tor(entries, addr, size, hw_flags, sw_flags,
-                            private_data);
+    *num_encoded = encode_entry_tor(entries, addr, size, hw_flags, sw_flags,
+                                    private_data);
+    return IOPMP_OK;
 }
 
 /**
