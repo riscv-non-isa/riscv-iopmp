@@ -12,7 +12,7 @@ This document refers to the term “secure monitor” as the software responsibl
 |DMA  | Direct memory access.
 |DRAM | Dynamic random-access memory.
 |ID   | Identifier.
-|IMP  | Implementation-dependent.
+|IMP  | Implementation-defined.
 |IMSIC| Incoming Message-Signaled Interrupt Controller, defined in the RISC-V advanced interrupt architecture (AIA) cite:[AIA] specification.
 |IOMMU| Input-Output Memory Management Unit cite:[IOMMU], a RISC-V non-ISA specification.
 |MD   | Memory domain.
@@ -34,7 +34,7 @@ This document refers to the term “secure monitor” as the software responsibl
 |===
 
 === Request-Role-ID and Transaction
-Request Role ID (RRID) is a unique ID to identify a system-defined security context. For example, a unique RRID can be a transaction requester or a group of transaction requesters with the same permission. Depending on the IOPMP integration, transactions may be tagged with an RRID to identify the requester. Tagging requesters with RRID is implementation-dependent. The number of bits of an RRID is implementation-dependent as well. If different channels or modes of a requester require different access permissions, they must be assigned distinct RRIDs.
+Request Role ID (RRID) is a unique ID to identify a system-defined security context. For example, a unique RRID can be a transaction requester or a group of transaction requesters with the same permission. Depending on the IOPMP integration, transactions may be tagged with an RRID to identify the requester. Tagging requesters with RRID is implementation-defined. The number of bits of an RRID is implementation-defined as well. If different channels or modes of a requester require different access permissions, they must be assigned distinct RRIDs.
 
 An RRID can be generated or carried in several implementation-specific ways. In a simple system, an RRID can be hardwired at an IOPMP receiver port or at an interconnect port so that all transactions from a given bus master use the same RRID. In a more complex interconnect, the RRID can be driven by the initiator or derived from transaction metadata, such as a world ID (WID) cite:[Worlds] or another fabric-specific transaction tag. An implementation can also translate or remap requester IDs before they reach an IOPMP, as long as the RRID presented to the IOPMP identifies the security context used for permission checks.
 
@@ -117,12 +117,12 @@ In the MDCFG Table, every memory domain _m_ has a register, `MDCFG(_m_)`. Field 
 
 Programmers should maintain proper settings in the MDCFG Table when `HWCFG0.enable` is set, where `MDCFG(_m_ + 1).t` should be greater than or equal to `MDCFG(_m_).t` for any legal MD m. Otherwise, the MDCFG table has an improper setting, that is, there exist two legal MDs _m_ and _k_, `MDCFG(_k_).t` > `MDCFG(_m_).t` for _k_ < _m_. In this case, the specification denotes the MD _m_ as having an improper setting.
 
-When the MDCFG Table has an improper setting, the resulting association of IOPMP entries to MDs is implementation-dependent, but the following conditions must be held:
+When the MDCFG Table has an improper setting, the resulting association of IOPMP entries to MDs is implementation-defined, but the following conditions must be held:
 
 * an entry must belong to at most one memory domain; and
 * the index of an entry in a lower-indexed memory domain must be lower than that in a higher-indexed memory domain.
 
-Examples of implementation-dependent behaviors for handling improper MDCFG settings are provided in <<#IMPROPER_MDCFG_REFERENCE,Reference Behaviors of Improper Settings on MDCFG Table>>.
+Examples of implementation-defined behaviors for handling improper MDCFG settings are provided in <<#IMPROPER_MDCFG_REFERENCE,Reference Behaviors of Improper Settings on MDCFG Table>>.
 
 [NOTE]
 ====
@@ -137,7 +137,7 @@ The error type identifies the cause of an illegal transaction and is recorded in
 
 When a transaction arrives at an IOPMP, the IOPMP first checks whether the RRID carried by the transaction is legal. If the RRID is illegal, the transaction is illegal with error type = "Unknown RRID" (0x06).
 
-NOTE: Whether an RRID is legal is implementation-dependent, even though it < `HWCFG1.rrid_num`.
+NOTE: Whether an RRID is legal is implementation-defined, even though it < `HWCFG1.rrid_num`.
 
 For a legal RRID, the IOPMP determines the applicable entries in the following order:
 

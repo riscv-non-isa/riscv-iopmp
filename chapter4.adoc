@@ -1,6 +1,6 @@
 [[Registers]]
 == Registers
-If an optional register is not implemented, the behavior is implementation-dependent unless otherwise specified. An optional field in an implemented register means being WARL. If it is not programmable, it should be hardwired to value matching its meaning and should not cause any effect when written. Reserved regions are reserved for standard use. The behavior in the reserved regions is implementation-dependent.
+If an optional register is not implemented, the behavior is implementation-defined unless otherwise specified. An optional field in an implemented register means being WARL. If it is not programmable, it should be hardwired to value matching its meaning and should not cause any effect when written. Reserved regions are reserved for standard use. The behavior in the reserved regions is implementation-defined.
 
 .Register summary
 [cols="<3,<6,<14",options="header"]
@@ -182,7 +182,7 @@ This convention helps avoid accidentally clearing adjacent status bits during re
 
 To suppress an error response on an IOPMP rule violation.
 
-* 0x0: respond an implementation-dependent error, such as a bus error
+* 0x0: respond an implementation-defined error, such as a bus error
 * 0x1: respond a success with a pre-defined value to the requester instead of an error
 |`rsv`  |31:3   |ZERO   |0          | Must be zero on write, reserved for future
 |===
@@ -329,7 +329,7 @@ A complete 64-bit address consists of these two registers, `ENTRY_ADDR` and `ENT
 Bits `r`, `w`, and `x`, grant read, write, or instruction fetch permission, respectively. Not each bit should be programmable. Some or all of them could be wired. Besides, an implementation can optionally impose constraints on their combinations.
 
 ==== User-defined Entry _i_ Configuration (`ENTRY_USER_CFG(_i_)`)
-`ENTRY_USER_CFG` are implementation defined registers that allows users to define their own additional IOPMP check rules beside the rules.
+`ENTRY_USER_CFG` are implementation-defined registers that allows users to define their own additional IOPMP check rules beside the rules.
 
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===

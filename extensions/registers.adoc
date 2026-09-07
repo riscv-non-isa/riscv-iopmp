@@ -170,7 +170,7 @@ Please refer <<#STALL_TRANSACTIONS, Stall transactions>> for detailed operations
 
 To suppress an error response on an IOPMP rule violation.
 
-* 0x0: respond an implementation-dependent error, such as a bus error
+* 0x0: respond an implementation-defined error, such as a bus error
 * 0x1: respond a success with a pre-defined value to the requester instead of an error
 |`msi_sel`            |3:3    |WARL   |IMP       a|Indicates whether the IOPMP triggers interrupt by MSI or wired interrupt:
 
@@ -326,7 +326,7 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |`sere`  |8:8        |WARL      |IMP       a|Suppress the (bus) error on an illegal read access caught by the entry:
 
 * 0x0: respond an error if `ERR_CFG.rs` is 0x0.
-* 0x1: do not respond an error. User to define the behavior, e.g., respond a success with an implementation-dependent value to the requester.
+* 0x1: do not respond an error. User to define the behavior, e.g., respond a success with an implementation-defined value to the requester.
 
 |`sewe`  |9:9        |WARL      |IMP       a|Suppress the (bus) error on an illegal write access/AMO caught by the entry:
 
@@ -335,6 +335,6 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |`sexe`  |10:10      |WARL      |IMP       a|Suppress the (bus) error on an illegal instruction fetch caught by the entry:
 
 * 0x0: respond an error if `ERR_CFG.rs` is 0x0.
-* 0x1: do not respond an error. User to define the behavior, e.g., respond a success with an implementation-dependent value to the requester.
+* 0x1: do not respond an error. User to define the behavior, e.g., respond a success with an implementation-defined value to the requester.
 |`rsv`   |31:11      |ZERO   |0          |Must be zero on write, reserved for future
 |===

@@ -18,7 +18,7 @@ This creates a clear trade-off:
 For systems requiring a large number of entries, a hybrid model using both types is recommended. This allows an implementation to achieve a balance between security and scalability, using priority entries for critical, static rules, and non-priority entries for the bulk of dynamic, performance-sensitive access control.
 
 ==== Functional Description
-`HWCFG2.non_prio_en` indicates whether the IOPMP supports non-priority entries. When the extension is enabled, `HWCFG2.non_prio_en` is 1 and entries with indices greater than or equal to `HWCFG2.prio_entry` are non-prioritized. These are treated equally and assigned the lowest priority. Entries with indices less than `prio_entry` are prioritized. The value of `prio_entry` is implementation-dependent. Additionally, a field `HWCFG2.prio_ent_prog` indicates whether `prio_entry` is programmable.
+`HWCFG2.non_prio_en` indicates whether the IOPMP supports non-priority entries. When the extension is enabled, `HWCFG2.non_prio_en` is 1 and entries with indices greater than or equal to `HWCFG2.prio_entry` are non-prioritized. These are treated equally and assigned the lowest priority. Entries with indices less than `prio_entry` are prioritized. The value of `prio_entry` is implementation-defined. Additionally, a field `HWCFG2.prio_ent_prog` indicates whether `prio_entry` is programmable.
 <<#REG_EXT_HWCFG2,Hardware Configuration 2>> describes the details of the fields.
 
 
