@@ -148,7 +148,7 @@ See xref:APPLICATION_NOTE[xrefstyle=full].
 |`l`       |0:0        |W1SS   |IMP        | `MDCFGLCK.l` lock bit for the `MDCFGLCK` register.
 |`f`       |6:1        |WARL   |IMP        | Indicate the number of locked MDCFG entries - `MDCFG(_m_)` is locked for _m_ < `f`.
 On write, the field only accepts the value larger than the previous value until the next reset cycle; otherwise, there is no effect.
-If `f` > `HWCFG0.md_num`, all MDCFG entries are locked.
+If `f` {ge} `HWCFG0.md_num`, all MDCFG entries are locked.
 |`rsv`     |31:7       |ZERO   |0          | Must be zero on write, reserved for future
 |===
 
@@ -160,7 +160,7 @@ If `f` > `HWCFG0.md_num`, all MDCFG entries are locked.
 |Field   |Bits       |R/W    |Default    |Description
 |`l`     |0:0        |W1SS   |IMP        | `ENTRYLCK.l` lock bit for the `ENTRYLCK` register.
 |`f`     |16:1       |WARL   |IMP        | Indicate the number of locked IOPMP entries - `ENTRY_ADDR(_i_)`, `ENTRY_ADDRH(_i_)`, and `ENTRY_CFG(_i_)` are locked for _i_ < `f`. On write, the field only accepts the value larger than the previous value until the next reset cycle; otherwise, there is no effect.
-If `f` > `HWCFG1.entry_num`, all IOPMP entries are locked.
+If `f` {ge} `HWCFG1.entry_num`, all IOPMP entries are locked.
 |`rsv`   |31:17      |ZERO   |0          | Must be zero on write, reserved for future
 |===
 
