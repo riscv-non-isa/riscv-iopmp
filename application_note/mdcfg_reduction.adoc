@@ -16,7 +16,7 @@ To indicate the _k_ value, an implementation can have `md_entry_num` in `HWCFG3`
 
 [NOTE]
 ====
-_k_ * `HWCFG0.md_num` can be greater than `HWCFG1.entry_num`. Behavior of any entry with index &#8805; `HWCFG1.entry_num` is described on <<#IOPMP_ENTRY, IOPMP Entry and IOPMP Entry Array>>.
+_k_ * `HWCFG0.md_num` can be greater than `HWCFG1.entry_num`. Behavior of any entry with index {ge} `HWCFG1.entry_num` is described on <<#IOPMP_ENTRY, IOPMP Entry and IOPMP Entry Array>>.
 ====
 
 For a particular case of _k_=1 (`HWCFG3.md_entry_num`=0), every memory domain has exactly one entry. Software can skip the concept of the memory domain when using such an IOPMP.

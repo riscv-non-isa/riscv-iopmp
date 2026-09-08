@@ -35,7 +35,7 @@ The MD-indexed format directly supports this familiar, resource-centric paradigm
 
 MD-indexed Format implements a physical SRCMD Table array similar to the baseline SRCMD Table, but indexed by memory domain rather than RRID. For memory domain _m_, registers `SRCMD_PERM(_m_)` and `SRCMD_PERMH(_m_)` (<<#REG_EXT_SRCMD_PERM,MD _m_ RRID Permission>>) are implemented at the same addresses as `SRCMD_EN(_s_)` and `SRCMD_ENH(_s_)` in the baseline format. This format allows per-RRID permission configuration for each memory domain, outputting permissions for every memory domain based on the requesting RRID. MD-indexed Format supports up to 32 RRIDs. The SPS extension is not supported in this format.
 
-For 0 &#x2264; _m_ &#x2264; 30, `MDLCK.md[_m_]` locks `SRCMD_PERM(_m_)` and `SRCMD_PERMH(_m_)`, if implemented. For 0 &#x2264; _m_ &#x2264; 31, `MDLCKH.mdh[_m_]` locks `SRCMD_PERM(_m_ + 31)` and `SRCMD_PERMH(_m_ + 31)`, if implemented.
+For 0 {le} _m_ {le} 30, `MDLCK.md[_m_]` locks `SRCMD_PERM(_m_)` and `SRCMD_PERMH(_m_)`, if implemented. For 0 {le} _m_ {le} 31, `MDLCKH.mdh[_m_]` locks `SRCMD_PERM(_m_ + 31)` and `SRCMD_PERMH(_m_ + 31)`, if implemented.
 
 [#Example_Format_2]
 .An example block diagram of SRCMD Table MD-indexed Format Implementation.

@@ -41,6 +41,9 @@ endif::[]
 :stem: latexmath
 :footnote:
 :xrefstyle: short
+// Comparison operators, following the RISC-V ISA manual convention.
+:le: &#8804;
+:ge: &#8805;
 
 = RISC-V IOPMP Architecture Specification
 RISC-V IOPMP Task Group

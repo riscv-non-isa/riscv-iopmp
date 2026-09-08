@@ -13,8 +13,8 @@ Every `SRCMD_EN(_s_)` register has a bit `l` at bit 0, which is used to lock reg
 
 The two fields `MDLCK.md` and `MDLCKH.mdh` have 63 bits together.
 Every bit is used to lock the MD association bits in the corresponding SRCMD Table entry.
-For MD 0 &#x2264; _m_ &#x2264; 30, `MDLCK.md[_m_]` locks `SRCMD_EN(_s_).md[_m_]` for all existing RRID _s_.
-For MD 31 &#x2264; _m_ &#x2264; 62, `MDLCKH.mdh[_m_]` locks `SRCMD_ENH(_s_).mdh[_m_]` for all existing RRID _s_.
+For MD 0 {le} _m_ {le} 30, `MDLCK.md[_m_]` locks `SRCMD_EN(_s_).md[_m_]` for all existing RRID _s_.
+For MD 31 {le} _m_ {le} 62, `MDLCKH.mdh[_m_]` locks `SRCMD_ENH(_s_).mdh[_m_]` for all existing RRID _s_.
 
 Bit `MDLCK.l` is a sticky to 1 and indicates if `MDLCK` and `MDLCKH` are locked.
 

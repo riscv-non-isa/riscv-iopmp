@@ -261,7 +261,7 @@ MDCFG Table is a lookup to specify the number of IOPMP entries that is associate
 |Field  |Bits       |R/W    |Default    |Description
 |`t`    |15:0       |WARL   |DC/IMP    a| Indicate the encoding the range of memory domain _m_. An IOPMP entry with index _j_ belongs to MD _m_
 
-- If `MDCFG(_m_-1).t` ≤ _j_ < `MDCFG(_m_).t`, where m > 0.
+- If `MDCFG(_m_-1).t` {le} _j_ < `MDCFG(_m_).t`, where m > 0.
 - If _j_ < `MDCFG(0).t` where m = 0.
 - If `MDCFG(_m_-1).t` > `MDCFG(_m_).t`, then MDCFG Table is improperly programmed. Please refer <<#MDCFG_TABLE, MDCFG Table>> for IOPMP behavior of improperly programming.
 

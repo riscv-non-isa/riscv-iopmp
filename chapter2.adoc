@@ -56,7 +56,7 @@ For an entry indexed by _i_, `ENTRY_ADDR(_i_)`, `ENTRY_ADDRH(_i_)`, and `ENTRY_C
 
 `ENTRY_CFG(_i_).r/w/x` indicate the read access, write access, and instruction fetch permission and they are WARL. That is, an implementation can decide which bits are programmable or hardwired and which bit combinations are unwanted.
 
-Any entry with index &#8805; `HWCFG1.entry_num` is not available. That is,
+Any entry with index {ge} `HWCFG1.entry_num` is not available. That is,
 
 * Registers of the entry are not implemented.
 * Address-matching mode of the entry is treated as OFF when the IOPMP retrieves the entry in permission checks.
@@ -84,7 +84,7 @@ An RRID associated with a MD may not have full permissions on all memory regions
 
 [NOTE]
 ====
-A memory domain may have an IOPMP entry with index &#8805; `HWCFG1.entry_num` due to its register encoding or implementation. The entry is not available.
+A memory domain may have an IOPMP entry with index {ge} `HWCFG1.entry_num` due to its register encoding or implementation. The entry is not available.
 ====
 
 When an RRID is associated with a memory domain, it is also inherently associated with all the entries that belong to that memory domain.
@@ -112,7 +112,7 @@ The MDCFG Table is used to map a memory domain to its own entries. It can be vie
 In the MDCFG Table, every memory domain _m_ has a register, `MDCFG(_m_)`. Field `MDCFG(_m_).t` represents the upper bound (not included) and field `MDCFG(_m_-1).t` represents the lower bound (included) for _m_ > 0. They form the index range of IOPMP entries belonging to the memory domain _m_. That is,
 
 
-* an entry with index _j_ belongs to MD _m_ if `MDCFG(_m_ - 1).t` &#8804; _j_ < `MDCFG(_m_).t`, where _m_ > 0.
+* an entry with index _j_ belongs to MD _m_ if `MDCFG(_m_ - 1).t` {le} _j_ < `MDCFG(_m_).t`, where _m_ > 0.
 * an entry with index _j_ belongs to MD 0 if _j_ < `MDCFG(0).t`.
 
 Programmers should maintain proper settings in the MDCFG Table when `HWCFG0.enable` is set, where `MDCFG(_m_ + 1).t` should be greater than or equal to `MDCFG(_m_).t` for any legal MD m. Otherwise, the MDCFG table has an improper setting, that is, there exist two legal MDs _m_ and _k_, `MDCFG(_k_).t` > `MDCFG(_m_).t` for _k_ < _m_. In this case, the specification denotes the MD _m_ as having an improper setting.

@@ -73,7 +73,7 @@ All fields related to instruction fetch can be fixed to 0, or unavailable.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field  |Bits |R/W  |Default |Description
-|`perm` |31:0 |WARL |DC      |Holds two bits per RRID that give the RRID's read and write permissions for memory domain _m_. Bit 2*_s_ holds the read permission for RRID _s_, and bit 2*_s_+1 holds the write permission for RRID _s_, where _s_≤15.
+|`perm` |31:0 |WARL |DC      |Holds two bits per RRID that give the RRID's read and write permissions for memory domain _m_. Bit 2*_s_ holds the read permission for RRID _s_, and bit 2*_s_+1 holds the write permission for RRID _s_, where _s_{le}15.
 The instruction fetch permission is considered the same as the read permission.
 |===
 
@@ -82,6 +82,6 @@ The instruction fetch permission is considered the same as the read permission.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field   |Bits |R/W  |Default |Description
-|`permh` |31:0 |WARL |DC      |Holds two bits per RRID that give the RRID's read and write permissions for memory domain _m_. Bit 2*(_s_-16) holds the read permission for RRID _s_, and bit 2*(_s_-16)+1 holds the write permission for RRID _s_, where _s_≥16. The register is implemented when `HWCFG1.rrid_num` > 16.
+|`permh` |31:0 |WARL |DC      |Holds two bits per RRID that give the RRID's read and write permissions for memory domain _m_. Bit 2*(_s_-16) holds the read permission for RRID _s_, and bit 2*(_s_-16)+1 holds the write permission for RRID _s_, where _s_{ge}16. The register is implemented when `HWCFG1.rrid_num` > 16.
 The instruction fetch permission is considered the same as the read permission.
 |===
