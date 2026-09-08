@@ -15,7 +15,12 @@
 DOCS := \
 	iopmp.adoc
 
-SPECNAME := iopmp
+SPECNAME := riscv-iopmp
+
+# Build the version into the file names, taken from :revnumber: in the document
+# itself so that the name and the document can never disagree.
+REVNUMBER := $(shell sed -n 's/^:revnumber:[[:space:]]*//p' $(firstword $(DOCS)))
+DOCNAME := $(SPECNAME)-v$(REVNUMBER)
 
 ifneq ($(SKIP_DOCKER),true)
 	DOCKER_CMD := docker run --rm -v ${PWD}:/build -w /build \
@@ -54,10 +59,10 @@ build-docs: $(DOCS_PDF) $(DOCS_HTML)
 vpath %.adoc $(SRC_DIR)
 
 %.pdf: %.adoc
-	$(DOCKER_CMD) $(DOCKER_QUOTE) $(ASCIIDOCTOR_PDF) $(OPTIONS) $(REQUIRES) $< $(DOCKER_QUOTE)
+	$(DOCKER_CMD) $(DOCKER_QUOTE) $(ASCIIDOCTOR_PDF) $(OPTIONS) $(REQUIRES) -o $(DOCNAME).pdf $< $(DOCKER_QUOTE)
 
 %.html: %.adoc
-	$(DOCKER_CMD) $(DOCKER_QUOTE) $(ASCIIDOCTOR_HTML) $(OPTIONS) $(REQUIRES) $< $(DOCKER_QUOTE)
+	$(DOCKER_CMD) $(DOCKER_QUOTE) $(ASCIIDOCTOR_HTML) $(OPTIONS) $(REQUIRES) -o $(DOCNAME).html $< $(DOCKER_QUOTE)
 
 build:
 	@echo "Checking if Docker is available..."
