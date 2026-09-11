@@ -76,7 +76,7 @@ Since the address encoding scheme of TOR refers to the previous entry's memory r
 
 For example, a Network Interface Controller (NIC) typically utilizes multiple memory areas, such as a Receive (RX) data buffer, a Transmit (TX) data buffer, and a set of control registers. These distinct regions, due to their association with the single NIC device and similar access requirements, can be efficiently consolidated into a single Memory Domain. If a processor (or other bus agent) is given full control over the NIC's operation, that agent may then be explicitly associated with this MD.
 
-It's important to note that, generally speaking, a single RRID can be associated with multiple memory domains (MDs), and a MD can be associated with multiple RRIDs. SRCMD Table is one of the fundamental structures in IOPMP to indicate associations between RRIDs and MDs, which will be introduced in <<#SRCMD_TABLE, SRCMD Table>>.
+It's important to note that, generally speaking, a single RRID can be associated with multiple memory domains (MDs), and a MD can be associated with multiple RRIDs. The SRCMD table is one of the fundamental structures in IOPMP to indicate associations between RRIDs and MDs, which will be introduced in <<#SRCMD_TABLE, SRCMD Table>>.
 
 MDCFG Table is one of the fundamental structures in IOPMP to define which entries belong to a MD, which will be introduced in <<#MDCFG_TABLE, MDCFG Table>>.
 
@@ -97,7 +97,7 @@ image::images/rrid2entry.png[align="center", width=80%]
 [#SRCMD_TABLE]
 === SRCMD Table
 
-The SRCMD Table is an array indexed by RRID that associates each requester with its memory domains. The table uses a bitmap approach where each RRID can be associated with multiple memory domains. When a IOPMP receives a transaction with RRID _s_, IOPMP first looks up the SRCMD Table to find out all the memory domains associated to requester _s_. An IOPMP instance can support up to 65,535 requesters, the actual number of requesters can be implementation-defined and is indicated in `HWCFG1.rrid_num`. The SRCMD Table defines the mapping from a transaction requester to its associated MDs.
+The SRCMD table is an array indexed by RRID that associates each requester with its memory domains. The table uses a bitmap approach where each RRID can be associated with multiple memory domains. When a IOPMP receives a transaction with RRID _s_, IOPMP first looks up the SRCMD table to find out all the memory domains associated to requester _s_. An IOPMP instance can support up to 65,535 requesters, the actual number of requesters can be implementation-defined and is indicated in `HWCFG1.rrid_num`. The SRCMD table defines the mapping from a transaction requester to its associated MDs.
 
 The register `SRCMD_EN(_s_)` must be implemented for each existing RRID _s_. Every bit in the 31-bit field `SRCMD_EN(_s_).md` indicates a memory domain. Bit _j_ in `SRCMD_EN(_s_).md` indicates if MD _j_ is associated with RRID _s_. If the number of MDs is more than 31, the register `SRCMD_ENH(_s_)` and its 32-bit field `SRCMD_ENH(_s_).mdh` can be implemented to support up to 63 memory domains. Bit _j_ in `SRCMD_ENH(_s_).mdh` indicates if MD (_j_ + 31) is associated with RRID _s_. For unimplemented memory domains, the corresponding bits should be hardwired read-only zero.
 
@@ -126,7 +126,7 @@ Examples of implementation-defined behaviors for handling improper MDCFG setting
 
 [NOTE]
 ====
-For portability, programmers should ensure the MDCFG Table has a proper setting during the runtime. In the case that the process of programming or initializing the MDCFG Table causes an improper setting to occur transiently, software can deassociate affected MDs in SRCMD table before programming MDCFG table to avoid security issues. Even though the procedure may introduce extra steps, the table is not subject to change at such a high frequency as to hurt overall performance. Thus, the specification requires programmers to maintain proper settings instead of requiring specific hardware behaviors on improper settings.
+For portability, programmers should ensure the MDCFG Table has a proper setting during the runtime. In the case that the process of programming or initializing the MDCFG Table causes an improper setting to occur transiently, software can deassociate affected MDs in the SRCMD table before programming MDCFG table to avoid security issues. Even though the procedure may introduce extra steps, the table is not subject to change at such a high frequency as to hurt overall performance. Thus, the specification requires programmers to maintain proper settings instead of requiring specific hardware behaviors on improper settings.
 ====
 
 [#IOPMP_priority_and_matching_logic]
@@ -141,7 +141,7 @@ NOTE: Whether an RRID is legal is implementation-defined, even though it < `HWCF
 
 For a legal RRID, the IOPMP determines the applicable entries in the following order:
 
-1. The IOPMP looks up the SRCMD Table using the RRID to identify the memory domains associated with the requester.
+1. The IOPMP looks up the SRCMD table using the RRID to identify the memory domains associated with the requester.
 2. The IOPMP looks up the MDCFG Table using the associated memory domains to identify the entries belonging to those memory domains.
 3. The IOPMP applies the entry priority and matching rules below to those entries.
 
@@ -172,7 +172,7 @@ Some AMO implementations of I/O agents are using a non-atomic read-modify-write 
 ====
 
 [#IOPMP_BLOCK_DIAGRAM]
-.an example block diagram of an IOPMP. It illustrates the checking flow of an IOPMP. This IOPMP takes three inputs: RRID, the transaction type (read/write/instruction fetch), and the request range (address/len). It first looks up the SRCMD Table according to the RRID carried by the incoming transaction to retrieve associated MD indexes. By the MD indexes, the IOPMP looks up the MDCFG Table to get the belonging entry indexes. The final step checks the access right according to the above entry indexes and corresponding permissions. An interrupt, an error response, and/or a record is generated once the transaction fails the permission check in the step.
+.an example block diagram of an IOPMP. It illustrates the checking flow of an IOPMP. This IOPMP takes three inputs: RRID, the transaction type (read/write/instruction fetch), and the request range (address/len). It first looks up the SRCMD table according to the RRID carried by the incoming transaction to retrieve associated MD indexes. By the MD indexes, the IOPMP looks up the MDCFG Table to get the belonging entry indexes. The final step checks the access right according to the above entry indexes and corresponding permissions. An interrupt, an error response, and/or a record is generated once the transaction fails the permission check in the step.
 image::images/iopmp_unit_block_diagram.png[]
 
 [#ERROR_REACTIONS]

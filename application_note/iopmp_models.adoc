@@ -3,7 +3,7 @@
 ifdef::iopmp-spec-build[:imgpath: application_note/images]
 ifndef::iopmp-spec-build[:imgpath: images]
 
-The IOPMP specification supports multiple implementation models that combine different SRCMD Table and MDCFG Table formats to address specific system requirements. These models provide convenient reference configurations for common use cases, enabling designers to select appropriate trade-offs between hardware complexity, flexibility, and performance.
+The IOPMP specification supports multiple implementation models that combine different SRCMD table and MDCFG Table formats to address specific system requirements. These models provide convenient reference configurations for common use cases, enabling designers to select appropriate trade-offs between hardware complexity, flexibility, and performance.
 
 ==== Full Model
 
@@ -16,11 +16,11 @@ The Full Model is the default IOPMP configuration with complete SRCMD and MDCFG 
 
 *Configuration*: *srcmd_fmt*=0, *mdcfg_fmt*=1, where _k_ = (*md_entry_num* + 1)
 
-The Rapid-k Model simplifies MDCFG Table lookup by implementing a fixed entry allocation scheme where each memory domain contains exactly _k_ entries. This eliminates the need for MDCFG Table lookups, reducing access latency and hardware complexity while maintaining full SRCMD Table flexibility.
+The Rapid-k Model simplifies MDCFG Table lookup by implementing a fixed entry allocation scheme where each memory domain contains exactly _k_ entries. This eliminates the need for MDCFG Table lookups, reducing access latency and hardware complexity while maintaining full SRCMD table flexibility.
 
 *Characteristics*:
 
-* Full SRCMD Table with arbitrary RRID-to-MD associations
+* Full SRCMD table with arbitrary RRID-to-MD associations
 * Simplified MDCFG with constant _k_ entries per MD
 * Direct calculation: entry index = MD index × _k_ + offset
 * Reduced MDCFG lookup latency
@@ -35,11 +35,11 @@ image::{imgpath}/iopmp_unit_block_diagram_rapid_4.png[]
 
 *Configuration*: *srcmd_fmt*=0, *mdcfg_fmt*=2, where _k_ = (*md_entry_num* + 1)
 
-The Dynamic-k Model provides runtime-programmable entry allocation similar to the Full Model but with a different MDCFG Table format. This format enables efficient dynamic reconfiguration of memory domain boundaries while maintaining full SRCMD Table capabilities.
+The Dynamic-k Model provides runtime-programmable entry allocation similar to the Full Model but with a different MDCFG Table format. This format enables efficient dynamic reconfiguration of memory domain boundaries while maintaining full SRCMD table capabilities.
 
 *Characteristics*:
 
-* Full SRCMD Table with arbitrary RRID-to-MD associations
+* Full SRCMD table with arbitrary RRID-to-MD associations
 * Alternative MDCFG Table format for dynamic configuration
 * Runtime-programmable memory domain boundaries
 * Supports SPS extension
@@ -51,12 +51,12 @@ The Dynamic-k Model provides runtime-programmable entry allocation similar to th
 
 *Configuration*: *srcmd_fmt*=1, *mdcfg_fmt*=0
 
-The Isolation Model implements direct RRID-to-MD mapping where RRID _i_ exclusively associates with memory domain _i_. This provides strong isolation between requesters while maintaining flexible entry allocation through the full MDCFG Table. The model eliminates SRCMD Table hardware entirely, achieving significant area savings.
+The Isolation Model implements direct RRID-to-MD mapping where RRID _i_ exclusively associates with memory domain _i_. This provides strong isolation between requesters while maintaining flexible entry allocation through the full MDCFG Table. The model eliminates SRCMD table hardware entirely, achieving significant area savings.
 
 *Characteristics*:
 
 * Direct RRID-to-MD mapping (RRID _i_ → MD _i_)
-* No physical SRCMD Table implementation
+* No physical SRCMD table implementation
 * Full MDCFG Table with flexible entry allocation
 * Supports up to 63 RRIDs
 * Strong requester isolation
@@ -75,7 +75,7 @@ The Compact-k Model maximizes area efficiency by combining both SRCMD and MDCFG 
 
 * Direct RRID-to-MD mapping (RRID _i_ → MD _i_)
 * Fixed _k_ entries per MD with constant allocation
-* No SRCMD Table implementation
+* No SRCMD table implementation
 * Simplified MDCFG with constant entry allocation
 * Minimum hardware resource utilization
 * Direct calculation: entry index = RRID × _k_ + offset

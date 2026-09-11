@@ -3,7 +3,7 @@
 == Configuration Protection
 Unauthorized alteration, even partial, of the IOPMP configuration poses a critical security threat, potentially leading to consequences ranging from Denial-of-Service (DoS) attacks to the wholesale compromise and leakage of sensitive data. Consequently, robust hardware mechanisms are indispensable for securing the integrity and content of the configuration registers.
 
-This chapter details the configuration protection mechanisms provided by the IOPMP specification. These mechanisms allow implementations to prohibit modification of the configuration, either wholly or partially, based on the security requirements of the application scenario. Specifically, the IOPMP defines distinct write-protection controls for the SRCMD Table, the MDCFG Table, and the Entry Array.
+This chapter details the configuration protection mechanisms provided by the IOPMP specification. These mechanisms allow implementations to prohibit modification of the configuration, either wholly or partially, based on the security requirements of the application scenario. Specifically, the IOPMP defines distinct write-protection controls for the SRCMD table, the MDCFG Table, and the Entry Array.
 
 The term 'lock' refers to a hardware feature that renders one or more fields or registers nonprogrammable until the IOPMP is reset. This feature serves to maintain the integrity of essential configurations in the event of a compromise of secure software. In cases where a lock field is programmable, it is expected to be reset to '0' and is a W1SS field.
 
@@ -12,7 +12,7 @@ The term 'lock' refers to a hardware feature that renders one or more fields or 
 Every `SRCMD_EN(_s_)` register has a bit `l` at bit 0, which is used to lock registers `SRCMD_EN(_s_)`, and `SRCMD_ENH(_s_)` if any.
 
 The two fields `MDLCK.md` and `MDLCKH.mdh` have 63 bits together.
-Every bit is used to lock the MD association bits in the corresponding SRCMD Table entry.
+Every bit is used to lock the MD association bits in the corresponding SRCMD table entry.
 For MD 0 {le} _m_ {le} 30, `MDLCK.md[_m_]` locks `SRCMD_EN(_s_).md[_m_]` for all existing RRID _s_.
 For MD 31 {le} _m_ {le} 62, `MDLCKH.mdh[_m_]` locks `SRCMD_ENH(_s_).mdh[_m_]` for all existing RRID _s_.
 
@@ -24,7 +24,7 @@ Bit `MDLCK.l` is a sticky to 1 and indicates if `MDLCK` and `MDLCKH` are locked.
 
 [NOTE]
 ====
-Locking SRCMD Table in either way can prevent the table from being altered accidentally or maliciously.
+Locking the SRCMD table in either way can prevent the table from being altered accidentally or maliciously.
 By locking the association of the MD containing the configuration regions of a component, one can prevent the component from being configured by unwanted RRIDs. To make it more secure, one can use another high-priority MD containing the same regions but no permission, let it be associated with all unwanted RRIDs, and then lock the two MDs' associations by `MDLCK`/`MDLCKH`. By adopting this approach, it is possible to safeguard the configuration from direct access by potentially compromised security software.
 ====
 
@@ -46,7 +46,7 @@ IOPMP entry protection is also related to the other IOPMP entries belonging to t
 
 Almost all programmable tables, registers, and fields have a corresponding lock mechanism that prevents updates until the IOPMP is reset. The following is a summary.
 
-* <<#SRCMD_PROTECTION, SRCMD Table Protection>> - locks for the SRCMD Table.
+* <<#SRCMD_PROTECTION, SRCMD Table Protection>> - locks for the SRCMD table.
 * <<#MDCFG_PROTECTION, MDCFG Table Protection>> - locks for the MDCFG Table.
 * <<#ENTRY_PROTECTION, Entry Protection>> - locks for the IOPMP entry array.
 

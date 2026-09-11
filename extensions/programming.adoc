@@ -7,7 +7,7 @@ This section introduces an extension to stall transactions by RRIDs and describe
 At times, attempting to configuring all IOPMP settings when the system starts can be difficult or even impossible, especially before I/O agents are active or connected to the system. As a result, it is necessary to update IOPMP settings during runtime. 
 
 To configure all IOPMP settings during runtime, security software without the extension can 
-configure additional MDs for different settings in MDCFG Table and entry array, and switch the associated MDs for an RRID in SRCMD Table from a single access.
+configure additional MDs for different settings in MDCFG Table and entry array, and switch the associated MDs for an RRID in the SRCMD table from a single access.
 
 [NOTE]
 The aforementioned method is not applicable if an IOPMP supports number of MD greater than 31 and its control port only supports 32-bit access. Security software needs two accesses to switch the association in the configuration. It results in an incomplete setting between the first access and the second access and potentially create a vulnerability.
@@ -42,7 +42,7 @@ For Step 1, it's possible to postpone all transactions until all updates are fin
 
 In Step 2, the decision of whether a transaction should be stalled cannot reference the current settings because these settings are under updating. Therefore, the only reliable information for this decision is the RRID carried by the transaction. To simplify the following descriptions, we use _rrid_stall_ to represent an abstract bit array, where _rrid_stall_[_s_] = 1 indicates that transactions with RRID _s_ must be stalled. The IOPMP stalls a transaction based on its corresponding _rrid_stall_. Please note that it may not be an actual bit array in practice just for easier expression and is not directly accessible by software.
 
-Register `MDSTALL` and `MDSTALLH` (<<#REG_EXT_MDSTALL,MD-Based Stall Control>>) control _rrid_stall_. `MDSTALL.md` and `MDSTALLH.mdh` are used to select MDs. Denote _stall_by_md_ to represent the concatenation of `MDSTALL.mdh` and `MDSTALL.md`. That is, _stall_by_md_[30:0] is `MDSTALL.md[30:0]`, and _stall_by_md_[62:31] is `MDSTALLH.mdh[31:0]` if any. An MD _m_ is selected when _stall_by_md_[_m_] = 1. `MDSTALL.exempt` controls the polarity of the selection. An IOPMP updates _rrid_stall_ only when `MDSTALL.exempt` is written. When `MDSTALL.exempt` is written to 0, _rrid_stall_[_s_] is set if RRID _s_ is associated with a selected MD _m_ (_stall_by_md_[_m_] = 1). The SRCMD Table defines the association of RRID _s_ and MD _m_. Conversely, when `MDSTALL.exempt` is written to 1, _rrid_stall_[_s_] must be set if RRID _s_ is not associated with any selected MD. This relation can be formulated as follows:
+Register `MDSTALL` and `MDSTALLH` (<<#REG_EXT_MDSTALL,MD-Based Stall Control>>) control _rrid_stall_. `MDSTALL.md` and `MDSTALLH.mdh` are used to select MDs. Denote _stall_by_md_ to represent the concatenation of `MDSTALL.mdh` and `MDSTALL.md`. That is, _stall_by_md_[30:0] is `MDSTALL.md[30:0]`, and _stall_by_md_[62:31] is `MDSTALLH.mdh[31:0]` if any. An MD _m_ is selected when _stall_by_md_[_m_] = 1. `MDSTALL.exempt` controls the polarity of the selection. An IOPMP updates _rrid_stall_ only when `MDSTALL.exempt` is written. When `MDSTALL.exempt` is written to 0, _rrid_stall_[_s_] is set if RRID _s_ is associated with a selected MD _m_ (_stall_by_md_[_m_] = 1). The SRCMD table defines the association of RRID _s_ and MD _m_. Conversely, when `MDSTALL.exempt` is written to 1, _rrid_stall_[_s_] must be set if RRID _s_ is not associated with any selected MD. This relation can be formulated as follows:
 
 [.text-center]
 `_rrid_stall_[_s_] <= MDSTALL.exempt ^ ( Reduction_OR (SRCMD(_s_).md & _stall_by_md_));`
@@ -58,7 +58,7 @@ For any unimplemented MD, the corresponding bit in `MDSTALL.md` or `MDSTALLH.mdh
 
 _rrid_stall_ should be updated only when `MDSTALL.exempt` is written, that is, when `MDSTALL` is written. When `MDSTALLH` is written, the only action is to hold the value.
 
-NOTE: Although _rrid_stall_ is derived from the SRCMD Table, it should be updated only when `MDSTALL.exempt` is written. We cannot use the table when stalling transactions because the table updates may still be in progress when the IOPMP decides if a transaction should be stalled. Writing `MDSTALL` is just like capturing a snapshot of the table at the moment right before updating any settings. The _rrid_stall_ reflects the SRCMD Table before any updates. 
+NOTE: Although _rrid_stall_ is derived from the SRCMD table, it should be updated only when `MDSTALL.exempt` is written. We cannot use the table when stalling transactions because the table updates may still be in progress when the IOPMP decides if a transaction should be stalled. Writing `MDSTALL` is just like capturing a snapshot of the table at the moment right before updating any settings. The _rrid_stall_ reflects the SRCMD table before any updates. 
 
 NOTE: When writing `MDSTALL`, the specification only defines the transactions with RRID=_s_ must be stalled for all _rrid_stall_[_s_] = 1. It doesn't request the rest of the transactions to stall or not. It only asks that all transactions be resumed when writing `MDSTALL` with a zero.
 
@@ -67,7 +67,7 @@ Writing `RRIDSCP` register (<<#REG_EXT_RRIDSCP,RRID Cherry Pick Stall Control>>)
 
 [NOTE]
 ====
-`MDSTALL`/`MDSTALLH` only stall the RRIDs based on the SRCMD Table at the moment of writing `MDSTALL`. _rrid_stall_ is not updated when the SRCMD Table is updated. Besides, _rrid_stall_ is set or clear only for those RRIDs associated with given MDs. The RRIDSCP is used to fine-tune the _rrid_stall_ if writing `MDSTALL`/`MDSTALLH` doesn't fulfill the desired _rrid_stall_ values.
+`MDSTALL`/`MDSTALLH` only stall the RRIDs based on the SRCMD table at the moment of writing `MDSTALL`. _rrid_stall_ is not updated when the SRCMD table is updated. Besides, _rrid_stall_ is set or clear only for those RRIDs associated with given MDs. The RRIDSCP is used to fine-tune the _rrid_stall_ if writing `MDSTALL`/`MDSTALLH` doesn't fulfill the desired _rrid_stall_ values.
 Software should, whenever possible, prioritize using the `MDSTALL`/`MDSTALLH` batch mechanism to manage the _rrid_stall_ state. While RRIDSCP offers granular control, it introduces significant software complexity. Its use is primarily intended for complex scenarios where the MD-based grouping logic of `MDSTALL` is insufficient to precisely define the set of RRIDs that must be stalled or exempted.
 ====
 

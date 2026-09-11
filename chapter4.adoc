@@ -20,8 +20,8 @@ If an optional register is not implemented, the behavior is implementation-defin
 
 3+|{set:cellbgcolor:#D3D3D3} Configuration Protection
 |{set:cellbgcolor:#FFFFFF}
- 0x0040 | `MDLCK`    | Lock register for lower MDs in SRCMD Table.
-|0x0044 | `MDLCKH`   | (Optional) lock register for higher MDs in SRCMD Table.
+ 0x0040 | `MDLCK`    | Lock register for lower MDs in the SRCMD table.
+|0x0044 | `MDLCKH`   | (Optional) lock register for higher MDs in the SRCMD table.
 |0x0048 | `MDCFGLCK` | Lock register for MDCFG Table.
 |0x004C | `ENTRYLCK` | Lock register for IOPMP entry array.
 
@@ -124,7 +124,7 @@ See xref:APPLICATION_NOTE[xrefstyle=full].
 === Configuration Protection Registers
 
 ==== Memory Domain Lock (`MDLCK` and `MDLCKH`)
-`MDLCK` is a register with a bitmap field to indicate which lower MDs are locked in the SRCMD Table.
+`MDLCK` is a register with a bitmap field to indicate which lower MDs are locked in the SRCMD table.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field      |Bits       |R/W    |Default    |Description
@@ -132,7 +132,7 @@ See xref:APPLICATION_NOTE[xrefstyle=full].
 |`md`       |31:1       |WARL   |IMP        | `md[_m_]` is sticky to 1 and indicates if `SRCMD_EN(_s_).md[_m_]` is locked for all RRID _s_.
 |===
 
-`MDLCKH` is a register with a bitmap field to indicate which higher MDs are locked in the SRCMD Table.
+`MDLCKH` is a register with a bitmap field to indicate which higher MDs are locked in the SRCMD table.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field      |Bits       |R/W    |Default    |Description
@@ -273,7 +273,7 @@ MDCFG Table is a lookup to specify the number of IOPMP entries that is associate
 
 ==== RRID _s_ MD Enabling (`SRCMD_EN(_s_)` and `SRCMD_ENH(_s_)`)
 
-`SRCMD_EN(_s_)` is the SRCMD Table register of RRID _s_ for lower MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
+`SRCMD_EN(_s_)` is the SRCMD table register of RRID _s_ for lower MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field   |Bits       |R/W    |Default    |Description
@@ -281,7 +281,7 @@ MDCFG Table is a lookup to specify the number of IOPMP entries that is associate
 |`md`    |31:1       |WARL   |DC         | `md[_m_]` = 1 indicates MD _m_ is associated with RRID _s_.
 |===
 
-`SRCMD_ENH(_s_)` is the SRCMD Table register of RRID _s_ for higher MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
+`SRCMD_ENH(_s_)` is the SRCMD table register of RRID _s_ for higher MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field   |Bits       |R/W    |Default    |Description

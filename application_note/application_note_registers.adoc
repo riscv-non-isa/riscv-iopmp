@@ -39,10 +39,10 @@ This section summarizes the additional registers and fields required when implem
 * 0x2: Format 2. No MDCFG Table. `HWCFG3.md_entry_num` is programmable.
 * 0x3: reserved.
 
-|`srcmd_fmt`        |3:2   |R     |IMP      a|Indicate the SRCMD Table format:
+|`srcmd_fmt`        |3:2   |R     |IMP      a|Indicate the SRCMD table format:
 
 * 0x0: Format 0 (baseline). `SRCMD_EN(_s_)` and `SRCMD_ENH(_s_)` are available.
-* 0x1: Exclusive Format. No SRCMD Table. RRID _i_ associates exclusively with memory domain _i_, _i_ = 0 ... `HWCFG0.md_num`-1.
+* 0x1: Exclusive Format. No SRCMD table. RRID _i_ associates exclusively with memory domain _i_, _i_ = 0 ... `HWCFG0.md_num`-1.
 * 0x2: MD-indexed Format. `SRCMD_PERM(_m_)` and `SRCMD_PERMH(_m_)` are available.
 * 0x3: reserved.
 
