@@ -107,7 +107,7 @@ Every `SRCMD_EN(_s_)` has a 1-bit lock field, `SRCMD_EN(_s_).l`, which locks `SR
 [#MDCFG_TABLE]
 === MDCFG Table
 
-The MDCFG table is used to map a memory domain to its own entries. It can be viewed as a partition of all entries in the IOPMP. The MDCFG defines which memory domain every entry belongs to. An entry can belong to at most one memory domain, but a memory domain can own zero or more entries. After retrieving all related entries, an IOPMP checks the transaction according to them.
+The MDCFG table is used to map a memory domain to its own IOPMP entries. It can be viewed as a partition of all IOPMP entries. The MDCFG table defines which memory domain every IOPMP entry belongs to. An IOPMP entry can belong to at most one memory domain, but a memory domain can own zero or more IOPMP entries. After retrieving all related IOPMP entries, an IOPMP checks the transaction according to them.
 
 In the MDCFG table, every memory domain _m_ has a register, `MDCFG(_m_)`. Field `MDCFG(_m_).t` represents the upper bound (not included) and field `MDCFG(_m_-1).t` represents the lower bound (included) for _m_ > 0. They form the index range of IOPMP entries belonging to the memory domain _m_. That is,
 
