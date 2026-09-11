@@ -34,9 +34,9 @@ This section summarizes the additional registers and fields required when implem
 |Field             |Bits  |R/W   |Default   |Description
 |`mdcfg_fmt`       |1:0   |R     |IMP      a|Indicate the MDCFG format:
 
-* 0x0: Format 0. MDCFG Table is implemented.
-* 0x1: Format 1. No MDCFG Table. `HWCFG3.md_entry_num` is fixed.
-* 0x2: Format 2. No MDCFG Table. `HWCFG3.md_entry_num` is programmable.
+* 0x0: Format 0. The MDCFG table is implemented.
+* 0x1: Format 1. No MDCFG table. `HWCFG3.md_entry_num` is fixed.
+* 0x2: Format 2. No MDCFG table. `HWCFG3.md_entry_num` is programmable.
 * 0x3: reserved.
 
 |`srcmd_fmt`        |3:2   |R     |IMP      a|Indicate the SRCMD table format:

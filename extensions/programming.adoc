@@ -7,7 +7,7 @@ This section introduces an extension to stall transactions by RRIDs and describe
 At times, attempting to configuring all IOPMP settings when the system starts can be difficult or even impossible, especially before I/O agents are active or connected to the system. As a result, it is necessary to update IOPMP settings during runtime. 
 
 To configure all IOPMP settings during runtime, security software without the extension can 
-configure additional MDs for different settings in MDCFG Table and entry array, and switch the associated MDs for an RRID in the SRCMD table from a single access.
+configure additional MDs for different settings in the MDCFG table and entry array, and switch the associated MDs for an RRID in the SRCMD table from a single access.
 
 [NOTE]
 The aforementioned method is not applicable if an IOPMP supports number of MD greater than 31 and its control port only supports 32-bit access. Security software needs two accesses to switch the association in the configuration. It results in an incomplete setting between the first access and the second access and potentially create a vulnerability.

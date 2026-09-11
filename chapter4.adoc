@@ -22,7 +22,7 @@ If an optional register is not implemented, the behavior is implementation-defin
 |{set:cellbgcolor:#FFFFFF}
  0x0040 | `MDLCK`    | Lock register for lower MDs in the SRCMD table.
 |0x0044 | `MDLCKH`   | (Optional) lock register for higher MDs in the SRCMD table.
-|0x0048 | `MDCFGLCK` | Lock register for MDCFG Table.
+|0x0048 | `MDCFGLCK` | Lock register for the MDCFG table.
 |0x004C | `ENTRYLCK` | Lock register for IOPMP entry array.
 
 3+|{set:cellbgcolor:#D3D3D3} Error Reporting
@@ -140,7 +140,7 @@ See xref:APPLICATION_NOTE[xrefstyle=full].
 |===
 
 ==== MDCFG Table Lock (`MDCFGLCK`)
-`MDCFGLCK` is the lock register to MDCFG Table.
+`MDCFGLCK` is the lock register for the MDCFG table.
 
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
@@ -252,7 +252,7 @@ When the bus matrix doesn't have a signal to indicate an instruction fetch, the 
 |===
 
 === MDCFG Table Registers
-MDCFG Table is a lookup to specify the number of IOPMP entries that is associated with each MD.
+The MDCFG table is a lookup to specify the number of IOPMP entries that is associated with each MD.
 
 ==== MD _m_ Configuration (`MDCFG(_m_)`)
 
@@ -263,7 +263,7 @@ MDCFG Table is a lookup to specify the number of IOPMP entries that is associate
 
 - If `MDCFG(_m_-1).t` {le} _j_ < `MDCFG(_m_).t`, where m > 0.
 - If _j_ < `MDCFG(0).t` where m = 0.
-- If `MDCFG(_m_-1).t` > `MDCFG(_m_).t`, then MDCFG Table is improperly programmed. Please refer <<#MDCFG_TABLE, MDCFG Table>> for IOPMP behavior of improperly programming.
+- If `MDCFG(_m_-1).t` > `MDCFG(_m_).t`, then the MDCFG table is improperly programmed. Please refer <<#MDCFG_TABLE, MDCFG Table>> for IOPMP behavior of improperly programming.
 
 |`rsv`  |31:16      |ZERO   |0          |Must be zero on write, reserved for future.
 |===

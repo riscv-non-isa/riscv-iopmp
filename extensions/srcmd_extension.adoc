@@ -18,7 +18,7 @@ Register `SRCMD_R(_s_)`, `SRCMD_W(_s_)`, and `SRCMD_X(_s_)` each has a single fi
 Register `SRCMD_RH(_s_)`, `SRCMD_WH(_s_)`, `SRCMD_XH(_s_)` each has a single field, `SRCMD_RH(_s_).mdh`, `SRCMD_WH(_s_).mdh`, and `SRCMD_XH(_s_).mdh`, respectively representing the read, write, and instruction fetch permissions of memory domain 31 to 62 for requester _s_.
 Register `SRCMD_RH(_s_)`, `SRCMD_WH(_s_)`, and `SRCMD_XH(_s_)` are implemented if `HWCFG0.md_num` > 31.
 
-.An example block diagram of an IOPMP with the SPS extension. It illustrates the checking flow of an IOPMP with the SPS extension. The IOPMP first looks up the SRCMD table according to the RRID carried by the incoming transaction to retrieve associated MD indexes and the corresponding permissions related to these MDs. By the MD indexes, the IOPMP looks up the MDCFG Table to get the belonging entry indexes. The final step checks the access right according to the above entry indexes and corresponding permissions.
+.An example block diagram of an IOPMP with the SPS extension. It illustrates the checking flow of an IOPMP with the SPS extension. The IOPMP first looks up the SRCMD table according to the RRID carried by the incoming transaction to retrieve associated MD indexes and the corresponding permissions related to these MDs. By the MD indexes, the IOPMP looks up the MDCFG table to get the belonging entry indexes. The final step checks the access right according to the above entry indexes and corresponding permissions.
 image::{imgpath}/iopmp_unit_block_diagram_other_formats.png[]
 
 

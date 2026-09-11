@@ -78,7 +78,7 @@ For example, a Network Interface Controller (NIC) typically utilizes multiple me
 
 It's important to note that, generally speaking, a single RRID can be associated with multiple memory domains (MDs), and a MD can be associated with multiple RRIDs. The SRCMD table is one of the fundamental structures in IOPMP to indicate associations between RRIDs and MDs, which will be introduced in <<#SRCMD_TABLE, SRCMD Table>>.
 
-MDCFG Table is one of the fundamental structures in IOPMP to define which entries belong to a MD, which will be introduced in <<#MDCFG_TABLE, MDCFG Table>>.
+The MDCFG table is one of the fundamental structures in IOPMP to define which entries belong to a MD, which will be introduced in <<#MDCFG_TABLE, MDCFG Table>>.
 
 An RRID associated with a MD may not have full permissions on all memory regions of the MD, because the permission of each region is defined in the corresponding IOPMP entry.
 
@@ -107,17 +107,17 @@ Every `SRCMD_EN(_s_)` has a 1-bit lock field, `SRCMD_EN(_s_).l`, which locks `SR
 [#MDCFG_TABLE]
 === MDCFG Table
 
-The MDCFG Table is used to map a memory domain to its own entries. It can be viewed as a partition of all entries in the IOPMP. The MDCFG defines which memory domain every entry belongs to. An entry can belong to at most one memory domain, but a memory domain can own zero or more entries. After retrieving all related entries, an IOPMP checks the transaction according to them.
+The MDCFG table is used to map a memory domain to its own entries. It can be viewed as a partition of all entries in the IOPMP. The MDCFG defines which memory domain every entry belongs to. An entry can belong to at most one memory domain, but a memory domain can own zero or more entries. After retrieving all related entries, an IOPMP checks the transaction according to them.
 
-In the MDCFG Table, every memory domain _m_ has a register, `MDCFG(_m_)`. Field `MDCFG(_m_).t` represents the upper bound (not included) and field `MDCFG(_m_-1).t` represents the lower bound (included) for _m_ > 0. They form the index range of IOPMP entries belonging to the memory domain _m_. That is,
+In the MDCFG table, every memory domain _m_ has a register, `MDCFG(_m_)`. Field `MDCFG(_m_).t` represents the upper bound (not included) and field `MDCFG(_m_-1).t` represents the lower bound (included) for _m_ > 0. They form the index range of IOPMP entries belonging to the memory domain _m_. That is,
 
 
 * an entry with index _j_ belongs to MD _m_ if `MDCFG(_m_ - 1).t` {le} _j_ < `MDCFG(_m_).t`, where _m_ > 0.
 * an entry with index _j_ belongs to MD 0 if _j_ < `MDCFG(0).t`.
 
-Programmers should maintain proper settings in the MDCFG Table when `HWCFG0.enable` is set, where `MDCFG(_m_ + 1).t` should be greater than or equal to `MDCFG(_m_).t` for any legal MD m. Otherwise, the MDCFG table has an improper setting, that is, there exist two legal MDs _m_ and _k_, `MDCFG(_k_).t` > `MDCFG(_m_).t` for _k_ < _m_. In this case, the specification denotes the MD _m_ as having an improper setting.
+Programmers should maintain proper settings in the MDCFG table when `HWCFG0.enable` is set, where `MDCFG(_m_ + 1).t` should be greater than or equal to `MDCFG(_m_).t` for any legal MD m. Otherwise, the MDCFG table has an improper setting, that is, there exist two legal MDs _m_ and _k_, `MDCFG(_k_).t` > `MDCFG(_m_).t` for _k_ < _m_. In this case, the specification denotes the MD _m_ as having an improper setting.
 
-When the MDCFG Table has an improper setting, the resulting association of IOPMP entries to MDs is implementation-defined, but the following conditions must be held:
+When the MDCFG table has an improper setting, the resulting association of IOPMP entries to MDs is implementation-defined, but the following conditions must be held:
 
 * an entry must belong to at most one memory domain; and
 * the index of an entry in a lower-indexed memory domain must be lower than that in a higher-indexed memory domain.
@@ -126,7 +126,7 @@ Examples of implementation-defined behaviors for handling improper MDCFG setting
 
 [NOTE]
 ====
-For portability, programmers should ensure the MDCFG Table has a proper setting during the runtime. In the case that the process of programming or initializing the MDCFG Table causes an improper setting to occur transiently, software can deassociate affected MDs in the SRCMD table before programming MDCFG table to avoid security issues. Even though the procedure may introduce extra steps, the table is not subject to change at such a high frequency as to hurt overall performance. Thus, the specification requires programmers to maintain proper settings instead of requiring specific hardware behaviors on improper settings.
+For portability, programmers should ensure the MDCFG table has a proper setting during the runtime. In the case that the process of programming or initializing the MDCFG table causes an improper setting to occur transiently, software can deassociate affected MDs in the SRCMD table before programming the MDCFG table to avoid security issues. Even though the procedure may introduce extra steps, the table is not subject to change at such a high frequency as to hurt overall performance. Thus, the specification requires programmers to maintain proper settings instead of requiring specific hardware behaviors on improper settings.
 ====
 
 [#IOPMP_priority_and_matching_logic]
@@ -142,7 +142,7 @@ NOTE: Whether an RRID is legal is implementation-defined, even though it < `HWCF
 For a legal RRID, the IOPMP determines the applicable entries in the following order:
 
 1. The IOPMP looks up the SRCMD table using the RRID to identify the memory domains associated with the requester.
-2. The IOPMP looks up the MDCFG Table using the associated memory domains to identify the entries belonging to those memory domains.
+2. The IOPMP looks up the MDCFG table using the associated memory domains to identify the entries belonging to those memory domains.
 3. The IOPMP applies the entry priority and matching rules below to those entries.
 
 IOPMP entries are prioritized according to their index values. Entries with lower indices are assigned a higher priority. When multiple entries match a transaction, the entry with the lowest index (highest priority) takes precedence.
@@ -172,7 +172,7 @@ Some AMO implementations of I/O agents are using a non-atomic read-modify-write 
 ====
 
 [#IOPMP_BLOCK_DIAGRAM]
-.an example block diagram of an IOPMP. It illustrates the checking flow of an IOPMP. This IOPMP takes three inputs: RRID, the transaction type (read/write/instruction fetch), and the request range (address/len). It first looks up the SRCMD table according to the RRID carried by the incoming transaction to retrieve associated MD indexes. By the MD indexes, the IOPMP looks up the MDCFG Table to get the belonging entry indexes. The final step checks the access right according to the above entry indexes and corresponding permissions. An interrupt, an error response, and/or a record is generated once the transaction fails the permission check in the step.
+.an example block diagram of an IOPMP. It illustrates the checking flow of an IOPMP. This IOPMP takes three inputs: RRID, the transaction type (read/write/instruction fetch), and the request range (address/len). It first looks up the SRCMD table according to the RRID carried by the incoming transaction to retrieve associated MD indexes. By the MD indexes, the IOPMP looks up the MDCFG table to get the belonging entry indexes. The final step checks the access right according to the above entry indexes and corresponding permissions. An interrupt, an error response, and/or a record is generated once the transaction fails the permission check in the step.
 image::images/iopmp_unit_block_diagram.png[]
 
 [#ERROR_REACTIONS]
