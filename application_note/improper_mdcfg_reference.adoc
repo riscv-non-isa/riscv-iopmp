@@ -8,16 +8,16 @@ Here are some reference behaviors for an improper setting, which may include, bu
 
 . correct the values to make the table have a proper setting,
 . reject the write access to make an improper setting, or
-. leave the improper setting in the MDCFG Table, but the belonging of entries for all MDs _m_ having an improper setting becomes:
+. leave the improper setting in the MDCFG table, but the belonging of entries for all MDs _m_ having an improper setting becomes:
 .. no entry belongs to MD _m_, or
 .. no entry belongs to all MDs _m_ to (`HWCFG0.md_num` - 1).
 ////
 
-Here is a non-exhaustive list of behaviors for handling improper settings on MDCFG Table:
+Here is a non-exhaustive list of behaviors for handling improper settings on the MDCFG table:
 
 . correct the values to make the table have proper settings,
 . reject write accesses that produce improper settings, or
-. leave the improper setting in the MDCFG Table, but association of entries to an MD m that has an improper setting becomes:
+. leave the improper setting in the MDCFG table, but association of entries to an MD m that has an improper setting becomes:
 .. no entries belong to MD _m_, or
 .. no entries belong to any MDs from _m_ to (`HWCFG0.md_num` - 1).
 

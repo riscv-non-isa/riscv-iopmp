@@ -1,15 +1,15 @@
 [#mdcfg-table-formats]
 === MDCFG Table Reduction
-In the baseline specification, a complete IOPMP check involves a sequential, two-stage lookup: first the SRCMD Table (to find MD indexes) and then the MDCFG Table (to find the corresponding entry indexes). This data dependency on the MDCFG Table lookup can introduce a latency.
+In the baseline specification, a complete IOPMP check involves a sequential, two-stage lookup: first the SRCMD table (to find MD indexes) and then the MDCFG table (to find the corresponding entry indexes). This data dependency on the MDCFG table lookup can introduce a latency.
 
-This application note provides a guideline for an optimized implementation model that **eliminates this second lookup stage**. This optimization reduces check latency, simplifies hardware logic, and saves area by removing the need for the MDCFG Table storage.
+This application note provides a guideline for an optimized implementation model that **eliminates this second lookup stage**. This optimization reduces check latency, simplifies hardware logic, and saves area by removing the need for the MDCFG table storage.
 
 ==== Each Memory Domain Has Exactly _k_ Entries
-This format is the foundational mechanism for achieving the MDCFG Table optimization, and it is the basis for the <<rapid-k-model>> and <<compact-k-model>>. The primary motivation is to *remove the MDCFG Table and its associated lookup latency*.
+This format is the foundational mechanism for achieving the MDCFG table optimization, and it is the basis for the <<rapid-k-model>> and <<compact-k-model>>. The primary motivation is to *remove the MDCFG table and its associated lookup latency*.
 
 This is achieved by defining that each memory domain contains exactly _k_ entries, where _k_ is a fixed value. By making _k_ a constant, the range of entry indexes for a given MD _m_ is no longer stored in a table but is *directly calculable* (e.g., Entry Indexes = `[_m_ * _k_, (_m_ * _k_) + _k_ - 1]`).
 
-This optimization breaks the sequential data dependency of the two-stage lookup, enabling a faster, simpler, and lower-area implementation. Implementations adopting this model can omit the MDCFG Table and the MDCFGLCK register entirely.
+This optimization breaks the sequential data dependency of the two-stage lookup, enabling a faster, simpler, and lower-area implementation. Implementations adopting this model can omit the MDCFG table and the MDCFGLCK register entirely.
 
 To indicate the _k_ value, an implementation can have `md_entry_num` in `HWCFG3` (<<#REG_EXT_HWCFG3,Hardware Configuration 3>>).
 `md_entry_num + 1` indicates the _k_ value of the IOPMP instance.

@@ -4,7 +4,7 @@
 ifdef::iopmp-spec-build[:imgpath: images]
 ifndef::iopmp-spec-build[:imgpath: ../images]
 
-The IOPMP specification provides SRCMD Table reduction strategies to minimize hardware resource utilization in systems with simplified access control requirements. These strategies enable area-efficient implementations by reducing or eliminating SRCMD Table lookups while maintaining essential protection functionality.
+The IOPMP specification provides SRCMD table reduction strategies to minimize hardware resource utilization in systems with simplified access control requirements. These strategies enable area-efficient implementations by reducing or eliminating SRCMD table lookups while maintaining essential protection functionality.
 
 ==== Source-Enforcement
 
@@ -18,27 +18,27 @@ image::{imgpath}/IOPMP_SE.drawio.png[]
 
 ==== SRCMD Table in the Exclusive Format
 
-Exclusive Format implements a direct mapping where RRID _i_ associates exclusively with memory domain _i_. This one-to-one mapping eliminates the need for SRCMD Table lookups, providing benefits in area efficiency, access latency reduction, and implementation complexity. The format supports scenarios with a single requester or multiple requesters requiring identical access permissions.
+Exclusive Format implements a direct mapping where RRID _i_ associates exclusively with memory domain _i_. This one-to-one mapping eliminates the need for SRCMD table lookups, providing benefits in area efficiency, access latency reduction, and implementation complexity. The format supports scenarios with a single requester or multiple requesters requiring identical access permissions.
 
-Exclusive Format is particularly effective for embedded systems and resource-constrained environments where minimizing hardware overhead is critical. The format supports up to 63 RRIDs and eliminates the physical SRCMD Table implementation entirely. However, designers should note that shared memory regions require duplicated entry settings in this format, which may impact configuration flexibility in systems with extensive resource sharing requirements.
+Exclusive Format is particularly effective for embedded systems and resource-constrained environments where minimizing hardware overhead is critical. The format supports up to 63 RRIDs and eliminates the physical SRCMD table implementation entirely. However, designers should note that shared memory regions require duplicated entry settings in this format, which may impact configuration flexibility in systems with extensive resource sharing requirements.
 
-The SRCMD Table format is discovered through the `srcmd_fmt` field in `HWCFG3` register (<<#REG_EXT_HWCFG3,Hardware Configuration 3>>).
-`HWCFG3.srcmd_fmt` = 1 indicates the SRCMD Table format is Exclusive Format.
+The SRCMD table format is discovered through the `srcmd_fmt` field in `HWCFG3` register (<<#REG_EXT_HWCFG3,Hardware Configuration 3>>).
+`HWCFG3.srcmd_fmt` = 1 indicates the SRCMD table format is Exclusive Format.
 
 [#SRCMD-MD-indexed]
 ==== SRCMD Table in the MD-indexed Format
-This section introduces the MD-indexed Format (Format 2) for the SRCMD Table. This format is provided as an alternative implementation, driven by a key strategic goal: to lower the barrier for migrating existing, non-RISC-V systems to the RISC-V ecosystem.
+This section introduces the MD-indexed Format (Format 2) for the SRCMD table. This format is provided as an alternative implementation, driven by a key strategic goal: to lower the barrier for migrating existing, non-RISC-V systems to the RISC-V ecosystem.
 
 The primary objective of non-ISA specifications like IOPMP is to accelerate the broad adoption of RISC-V CPUs. However, the baseline RRID-indexed programming model (Format 0), while powerful, may present a significant software migration obstacle for platforms with established, legacy programming models. Some existing systems architect their access control from the perspective of the resource (the memory regions) rather than the requester (the RRID).
 
-The MD-indexed format directly supports this familiar, resource-centric paradigm. By providing a physical SRCMD Table indexed by the Memory Domain (MD) instead of the RRID, it allows existing security software and established programming models to be ported with minimal modification.
+The MD-indexed format directly supports this familiar, resource-centric paradigm. By providing a physical SRCMD table indexed by the Memory Domain (MD) instead of the RRID, it allows existing security software and established programming models to be ported with minimal modification.
 
-MD-indexed Format implements a physical SRCMD Table array similar to the baseline SRCMD Table, but indexed by memory domain rather than RRID. For memory domain _m_, registers `SRCMD_PERM(_m_)` and `SRCMD_PERMH(_m_)` (<<#REG_EXT_SRCMD_PERM,MD _m_ RRID Permission>>) are implemented at the same addresses as `SRCMD_EN(_s_)` and `SRCMD_ENH(_s_)` in the baseline format. This format allows per-RRID permission configuration for each memory domain, outputting permissions for every memory domain based on the requesting RRID. MD-indexed Format supports up to 32 RRIDs. The SPS extension is not supported in this format.
+MD-indexed Format implements a physical SRCMD table array similar to the baseline SRCMD table, but indexed by memory domain rather than RRID. For memory domain _m_, registers `SRCMD_PERM(_m_)` and `SRCMD_PERMH(_m_)` (<<#REG_EXT_SRCMD_PERM,MD _m_ RRID Permission>>) are implemented at the same addresses as `SRCMD_EN(_s_)` and `SRCMD_ENH(_s_)` in the baseline format. This format allows per-RRID permission configuration for each memory domain, outputting permissions for every memory domain based on the requesting RRID. MD-indexed Format supports up to 32 RRIDs. The SPS extension is not supported in this format.
 
 For 0 {le} _m_ {le} 30, `MDLCK.md[_m_]` locks `SRCMD_PERM(_m_)` and `SRCMD_PERMH(_m_)`, if implemented. For 0 {le} _m_ {le} 31, `MDLCKH.mdh[_m_]` locks `SRCMD_PERM(_m_ + 31)` and `SRCMD_PERMH(_m_ + 31)`, if implemented.
 
 [#Example_Format_2]
-.An example block diagram of SRCMD Table MD-indexed Format Implementation.
+.An example block diagram of an SRCMD table implementation in the MD-indexed Format.
 image::{imgpath}/srcmd_format2_example.png[]
 
 `SRCMD_PERM(_m_)` and `SRCMD_PERMH(_m_)` are available when `HWCFG3.srcmd_fmt` = 2.

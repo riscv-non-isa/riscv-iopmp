@@ -39,7 +39,7 @@ This chapter also introduces an additional error type (`ERR_INFO.etype`).
 |===
 
 [#EXT_SUMMARY_SRCMD]
-.Register summary of extensions in SRCMD Table.
+.Register summary of extensions in the SRCMD table.
 [%autowidth, options="header"]
 |===
 3+h|SRCMD Table, _s_ = 0...`HWCFG1.rrid_num`-1.
