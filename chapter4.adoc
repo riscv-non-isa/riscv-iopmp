@@ -87,7 +87,7 @@ INFO registers are used to indicate the IOPMP instance configuration info.
 |`no_err_rec`   |23:23  |R      |IMP       |Indicate if error record (`ERR_INFO.ttype`, `ERR_INFO.etype`, `ERR_REQADDR`, `ERR_REQADDRH`, `ERR_REQID` and `ERR_USER(0)` ~ `ERR_USER(7)`) is not implemented.
 |`md_num`       |29:24  |R      |IMP       |Indicate the supported number of MD in the instance.
 |`addrh_en`     |30:30  |R      |IMP       |Indicate if `ENTRY_ADDRH(_i_)` and `ERR_REQADDRH` are available.
-|`tor_en`       |31:31  |R      |IMP       |Indicate if TOR is supported.
+|`tor_en`       |31:31  |R      |IMP       |Indicate if TOR address-matching mode is supported. See <<#ADDRESS_MATCHING_MODES, Address Matching Modes>>.
 |===
 
 ==== Hardware Configuration 1 (`HWCFG1`)
@@ -95,7 +95,7 @@ INFO registers are used to indicate the IOPMP instance configuration info.
 |===
 |Field       |Bits   |R/W    |Default    |Description
 |`rrid_num`  |15:0   |R      |IMP        |Indicate the supported number of RRID in the instance
-|`entry_num` |31:16  |R      |IMP        |Indicate the supported number of entries in the instance, which should be larger than zero.
+|`entry_num` |31:16  |R      |IMP        |Indicate the number of IOPMP entries implemented in the instance. The legal range is 1 to 65535; the value zero is reserved.
 |===
 
 ==== Hardware Configuration 2 (`HWCFG2`)
@@ -290,6 +290,7 @@ The MDCFG table is a lookup to specify the number of IOPMP entries that is assoc
 
 
 === Entry Array Registers
+This section uses _i_ to denote the index of an IOPMP entry. Each register below that is implemented has instances for _i_ = 0...`HWCFG1.entry_num`-1; no register instance is implemented for any greater _i_.
 
 ==== Entry _i_ Address (`ENTRY_ADDR(_i_)` and `ENTRY_ADDRH(_i_)`)
 
@@ -317,7 +318,7 @@ A complete 64-bit address consists of these two registers, `ENTRY_ADDR` and `ENT
 |`r`     |0:0        |WARL   |DC         |The read permission to protected memory region
 |`w`     |1:1        |WARL   |DC         |The write permission to the protected memory region
 |`x`     |2:2        |WARL   |DC         |The instruction fetch permission to the protected memory region
-|`a`     |4:3        |WARL   |DC        a|The address mode of the IOPMP entry
+|`a`     |4:3        |WARL   |DC        a|The address-matching mode of the IOPMP entry. See <<#ADDRESS_MATCHING_MODES, Address Matching Modes>>.
 
 * 0x0: OFF
 * 0x1: TOR

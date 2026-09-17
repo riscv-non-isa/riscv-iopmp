@@ -49,7 +49,7 @@ This section summarizes the additional registers and fields required when implem
 |`md_entry_num`     |10:4  |WARL |IMP       a|When `HWCFG3.mdcfg_fmt` = 
 
 * 0x0: must be zero
-* 0x1 or 0x2: `md_entry_num` indicates each memory domain has exactly (`md_entry_num` + 1) entries
+* 0x1 or 0x2: `md_entry_num` indicates each memory domain has exactly (`md_entry_num` + 1) IOPMP entry indices
 
 `md_entry_num` is locked if `HWCFG0.enable` is 1.
 

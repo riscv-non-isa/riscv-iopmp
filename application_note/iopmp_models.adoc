@@ -16,19 +16,19 @@ The Full Model is the default IOPMP configuration with complete SRCMD and MDCFG 
 
 *Configuration*: *srcmd_fmt*=0, *mdcfg_fmt*=1, where _k_ = (*md_entry_num* + 1)
 
-The Rapid-k Model simplifies MDCFG table lookup by implementing a fixed entry allocation scheme where each memory domain contains exactly _k_ entries. This eliminates the need for MDCFG table lookups, reducing access latency and hardware complexity while maintaining full SRCMD table flexibility.
+The Rapid-k Model simplifies MDCFG table lookup by implementing a fixed allocation scheme where each memory domain is assigned exactly _k_ IOPMP entry indices. This eliminates the need for MDCFG table lookups, reducing access latency and hardware complexity while maintaining full SRCMD table flexibility.
 
 *Characteristics*:
 
 * Full SRCMD table with arbitrary RRID-to-MD associations
-* Simplified MDCFG with constant _k_ entries per MD
-* Direct calculation: entry index = MD index × _k_ + offset
+* Simplified MDCFG with constant _k_ IOPMP entry indices per MD
+* Direct calculation: IOPMP entry index = MD index × _k_ + offset
 * Reduced MDCFG lookup latency
 * Supports SPS extension
 
 *Use cases*: Systems with uniform memory region sizes, real-time systems requiring predictable access latency, applications with regular memory partitioning.
 
-.Block diagram of the Rapid-4 model implementation. The MDCFG table is simplified to a constant mapping where each memory domain contains exactly four entries.
+.Block diagram of the Rapid-4 model implementation. The MDCFG table is simplified to a constant mapping where each memory domain is assigned exactly four IOPMP entry indices.
 image::{imgpath}/iopmp_unit_block_diagram_rapid_4.png[]
 
 ==== Dynamic-_k_ Model
@@ -69,16 +69,16 @@ The Isolation Model implements direct RRID-to-MD mapping where RRID _i_ exclusiv
 
 *Configuration*: *srcmd_fmt*=1, *mdcfg_fmt*=1, where _k_ = (*md_entry_num* + 1)
 
-The Compact-k Model maximizes area efficiency by combining both SRCMD and MDCFG simplifications. It implements direct RRID-to-MD mapping with fixed _k_ entries per memory domain, eliminating both table lookup mechanisms. This represents the most area-optimized IOPMP configuration.
+The Compact-k Model maximizes area efficiency by combining both SRCMD and MDCFG simplifications. It implements direct RRID-to-MD mapping with fixed _k_ IOPMP entry indices per memory domain, eliminating both table lookup mechanisms. This represents the most area-optimized IOPMP configuration.
 
 *Characteristics*:
 
 * Direct RRID-to-MD mapping (RRID _i_ → MD _i_)
-* Fixed _k_ entries per MD with constant allocation
+* Fixed _k_ IOPMP entry indices per MD with constant allocation
 * No SRCMD table implementation
 * Simplified MDCFG with constant entry allocation
 * Minimum hardware resource utilization
-* Direct calculation: entry index = RRID × _k_ + offset
+* Direct calculation: IOPMP entry index = RRID × _k_ + offset
 * SPS extension not supported
 
 *Use cases*: Resource-constrained embedded systems, cost-sensitive applications, simple protection scenarios with isolated requesters and uniform memory regions.

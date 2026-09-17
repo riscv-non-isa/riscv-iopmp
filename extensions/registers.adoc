@@ -314,7 +314,7 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |`r`     |0:0        |WARL   |DC         |The read permission to protected memory region
 |`w`     |1:1        |WARL   |DC         |The write permission to the protected memory region
 |`x`     |2:2        |WARL   |DC         |The instruction fetch permission to the protected memory region
-|`a`     |4:3        |WARL   |DC         a|The address mode of the IOPMP entry
+|`a`     |4:3        |WARL   |DC         a|The address-matching mode of the IOPMP entry. See <<#ADDRESS_MATCHING_MODES, Address Matching Modes>>.
 
 * 0x0: OFF
 * 0x1: TOR

@@ -49,18 +49,43 @@ image::images/rrid_source_example.drawio.png[align="center", width=70%]
 An IOPMP has one or multiple requester ports, one or multiple receiver ports and one control port. A receiver port is where a transaction goes into the IOPMP, and a requester port is where a transaction leaves it if the transaction passes all the checks. The control port is used to program the IOPMP.
 
 [#IOPMP_ENTRY]
-=== IOPMP Entry and IOPMP Entry Array
-The IOPMP entry array, contains `HWCFG1.entry_num` IOPMP entries, where the value zero is reserved. Each entry, starting from an index of zero, includes a specified memory region and the corresponding permissions.
+=== IOPMP Entries
+An IOPMP entry describes a memory region together with the permissions that apply to it. Each entry is one rule that the IOPMP applies when it filters transactions.
 
-For an entry indexed by _i_, `ENTRY_ADDR(_i_)`, `ENTRY_ADDRH(_i_)`, and `ENTRY_CFG(_i_).a` together encode the memory region using the address-matching modes defined by the RISC-V PMP. `ENTRY_ADDR(_i_)` and `ENTRY_ADDRH(_i_)` hold the encoded address for an IOPMP with addresses greater than 34 bits. For addresses less than or equal to 34 bits, only `ENTRY_ADDR(_i_)` is used. To determine whether `ENTRY_ADDRH(_i_)` is implemented, software can check `HWCFG0.addrh_en`. Please refer to <<#HWCFG0,Hardware Configuration 0>> for more details about `HWCFG0.addrh_en`. `ENTRY_CFG(_i_).a` selects the address-matching mode from OFF, NA4, NAPOT, and TOR. Please refer to the RISC-V privileged specification cite:[PrivISA] for details of the encoding schemes. `HWCFG0.tor_en` = 1 indicates that the IOPMP supports the TOR address-matching mode.
+The IOPMP entry array is the set of all entries in an IOPMP instance. `HWCFG1.entry_num` reports the number of entries in the array, and the entries are indexed from 0 to `HWCFG1.entry_num` - 1. The legal range of `HWCFG1.entry_num` is 1 to 65535; the value zero is reserved for future standard use.
+
+For an entry indexed by _i_, `ENTRY_ADDR(_i_)`, `ENTRY_ADDRH(_i_)`, and `ENTRY_CFG(_i_).a` together encode the memory region; see <<#ADDRESS_MATCHING_MODES, Address Matching Modes>>. `ENTRY_ADDR(_i_)` and `ENTRY_ADDRH(_i_)` hold the encoded address for an IOPMP with addresses greater than 34 bits. For addresses less than or equal to 34 bits, only `ENTRY_ADDR(_i_)` is used. To determine whether `ENTRY_ADDRH(_i_)` is implemented, software can check `HWCFG0.addrh_en`. Please refer to <<#HWCFG0,Hardware Configuration 0>> for more details about `HWCFG0.addrh_en`.
 
 `ENTRY_CFG(_i_).r/w/x` indicate the read access, write access, and instruction fetch permission and they are WARL. That is, an implementation can decide which bits are programmable or hardwired and which bit combinations are unwanted.
 
-Any entry with index {ge} `HWCFG1.entry_num` is not available. That is,
+The entry array contains no entry at an index {ge} `HWCFG1.entry_num`. Therefore,
 
-* Registers of the entry are not implemented.
-* Address-matching mode of the entry is treated as OFF when the IOPMP retrieves the entry in permission checks.
+* no entry array register is implemented for such an index; and
+* such an index selects no entry, so it contributes no rule and never matches a transaction, which is equivalent to retrieving an entry whose address-matching mode is OFF.
 
+[#ADDRESS_MATCHING_MODES]
+==== Address Matching Modes
+`ENTRY_CFG(_i_).a` selects how `ENTRY_ADDR(_i_)` and `ENTRY_ADDRH(_i_)` are interpreted as a memory region. The IOPMP uses the address-matching modes of the RISC-V PMP cite:[PrivISA], which also defines the address encodings. The four defined values of `ENTRY_CFG(_i_).a` are shown in <<ADDRESS_MATCHING_MODES_TABLE>>.
+
+[#ADDRESS_MATCHING_MODES_TABLE]
+.Address-matching modes
+[%autowidth,float="center",align="center",cols=">,^,<",options="header"]
+|===
+|`ENTRY_CFG(_i_).a` |Name |Description
+|0 |OFF
+|The entry is disabled and never matches a transaction
+|1 |TOR
+|The range from the encoded address of entry _i_-1 up to, +
+but not including, the encoded address of entry _i_
+|2 |NA4
+|A naturally aligned four-byte region
+|3 |NAPOT
+|A naturally aligned power-of-two region, {ge}8 bytes
+|===
+
+TOR is the only mode whose region depends on another entry, and the entry it depends on is entry _i_-1 in the entry array. If `ENTRY_CFG(0).a` is set to TOR, zero is used for the lower bound. `HWCFG0.tor_en` = 1 indicates that the IOPMP supports TOR.
+
+[#MEMORY_DOMAIN]
 === Memory Domain
 A Request-Role-ID (RRID) serves as an abstract identifier for a transaction requester, representing one or more requesters that are assigned an identical set of potential access permissions. Conversely, a Memory Domain (MD) is an abstract construct representing a transaction destination. Its primary purpose is to logically group a set of memory regions that share a common functional or security objective, thereby simplifying the subsequent management. MDs are indexed starting from zero.
 
@@ -68,10 +93,10 @@ Memory domains are a way of dividing the IOPMP entry array into different subarr
 
 [NOTE]
 ====
-Since the address encoding scheme of TOR refers to the previous entry's memory region, which may not be in the same memory domain, it can cause unexpected results. If the first entry of a memory domain selects TOR, the entry refers to the previous memory domain. When the previous memory domain is changed unexpectedly, the region of this entry will be altered. To prevent the unexpected change of memory region, software should
+An IOPMP entry _i_ whose address-matching mode is TOR takes its lower bound from IOPMP entry _i_-1. The two IOPMP entries need not belong to the same memory domain. When the first IOPMP entry of a memory domain selects TOR, its lower bound can therefore be owned by another memory domain, and reprogramming the encoded address of that preceding IOPMP entry silently changes the TOR entry's region. To prevent the unexpected change of memory region, software should
 
-* avoid adopting TOR for the first entry of a memory domain; or
-* set an OFF for the last entry of a memory domain with the maximal address during programming the IOPMP.
+* avoid adopting TOR for the first IOPMP entry of a memory domain; or
+* set an OFF for the last IOPMP entry of a memory domain with the maximal address during programming the IOPMP.
 ====
 
 For example, a Network Interface Controller (NIC) typically utilizes multiple memory areas, such as a Receive (RX) data buffer, a Transmit (TX) data buffer, and a set of control registers. These distinct regions, due to their association with the single NIC device and similar access requirements, can be efficiently consolidated into a single Memory Domain. If a processor (or other bus agent) is given full control over the NIC's operation, that agent may then be explicitly associated with this MD.
@@ -81,11 +106,6 @@ It's important to note that, generally speaking, a single RRID can be associated
 The MDCFG table is one of the fundamental structures in IOPMP to define which entries belong to a MD, which will be introduced in <<#MDCFG_TABLE, MDCFG Table>>.
 
 An RRID associated with a MD may not have full permissions on all memory regions of the MD, because the permission of each region is defined in the corresponding IOPMP entry.
-
-[NOTE]
-====
-A memory domain may have an IOPMP entry with index {ge} `HWCFG1.entry_num` due to its register encoding or implementation. The entry is not available.
-====
 
 When an RRID is associated with a memory domain, it is also inherently associated with all the entries that belong to that memory domain.
 <<EXAMPLE_RRID2ENTRY>> illustrates an example of relations between RRIDs, memory domains, and IOPMP entries. In the example, RRID 0 is associated with entry 0, 1, 2, 3, 4, and RRID 1 is associated with entry 0, 1, 2, 5, 6.
@@ -107,13 +127,18 @@ Every `SRCMD_EN(_s_)` has a 1-bit lock field, `SRCMD_EN(_s_).l`, which locks `SR
 [#MDCFG_TABLE]
 === MDCFG Table
 
-The MDCFG table is used to map a memory domain to its own IOPMP entries. It can be viewed as a partition of all IOPMP entries. The MDCFG table defines which memory domain every IOPMP entry belongs to. An IOPMP entry can belong to at most one memory domain, but a memory domain can own zero or more IOPMP entries. After retrieving all related IOPMP entries, an IOPMP checks the transaction according to them.
+The MDCFG table is used to map a memory domain to its own IOPMP entries. It can be viewed as a partition of the IOPMP entry array. The MDCFG table defines which memory domain every IOPMP entry belongs to. An IOPMP entry can belong to at most one memory domain, but a memory domain can own zero or more IOPMP entries. After retrieving all related IOPMP entries, an IOPMP checks the transaction according to them.
 
 In the MDCFG table, every memory domain _m_ has a register, `MDCFG(_m_)`. Field `MDCFG(_m_).t` represents the upper bound (not included) and field `MDCFG(_m_-1).t` represents the lower bound (included) for _m_ > 0. They form the index range of IOPMP entries belonging to the memory domain _m_. That is,
 
 
 * an entry with index _j_ belongs to MD _m_ if `MDCFG(_m_ - 1).t` {le} _j_ < `MDCFG(_m_).t`, where _m_ > 0.
 * an entry with index _j_ belongs to MD 0 if _j_ < `MDCFG(0).t`.
+
+[NOTE]
+====
+This specification does not require `MDCFG(_m_).t` to be bounded by `HWCFG1.entry_num`, so a memory domain can have a range of IOPMP entry indices that extends past the end of the IOPMP entry array. Indices beyond the array select no entry; see <<#IOPMP_ENTRY, IOPMP Entries>>. Requiring the bound would add a comparison against `HWCFG1.entry_num` on every write to `MDCFG(_m_)`, and would not improve security, because the indices beyond the array contribute no rule and therefore cannot grant access.
+====
 
 Programmers should maintain proper settings in the MDCFG table when `HWCFG0.enable` is set, where `MDCFG(_m_ + 1).t` should be greater than or equal to `MDCFG(_m_).t` for any legal MD m. Otherwise, the MDCFG table has an improper setting, that is, there exist two legal MDs _m_ and _k_, `MDCFG(_k_).t` > `MDCFG(_m_).t` for _k_ < _m_. In this case, the specification denotes the MD _m_ as having an improper setting.
 
@@ -131,7 +156,7 @@ For portability, programmers should ensure the MDCFG table has a proper setting 
 
 [#IOPMP_priority_and_matching_logic]
 === Priority and Matching Logic
-The IOPMP uses entry-based permission checking to determine whether transactions are allowed or denied.
+The IOPMP checks each transaction against its IOPMP entries to determine whether the transaction is allowed or denied.
 
 The error type identifies the cause of an illegal transaction and is recorded in `ERR_INFO.etype` when the error capture record is implemented. Error reactions are described in <<#ERROR_REACTIONS,Error Reactions>>, and the error-type encodings are summarized in <<#ERROR_TYPES,Summary of error types>>.
 
@@ -139,10 +164,10 @@ When a transaction arrives at an IOPMP, the IOPMP first checks whether the RRID 
 
 NOTE: Whether an RRID is legal is implementation-defined, even though it < `HWCFG1.rrid_num`.
 
-For a legal RRID, the IOPMP determines the applicable entries in the following order:
+For a legal RRID, the IOPMP determines the applicable IOPMP entries in the following order:
 
 1. The IOPMP looks up the SRCMD table using the RRID to identify the memory domains associated with the requester.
-2. The IOPMP looks up the MDCFG table using the associated memory domains to identify the entries belonging to those memory domains.
+2. The IOPMP looks up the MDCFG table using the associated memory domains to identify the IOPMP entries belonging to those memory domains.
 3. The IOPMP applies the entry priority and matching rules below to those entries.
 
 IOPMP entries are prioritized according to their index values. Entries with lower indices are assigned a higher priority. When multiple entries match a transaction, the entry with the lowest index (highest priority) takes precedence.

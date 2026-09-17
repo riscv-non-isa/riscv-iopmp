@@ -1,26 +1,21 @@
 [#mdcfg-table-formats]
 === MDCFG Table Reduction
-In the baseline specification, a complete IOPMP check involves a sequential, two-stage lookup: first the SRCMD table (to find MD indexes) and then the MDCFG table (to find the corresponding entry indexes). This data dependency on the MDCFG table lookup can introduce a latency.
+In the baseline specification, a complete IOPMP check involves a sequential, two-stage lookup: first the SRCMD table (to find MD indices) and then the MDCFG table (to find the corresponding IOPMP entry indices). This data dependency on the MDCFG table lookup can introduce a latency.
 
 This application note provides a guideline for an optimized implementation model that **eliminates this second lookup stage**. This optimization reduces check latency, simplifies hardware logic, and saves area by removing the need for the MDCFG table storage.
 
-==== Each Memory Domain Has Exactly _k_ Entries
-This format is the foundational mechanism for achieving the MDCFG table optimization, and it is the basis for the <<rapid-k-model>> and <<compact-k-model>>. The primary motivation is to *remove the MDCFG table and its associated lookup latency*.
+==== _k_ IOPMP Entry Indices per MD
+Assigning the same number of IOPMP entry indices to every memory domain is the foundational mechanism for achieving the MDCFG table optimization, and it is the basis for the <<rapid-k-model>> and <<compact-k-model>>. The primary motivation is to *remove the MDCFG table and its associated lookup latency*.
 
-This is achieved by defining that each memory domain contains exactly _k_ entries, where _k_ is a fixed value. By making _k_ a constant, the range of entry indexes for a given MD _m_ is no longer stored in a table but is *directly calculable* (e.g., Entry Indexes = `[_m_ * _k_, (_m_ * _k_) + _k_ - 1]`).
+Each memory domain is assigned exactly _k_ IOPMP entry indices. The range of IOPMP entry indices of MD _m_ is therefore not stored in a table but is *directly calculable* as `[_m_ * _k_, (_m_ * _k_) + _k_ - 1]`.
 
 This optimization breaks the sequential data dependency of the two-stage lookup, enabling a faster, simpler, and lower-area implementation. Implementations adopting this model can omit the MDCFG table and the MDCFGLCK register entirely.
 
-To indicate the _k_ value, an implementation can have `md_entry_num` in `HWCFG3` (<<#REG_EXT_HWCFG3,Hardware Configuration 3>>).
-`md_entry_num + 1` indicates the _k_ value of the IOPMP instance.
+`HWCFG3.mdcfg_fmt` (<<#REG_EXT_HWCFG3,Hardware Configuration 3>>) indicates whether the MDCFG table is reduced and whether _k_ is fixed or programmable, and `HWCFG3.md_entry_num` + 1 is the _k_ value of the IOPMP instance. When _k_ is programmable, an implementation can use `HWCFG0.enable` as the lock bit of `HWCFG3.md_entry_num`.
 
 [NOTE]
 ====
-_k_ * `HWCFG0.md_num` can be greater than `HWCFG1.entry_num`. Behavior of any entry with index {ge} `HWCFG1.entry_num` is described on <<#IOPMP_ENTRY, IOPMP Entry and IOPMP Entry Array>>.
+_k_ * `HWCFG0.md_num` can be greater than `HWCFG1.entry_num`. Indices beyond the end of the IOPMP entry array select no entry; see <<#IOPMP_ENTRY, IOPMP Entries>>.
 ====
 
-For a particular case of _k_=1 (`HWCFG3.md_entry_num`=0), every memory domain has exactly one entry. Software can skip the concept of the memory domain when using such an IOPMP.
-
-The _k_ value also can be programmable. An implementation can use `HWCFG0.enable` as the lock bit of `HWCFG3.md_entry_num`.
-
-To indicate the reduced table, an implementation can have `mdcfg_fmt` in `HWCFG3` (<<#REG_EXT_HWCFG3,Hardware Configuration 3>>) to indicate what reduced table format is implemented in an IOPMP.
+For a particular case of _k_=1 (`HWCFG3.md_entry_num`=0), every memory domain has exactly one IOPMP entry index. Software can skip the concept of the memory domain when using such an IOPMP.
