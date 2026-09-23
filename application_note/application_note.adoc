@@ -25,9 +25,6 @@ include::data_devices_buses.adoc[]
 // SRCMD Table Reduction (includes Source-enforcement as Format 1)
 include::srcmd_reduction.adoc[]
 
-// Reference Behaviors of Improper Settings on MDCFG Table
-include::improper_mdcfg_reference.adoc[]
-
 // MDCFG Table Reduction
 include::mdcfg_reduction.adoc[]
 
