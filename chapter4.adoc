@@ -1,3 +1,6 @@
+// Fallbacks for previewing this file on its own; iopmp.adoc defines them for the full build.
+ifndef::le[:le: &#8804;]
+ifndef::ge[:ge: &#8805;]
 [[Registers]]
 == Registers
 If an optional register is not implemented, the behavior is implementation-defined unless otherwise specified. An optional field in an implemented register means being WARL. If it is not programmable, it should be hardwired to value matching its meaning and should not cause any effect when written. Reserved regions are reserved for standard use. The behavior in the reserved regions is implementation-defined.

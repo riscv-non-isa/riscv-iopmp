@@ -42,6 +42,7 @@ endif::[]
 :footnote:
 :xrefstyle: short
 // Comparison operators, following the RISC-V ISA manual convention.
+// Included files that use them repeat these as ifndef fallbacks for standalone preview.
 :le: &#8804;
 :ge: &#8805;
 

@@ -1,3 +1,6 @@
+// Fallbacks for previewing this file on its own; iopmp.adoc defines them for the full build.
+ifndef::le[:le: &#8804;]
+ifndef::ge[:ge: &#8805;]
 [#mdcfg-table-formats]
 === MDCFG Table Reduction
 In the baseline specification, a complete IOPMP check involves a sequential, two-stage lookup: first the SRCMD Table (to find MD indexes) and then the MDCFG Table (to find the corresponding entry indexes). This data dependency on the MDCFG Table lookup can introduce a latency.
