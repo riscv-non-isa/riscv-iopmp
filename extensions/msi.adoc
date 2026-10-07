@@ -7,7 +7,7 @@ The bit `msi_en` in register `HWCFG2` (<<#REG_EXT_HWCFG2,Hardware Configuration 
 
 The address is MSI address and is specified by `ERR_MSIADDR` and `ERR_MSIADDRH` (<<#REG_EXT_ERR_MSIADDR,MSI Message Address>>), while the content to write is stored in the field `msidata` in the register `ERR_CFG` (<<#REG_EXT_ERR_CFG,Error Configuration with All Extensions>>). The `ERR_MSIADDR`, `ERR_MSIADDRH`, and `ERR_CFG` are locked by the `ERR_CFG.l`.
 
-`ERR_MSIADDRH` is available if the target address of IMSIC uses over 34 bits (greater than 0x2_0000_0000). `ERR_MSIADDR` encodes bit 31 to bit 0 of the address, while `ERR_MSIADDRH` encodes bit 63 to bit 32. When the target address of IMSIC uses less than or equal to 34 bits, `ERR_MSIADDR` encodes bit 33 to bit 2. `ERR_MSIADDRH` is implemented only when `HWCFG0.addrh_en` = 1 and `HWCFG2.msi_en` = 1.
+When `HWCFG0.addrh_en` = 0, `ERR_MSIADDR` encodes bit 33 to bit 2 of the MSI address. When `HWCFG0.addrh_en` = 1, `ERR_MSIADDR` encodes bit 31 to bit 0 of the address, while `ERR_MSIADDRH` encodes bit 63 to bit 32. `ERR_MSIADDRH` is implemented only when `HWCFG0.addrh_en` = 1 and `HWCFG2.msi_en` = 1. If `ERR_MSIADDRH` is implemented but the MSI address is always lower than 0x1_0000_0000, `ERR_MSIADDRH` can be hardwired to zero.
 
 The bit `msi_sel` in register `ERR_CFG` (<<#REG_EXT_ERR_CFG,Error Configuration with All Extensions>>) indicates whether the IOPMP triggers interrupt by MSI or wired interrupt. IOPMP triggers MSI when `ERR_CFG.msi_sel` = 1 and triggers wired interrupt when `ERR_CFG.msi_sel` = 0. 
 `ERR_CFG.msi_sel` can be programmable or hardwired.
