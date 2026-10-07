@@ -89,7 +89,7 @@ INFO registers are used to indicate the IOPMP instance configuration info.
 |`rsv`          |22:3   |ZERO   |0         |Must be zero on write, reserved for future.
 |`no_err_rec`   |23:23  |R      |IMP       |Indicate if error record (`ERR_INFO.ttype`, `ERR_INFO.etype`, `ERR_REQADDR`, `ERR_REQADDRH`, `ERR_REQID` and `ERR_USER(0)` ~ `ERR_USER(7)`) is not implemented.
 |`md_num`       |29:24  |R      |IMP       |Indicate the supported number of MD in the instance.
-|`addrh_en`     |30:30  |R      |IMP       |Indicate if `ENTRY_ADDRH(_i_)` and `ERR_REQADDRH` are available.
+|`addrh_en`     |30:30  |R      |IMP       |Indicate if `ENTRY_ADDRH(_i_)` and `ERR_REQADDRH` are implemented.
 |`tor_en`       |31:31  |R      |IMP       |Indicate if TOR address-matching mode is supported. See <<#ADDRESS_MATCHING_MODES, Address Matching Modes>>.
 |===
 

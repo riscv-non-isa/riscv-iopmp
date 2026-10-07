@@ -44,7 +44,7 @@ For 0 {le} _m_ {le} 30, `MDLCK.md[_m_]` locks `SRCMD_PERM(_m_)` and `SRCMD_PERMH
 .An example block diagram of an SRCMD table implementation in the MD-indexed Format.
 image::{imgpath}/srcmd_format2_example.png[]
 
-`SRCMD_PERM(_m_)` and `SRCMD_PERMH(_m_)` are available when `HWCFG3.srcmd_fmt` = 2.
+`SRCMD_PERM(_m_)` is implemented when `HWCFG3.srcmd_fmt` = 2, and `SRCMD_PERMH(_m_)` is implemented only when `HWCFG3.srcmd_fmt` = 2 and `HWCFG1.rrid_num` > 16.
 In MD-indexed Format, an IOPMP checks both the permission of `SRCMD_PERM(H)(_m_)` and the `ENTRY_CFG.r/w/x` permission.
 The instruction fetch permission of `SRCMD_PERM(H)(_m_)` is considered the same as its corresponding read permission.
 A transaction is legal if either of them allows the transaction.

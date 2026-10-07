@@ -9,7 +9,7 @@ This can apply to `x` in `ENTRY_CFG`, `sixe`/`sexe` of <<#PEIS_PEES,Per-entry In
 For some small-scale systems which have a single RISC-V hart with PMP and data-only requesters,
 or for some system buses that don't provide any instruction fetch hint,
 the IOPMP can treat the instruction fetch accesses as data read accesses.
-This simplifies both the system and IOPMP configuration by fixing all instruction fetch permission bits to 0, or making them unavailable.
+This simplifies both the system and IOPMP configuration by fixing all instruction fetch permission bits to 0, or leaving them unimplemented.
 The field `xinr` in register `HWCFG3` (<<#REG_EXT_HWCFG3,Hardware Configuration 3>>) indicates whether the IOPMP treats the instruction fetch accesses as data read accesses.
 
 [NOTE]

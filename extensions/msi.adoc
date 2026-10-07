@@ -7,10 +7,10 @@ The bit `msi_en` in register `HWCFG2` (<<#REG_EXT_HWCFG2,Hardware Configuration 
 
 The address is MSI address and is specified by `ERR_MSIADDR` and `ERR_MSIADDRH` (<<#REG_EXT_ERR_MSIADDR,MSI Message Address>>), while the content to write is stored in the field `msidata` in the register `ERR_CFG` (<<#REG_EXT_ERR_CFG,Error Configuration with All Extensions>>). The `ERR_MSIADDR`, `ERR_MSIADDRH`, and `ERR_CFG` are locked by the `ERR_CFG.l`.
 
-`ERR_MSIADDRH` is available if the target address of IMSIC uses over 34 bits (greater than 0x2_0000_0000). `ERR_MSIADDR` encodes bit 31 to bit 0 of the address, while `ERR_MSIADDRH` encodes bit 63 to bit 32. When the target address of IMSIC uses less than or equal to 34 bits, `ERR_MSIADDR` encodes bit 33 to bit 2. `ERR_MSIADDRH` is available only when `HWCFG0.addrh_en` = 1 and `HWCFG2.msi_en` = 1.
+`ERR_MSIADDRH` is available if the target address of IMSIC uses over 34 bits (greater than 0x2_0000_0000). `ERR_MSIADDR` encodes bit 31 to bit 0 of the address, while `ERR_MSIADDRH` encodes bit 63 to bit 32. When the target address of IMSIC uses less than or equal to 34 bits, `ERR_MSIADDR` encodes bit 33 to bit 2. `ERR_MSIADDRH` is implemented only when `HWCFG0.addrh_en` = 1 and `HWCFG2.msi_en` = 1.
 
 The bit `msi_sel` in register `ERR_CFG` (<<#REG_EXT_ERR_CFG,Error Configuration with All Extensions>>) indicates whether the IOPMP triggers interrupt by MSI or wired interrupt. IOPMP triggers MSI when `ERR_CFG.msi_sel` = 1 and triggers wired interrupt when `ERR_CFG.msi_sel` = 0. 
 `ERR_CFG.msi_sel` can be programmable or hardwired.
 
-The bit `msi_werr` in register `ERR_INFO` (<<#REG_EXT_ERR_INFO,Error Information with All Extensions>>) indicates whether a write access to trigger an IOPMP-originated MSI has failed. It is asserted when the write access to trigger an IOPMP-originated MSI has failed. When it's not available, it must be zero. Writing 1 to `ERR_INFO.msi_werr` clears the bit.
+The bit `msi_werr` in register `ERR_INFO` (<<#REG_EXT_ERR_INFO,Error Information with All Extensions>>) indicates whether a write access to trigger an IOPMP-originated MSI has failed. It is asserted when the write access to trigger an IOPMP-originated MSI has failed. If `HWCFG2.msi_en` = 0, it is not implemented and must be hardwired to zero. Writing 1 to `ERR_INFO.msi_werr` clears the bit.
 The bit can be implemented when `HWCFG0.no_err_rec` is 1.

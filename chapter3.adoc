@@ -23,7 +23,7 @@ Bit `MDLCK.l` is a sticky to 1 and indicates if `MDLCK` and `MDLCKH` are locked.
 
 `MDLCK.md` is optional, if not implemented, `MDLCK.md` must be wired to 0 and `MDLCK.l` must be wired to 1.
 
-`MDLCKH` is optional. It is available when `HWCFG0.md_num` > 31.
+`MDLCKH` is optional. It can be implemented when `HWCFG0.md_num` > 31.
 
 [NOTE]
 ====

@@ -200,7 +200,7 @@ Writing 1 to `ERR_INFO.v` acknowledges the captured violation, clears `v`, react
 - 0x01 = read access
 - 0x02 = write access/AMO
 - 0x03 = instruction fetch
-|`msi_werr` |3:3    |RW1C   |0          |It's asserted when the write access to trigger an IOPMP originated MSI has failed. When it's not available, it must be ZERO. +
+|`msi_werr` |3:3    |RW1C   |0          |It's asserted when the write access to trigger an IOPMP originated MSI has failed. If `HWCFG2.msi_en` = 0, it is not implemented and must be hardwired to zero. +
 Write 1 clears the bit. Write 0 causes no effect on the bit.
 |`etype`    |7:4    |R     |0      a| Indicates the type of violation, also referred to as the error type.
 
@@ -226,7 +226,7 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |===
 |Field  |Bits     |R/W    |Default    |Description
 |`svw`  |15:0     |R      |DC         | Subsequent violations in the window indexed by `svi`. `svw[_j_]`=1 for the at least one subsequent violation issued from RRID= `svi` * 16 + _j_.
-|`svi`  |27:16    |WARL   |0          | Window's index to search subsequent violations. When read, IOPMP sequentially scans all windows from `svi` until one subsequent violation is found. Once the last available window is scanned, the next window to be scanned is the first record window (index is 0). `svi` indexes the found subsequent violation or `svi` has been rounded back to the same value. After read, the window's content, `svw`, should be clean.
+|`svi`  |27:16    |WARL   |0          | Window's index to search subsequent violations. When read, IOPMP sequentially scans all windows from `svi` until one subsequent violation is found. Once the last implemented window is scanned, the next window to be scanned is the first record window (index is 0). `svi` indexes the found subsequent violation or `svi` has been rounded back to the same value. After read, the window's content, `svw`, should be clean.
 |`rsv`   |30:28    |ZERO   |0         |Must be zero on write, reserved for future.
 |`svs`   |31:31    |R      |0        a|The status of this window's content:
 
@@ -241,14 +241,14 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field         |Bits       |R/W    |Default    |Description
-|`msiaddr`     |31:0       |WARL   |IMP        |The address to trigger MSI. For `HWCFG0.addrh_en`=0, it contains bits 33 to 2 of the address; otherwise, it contains bits 31 to 0. Available only if `HWCFG2.msi_en`=1.
+|`msiaddr`     |31:0       |WARL   |IMP        |The address to trigger MSI. For `HWCFG0.addrh_en`=0, it contains bits 33 to 2 of the address; otherwise, it contains bits 31 to 0. Implemented only if `HWCFG2.msi_en`=1.
 |===
 
 `ERR_MSIADDRH` indicates the higher MSI message address for error reporting.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field         |Bits       |R/W    |Default    |Description
-|`msiaddrh`    |31:0       |WARL   |IMP        |The higher 32 bits of the address to trigger MSI. Available only if `HWCFG0.addrh_en`=1 and `HWCFG2.msi_en`=1.
+|`msiaddrh`    |31:0       |WARL   |IMP        |The higher 32 bits of the address to trigger MSI. Implemented only if `HWCFG0.addrh_en`=1 and `HWCFG2.msi_en`=1.
 |===
 
 [#REG_EXT_SRCMD_R]
