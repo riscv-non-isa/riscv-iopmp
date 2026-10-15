@@ -167,7 +167,7 @@ If `f` {ge} `HWCFG1.entry_num`, all IOPMP entries are locked.
 === Error Capture Registers
 
 Error status bits that are cleared by software use the RW1C convention unless otherwise specified.
-RW1C allows software to acknowledge selected pending status bits by writing 1, while writing 0 leaves the status unchanged.
+RW1C allows software to acknowledge a pending status bit by writing 1 to the selected bit, while writing 0 to a bit leaves that bit unchanged.
 This convention helps avoid accidentally clearing adjacent status bits during read-modify-write sequences and prevents software from writing arbitrary values into hardware-generated status fields.
 
 ==== Error Configuration (`ERR_CFG`)
