@@ -12,5 +12,10 @@ When `HWCFG0.addrh_en` = 0, `ERR_MSIADDR` encodes bit 33 to bit 2 of the MSI add
 The bit `msi_sel` in register `ERR_CFG` (<<#REG_EXT_ERR_CFG,Error Configuration with All Extensions>>) indicates whether the IOPMP triggers interrupt by MSI or wired interrupt. IOPMP triggers MSI when `ERR_CFG.msi_sel` = 1 and triggers wired interrupt when `ERR_CFG.msi_sel` = 0. 
 `ERR_CFG.msi_sel` can be programmable or hardwired.
 
-The bit `msi_werr` in register `ERR_INFO` (<<#REG_EXT_ERR_INFO,Error Information with All Extensions>>) indicates whether a write access to trigger an IOPMP-originated MSI has failed. It is asserted when the write access to trigger an IOPMP-originated MSI has failed. If `HWCFG2.msi_en` = 0, it is not implemented and must be hardwired to zero. Writing 1 to `ERR_INFO.msi_werr` clears the bit.
-The bit can be implemented when `HWCFG0.no_err_rec` is 1.
+The bit `msi_werr` in register `ERR_INFO` (<<#REG_EXT_ERR_INFO,Error Information with All Extensions>>) indicates whether a write access to trigger an IOPMP-originated MSI has failed. `ERR_INFO.msi_werr` is set whenever a write access to trigger an IOPMP-originated MSI fails, regardless of the value of `ERR_CFG.msi_sel` at that time, and is cleared only by writing 1 to it. If `HWCFG2.msi_en` = 0, `ERR_INFO.msi_werr` is not implemented and must be hardwired to zero.
+`ERR_INFO.msi_werr` can be implemented even when the error capture record is not implemented (`HWCFG0.no_err_rec` = 1).
+
+[NOTE]
+====
+Clearing `ERR_CFG.msi_sel` does not clear `ERR_INFO.msi_werr`; it only stops the IOPMP from triggering new MSIs, so no new MSI write failure can occur while `ERR_CFG.msi_sel` = 0.
+====
