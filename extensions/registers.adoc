@@ -95,7 +95,7 @@ This chapter also introduces an additional error type (`ERR_INFO.etype`).
 |Field            |Bits   |R/W  |Default |Description
 |`prio_entry`     |15:0   |WARL |IMP     |Indicate the number of entries matched with priority. These rules should be placed in the lowest order. Within these rules, the lower order has a higher priority.
 If `HWCFG2.non_prio_en` is 0, the default value of `prio_entry` is DC.
-|`prio_ent_prog`  |16:16  |W1CS |IMP     |A write-1-clear bit is sticky to 0 and indicates if `HWCFG2.prio_entry` is programmable. Reset to 1 if the implementation supports programmable `prio_entry`, otherwise, wired to 0.
+|`prio_ent_prog`  |16:16  |W1CS |IMP     |A write-1-clear bit is sticky to 0 and indicates if `HWCFG2.prio_entry` is programmable. Reset to 1 if the implementation supports programmable `prio_entry`, otherwise, hardwired to 0.
 If `HWCFG2.non_prio_en` is 0, the default value of `prio_ent_prog` is DC.
 |`non_prio_en`    |17:17  |R    |IMP     |Indicates whether the IOPMP supports non-priority entries.
 |`rsv`            |25:18  |ZERO |IMP     |Must be zero on write, reserved for future.

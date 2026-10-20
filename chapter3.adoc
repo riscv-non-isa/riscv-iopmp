@@ -21,7 +21,7 @@ For MD 31 {le} _m_ {le} 62, `MDLCKH.mdh[_m_]` locks `SRCMD_ENH(_s_).mdh[_m_]` fo
 
 Bit `MDLCK.l` is a sticky to 1 and indicates if `MDLCK` and `MDLCKH` are locked.
 
-`MDLCK.md` is optional, if not implemented, `MDLCK.md` must be wired to 0 and `MDLCK.l` must be wired to 1.
+`MDLCK.md` is optional, if not implemented, `MDLCK.md` must be hardwired to 0 and `MDLCK.l` must be hardwired to 1.
 
 `MDLCKH` is optional. It can be implemented when `HWCFG0.md_num` > 31.
 
@@ -42,7 +42,7 @@ If `MDCFG(_m_)` is locked for MD _m_, while `MDCFG(_m_-1)` is not locked, it cou
 
 [#ENTRY_PROTECTION]
 === Entry Protection
-IOPMP entry protection is also related to the other IOPMP entries belonging to the same memory domain. For an MD, locked entries should be placed in the higher priorities. Otherwise, when the secure monitor is compromised, one unlocked entry in higher priority can override the effects of all the other locked or non-locked entries in lower priority.  A register `ENTRYLCK` is defined to indicate the number of nonprogrammable entries. `ENTRYLCK` register has two fields: `ENTRYLCK.l` and `ENTRYLCK.f`. Any IOPMP entry with index _i_ < `ENTRYLCK.f` is not programmable. `ENTRYLCK.f` is incremental-only. Any smaller value can not be written into it. Besides, the `ENTRYLCK.l` lock bit locks `ENTRYLCK.f` and itself. If `ENTRYLCK` is hardwired, `ENTRYLCK.l` must be wired to 1.
+IOPMP entry protection is also related to the other IOPMP entries belonging to the same memory domain. For an MD, locked entries should be placed in the higher priorities. Otherwise, when the secure monitor is compromised, one unlocked entry in higher priority can override the effects of all the other locked or non-locked entries in lower priority.  A register `ENTRYLCK` is defined to indicate the number of nonprogrammable entries. `ENTRYLCK` register has two fields: `ENTRYLCK.l` and `ENTRYLCK.f`. Any IOPMP entry with index _i_ < `ENTRYLCK.f` is not programmable. `ENTRYLCK.f` is incremental-only. Any smaller value can not be written into it. Besides, the `ENTRYLCK.l` lock bit locks `ENTRYLCK.f` and itself. If `ENTRYLCK` is hardwired, `ENTRYLCK.l` must be hardwired to 1.
 
 [#SUMMARY_PROTECTION]
 === Summary of Table, Register, and Field Locks

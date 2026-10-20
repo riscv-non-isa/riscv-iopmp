@@ -256,4 +256,4 @@ The IOPMP captures an illegal transaction only if:
 
 While `ERR_INFO.v` = 1, the record is not updated, even if a new illegal transaction is detected.
 
-The error capture record is optional. If it is not implemented, `HWCFG0.no_err_rec` must be wired to one. It is possible to implement the error capture record without the error IOPMP entry index record (`ERR_REQID.eid`). In this case, `eid` must be wired to 0xffff.
+The error capture record is optional. If it is not implemented, `HWCFG0.no_err_rec` must be hardwired to one. It is possible to implement the error capture record without the error IOPMP entry index record (`ERR_REQID.eid`). In this case, `eid` must be hardwired to 0xffff.

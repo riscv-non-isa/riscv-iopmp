@@ -83,7 +83,7 @@ INFO registers are used to indicate the IOPMP instance configuration info.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field          |Bits   |R/W    |Default   |Description
-|`enable`       |0:0    |W1SS   |IMP       |Indicate if the IOPMP checks transactions by default. If it is programmable, it must be initialized to 0 and sticky to 1. If it is not programmable, it must be wired to 1.
+|`enable`       |0:0    |W1SS   |IMP       |Indicate if the IOPMP checks transactions by default. If it is programmable, it must be initialized to 0 and sticky to 1. If it is not programmable, it must be hardwired to 1.
 |`HWCFG2_en`    |1:1    |R      |IMP       |Indicate if `HWCFG2` is implemented.
 |`HWCFG3_en`    |2:2    |R      |IMP       |Indicate if `HWCFG3` is implemented.
 |`rsv`          |22:3   |ZERO   |0         |Must be zero on write, reserved for future.
@@ -242,7 +242,7 @@ When the bus matrix doesn't have a signal to indicate an instruction fetch, the 
 |===
 |Field  |Bits       |R/W    |Default    |Description
 |`rrid` |15:0       |R      |DC         |Indicate the errored RRID.
-|`eid`  |31:16      |R      |DC         |Indicates the index pointing to the entry that catches the violation. If no entry is hit, for example, `ERR_INFO.etype`= 0x05 or 0x06, the value of this field is invalid. If the field is not implemented, it must be wired to 0xffff.
+|`eid`  |31:16      |R      |DC         |Indicates the index pointing to the entry that catches the violation. If no entry is hit, for example, `ERR_INFO.etype`= 0x05 or 0x06, the value of this field is invalid. If the field is not implemented, it must be hardwired to 0xffff.
 |===
 
 ==== User-defined Error Information (`ERR_USER(0)` ~ `ERR_USER(7)`)
@@ -330,7 +330,7 @@ A complete 64-bit address consists of these two registers, `ENTRY_ADDR` and `ENT
 |`rsv`   |31:5       |ZERO   |0          |Must be zero on write, reserved for future
 |===
 
-Bits `r`, `w`, and `x`, grant read, write, or instruction fetch permission, respectively. Not each bit should be programmable. Some or all of them could be wired. Besides, an implementation can optionally impose constraints on their combinations.
+Bits `r`, `w`, and `x`, grant read, write, or instruction fetch permission, respectively. Not each bit should be programmable. Some or all of them could be hardwired. Besides, an implementation can optionally impose constraints on their combinations.
 
 ==== User-defined Entry _i_ Configuration (`ENTRY_USER_CFG(_i_)`)
 `ENTRY_USER_CFG` are implementation-defined registers that allows users to define their own additional IOPMP check rules beside the rules.

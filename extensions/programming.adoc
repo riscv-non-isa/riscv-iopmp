@@ -54,7 +54,7 @@ Where:
 * `Reduction_OR()` is a function that applies bitwise logical OR across all input values.
 
 
-For any unimplemented MD, the corresponding bit in `MDSTALL.md` or `MDSTALLH.mdh` should be wired to 0.
+For any unimplemented MD, the corresponding bit in `MDSTALL.md` or `MDSTALLH.mdh` should be hardwired to 0.
 
 _rrid_stall_ should be updated only when `MDSTALL.exempt` is written, that is, when `MDSTALL` is written. When `MDSTALLH` is written, the only action is to hold the value.
 
@@ -95,7 +95,7 @@ After `MDSTALL` is written by zero, an IOPMP should clear `MDSTALL.is_busy` with
 In Step 1 of <<#PROGRAMMING_STEPS, Programming Steps>>, `MDSTALL` can be written at most once and before a resume. Writing a non-zero value to `MDSTALL` multiple times after a resume leads to RRIDs' stall states being undefined.
 
 After `MDSTALL` and all `RRIDSCP` are written, the action to stall desired transactions may not take effect immediately in some implementations in which the subsequent setting updates (Step 2) could affect the transactions still under checking. To determine whether the action takes effect, software can read back and check the bit `MDSTALL.is_busy`, which is in the same location as `MDSTALL.exempt` on a write. `is_busy` = 0 indicates it has taken effect or no previous write; otherwise, it has not. A new writing `RRIDSCP` may temporarily switch `is_busy` to 1 and then switch to 0 at some time.
-`is_busy` can be wired to 0 if any `MDSTALL` and `RRIDSCP` writing won't cause a race condition of the transactions still under checking and the subsequent setting updates.
+`is_busy` can be hardwired to 0 if any `MDSTALL` and `RRIDSCP` writing won't cause a race condition of the transactions still under checking and the subsequent setting updates.
 Updating `stall_violation_en` should be before Step 1.
 If `stall_violation_en` is updated during Steps 1 to 3, the behavior is undefined.
 
@@ -118,13 +118,13 @@ Some steps may be skipped according to the actual implementation.
 
 All registers and fields described in xref:Program_IOPMPs[xrefstyle=full] (`MDSTALL`, `MDSTALLH`, `RRIDSCP`, and `ERR_CFG.stall_violation_en`) are optional. Moreover, these features could be partially implemented.
 
-In `MDSTALL.md` and `MDSTALLH.mdh`, not every bit should be implemented even though the corresponding MD is implemented. An unimplemented bit means unselectable and should be wired to zero. To test which bits are implemented, software can write all 1's to `MDSTALL.md` and `MDSTALLH.mdh` and then read them back. An implemented bit returns 1.
+In `MDSTALL.md` and `MDSTALLH.mdh`, not every bit should be implemented even though the corresponding MD is implemented. An unimplemented bit means unselectable and should be hardwired to zero. To test which bits are implemented, software can write all 1's to `MDSTALL.md` and `MDSTALLH.mdh` and then read them back. An implemented bit returns 1.
 
-If an IOPMP implementation has fewer than 32 memory domains, `MDSTALLH` should be wired to zero.
+If an IOPMP implementation has fewer than 32 memory domains, `MDSTALLH` should be hardwired to zero.
 
 NOTE: An example of partial implementation of `MDSTALL.md`/`MDSTALLH.mdh` is a system with a display controller, which is a latency-sensitive device. On updating the IOPMP, the transactions initiated from the display controller should not be stalled. Thus, software can always use `MDSTALL.exempt`=1 and `MDSTALL.md[_j_]`=1, where MD _j_ is the memory domain for the frame buffer that the display controller keeps accessing. Thus, the system only needs to implement `MDSTALL.md[_j_]`.
 
-`MDSTALL.is_busy` can be wired to 0 if any `MDSTALL` and `RRIDSCP` writing won't cause a race condition of the transactions still under checking and the subsequent setting updates.
+`MDSTALL.is_busy` can be hardwired to 0 if any `MDSTALL` and `RRIDSCP` writing won't cause a race condition of the transactions still under checking and the subsequent setting updates.
 
 If whole `MDSTALL` is not implemented, `MDSTALL`, `MDSTALLH`, `RRIDSCP` and `ERR_CFG.stall_violation_en` should always return zero.
 

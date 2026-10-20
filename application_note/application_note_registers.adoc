@@ -63,7 +63,7 @@ All fields related to instruction fetch can be fixed to 0, or not implemented.
 
 |`no_w`             |13:13 |R    |IMP        |Indicate if the IOPMP always denies write accesses as if no rule matched.
 |`rrid_transl_en`   |14:14 |R    |IMP        |Indicate if tagging a new RRID on the requester port is supported.
-|`rrid_transl_prog` |15:15 |W1CS |IMP        |A write-1-clear bit that is sticky to 0. Indicates if the `rrid_transl` field is programmable. Supported only for `rrid_transl_en`=1, otherwise, wired to 0.
+|`rrid_transl_prog` |15:15 |W1CS |IMP        |A write-1-clear bit that is sticky to 0. Indicates if the `rrid_transl` field is programmable. Supported only for `rrid_transl_en`=1, otherwise, hardwired to 0.
 |`rrid_transl`      |31:16 |WARL |IMP        |The RRID tagged to outgoing transactions. Supported only for `rrid_transl_en`=1. It is writable only when `rrid_transl_prog`=1.
 
 |===
