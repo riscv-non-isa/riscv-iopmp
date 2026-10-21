@@ -242,7 +242,7 @@ When the bus matrix doesn't have a signal to indicate an instruction fetch, the 
 |===
 |Field  |Bits       |R/W    |Default    |Description
 |`rrid` |15:0       |R      |DC         |Indicate the errored RRID.
-|`eid`  |31:16      |R      |DC         |Indicates the index pointing to the entry that catches the violation. If no entry is hit, for example, `ERR_INFO.etype`= 0x05 or 0x06, the value of this field is invalid. If the field is not implemented, it must be hardwired to 0xffff.
+|`eid`  |31:16      |R      |DC         |Indicates the index pointing to the entry that catches the violation. If no entry is hit, for example, `ERR_INFO.etype`= 0x05 or 0x06, the value of this field is invalid. This field is optional. If the error capture record is implemented (`HWCFG0.no_err_rec` = 0) but this field is not, it must be hardwired to 0xffff.
 |===
 
 ==== User-defined Error Information (`ERR_USER(0)` ~ `ERR_USER(7)`)
