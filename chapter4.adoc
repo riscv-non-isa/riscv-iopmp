@@ -197,7 +197,7 @@ To suppress an error response on an IOPMP rule violation.
 |Field     |Bits   |R/W   |Default |Description
 |`v`       |0:0    |RW1C  |0       | Indicates whether the illegal capture recorder (`ERR_REQID`, `ERR_REQADDR`, `ERR_REQADDRH`, `ERR_INFO.ttype`, and `ERR_INFO.etype`) contains valid information. When a violation is captured, `v` is set and remains set until software acknowledges the captured violation. The associated captured error fields are hardware-generated and read-only, so software cannot forge the captured fault context through these registers. An interrupt will be triggered if a violation is detected and related interrupt enable/suppression configure bits are not disabled, and the interrupt will remain asserted until `v` is cleared. +
 Writing 1 to `ERR_INFO.v` acknowledges the captured violation, clears `v`, reactivates the illegal recorder, and deasserts the interrupt if no other interrupt condition remains pending. Writing 0 causes no effect on the bit.
-|`ttype`   |2:1    |R     |0      a|Indicated the transaction type of the first captured violation
+|`ttype`   |2:1    |R     |0      a|Indicates the transaction type of the first captured violation
 
 - 0x00 = reserved
 - 0x01 = read access
