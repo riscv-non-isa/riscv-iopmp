@@ -8,7 +8,7 @@ Unauthorized alteration, even partial, of the IOPMP configuration poses a critic
 
 This chapter details the configuration protection mechanisms provided by the IOPMP specification. These mechanisms allow implementations to prohibit modification of the configuration, either wholly or partially, based on the security requirements of the application scenario. Specifically, the IOPMP defines distinct write-protection controls for the SRCMD table, the MDCFG table, and the Entry Array.
 
-The term 'lock' refers to a hardware feature that renders one or more fields or registers nonprogrammable until the IOPMP is reset. This feature serves to maintain the integrity of essential configurations in the event of a compromise of secure software. In cases where a lock field is programmable, it is expected to be reset to '0' and is a W1SS field.
+The term 'lock' refers to a hardware feature that renders one or more fields or registers nonprogrammable until the IOPMP is reset. This feature serves to maintain the integrity of essential configurations in the event of a compromise of secure software. In cases where a lock field is programmable, it is expected to be reset to 0 and is a W1SS field.
 
 [#SRCMD_PROTECTION]
 === SRCMD Table Protection

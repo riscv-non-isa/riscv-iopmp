@@ -24,10 +24,10 @@ This document refers to the term “secure monitor” as the software responsibl
 |NA4  | Naturally aligned four-byte region, one of the address matching mode used in RISC-V PMP cite:[PrivISA] and IOPMP.
 |NAPOT| Naturally aligned power-of-2 region, one of the address matching mode used in RISC-V PMP cite:[PrivISA] and IOPMP.
 |RRID | Request Role ID.
-|RW1C | Read bit return the status and write '1' clear the status, a behavior of single bit fields.
+|RW1C | Read bit return the status and write 1 clear the status, a behavior of single bit fields.
 |TOR  | Top boundary of an arbitrary range, one of the address matching mode used in RISC-V PMP cite:[PrivISA] and IOPMP.
-|W1CS | Write '1' clear and sticky to 0, a behavior of single bit fields: writing '1' clears the bit. If the bit is cleared, this state remains fixed until IOPMP registers are reset.
-|W1SS | Write '1' set and sticky to 1, a behavior of single bit fields: writing '1' sets the bit. If the bit is set, this state remains fixed until IOPMP registers are reset.
+|W1CS | Write 1 clear and sticky to 0, a behavior of single bit fields: writing 1 clears the bit. If the bit is cleared, this state remains fixed until IOPMP registers are reset.
+|W1SS | Write 1 set and sticky to 1, a behavior of single bit fields: writing 1 sets the bit. If the bit is set, this state remains fixed until IOPMP registers are reset.
 |WARL | Write any read legal, a behavior of fields.
 |WID  | World identifier, defined in the RISC-V Worlds specification cite:[Worlds].
 |X( _n_ )| The _n_-th register in the register array X, which starts from 0.
@@ -151,7 +151,7 @@ This specification does not require `MDCFG(_m_).t` to be bounded by `HWCFG1.entr
 
 The MDCFG table has a proper setting if `MDCFG(_m_-1).t` {le} `MDCFG(_m_).t` for every _m_ with 0 < _m_ < `HWCFG0.md_num`. Otherwise, the MDCFG table has an improper setting.
 
-The index ranges above are defined by `MDCFG(_m_-1).t` and `MDCFG(_m_).t` alone. With an improper setting, an MD whose lower bound is not below its upper bound has an empty range, and the ranges of two MDs can overlap. When the ranges of several MDs contain the same IOPMP entry, the IOPMP treats the IOPMP entry as belonging to the lowest-indexed of those MDs only: the IOPMP entry applies to a transaction only through that MD. For example, with `MDCFG(0).t` to `MDCFG(2).t` = `{30, 10, 40}`, the range of MD 0 is IOPMP entries 0 to 29, the range of MD 1 is empty, and the range of MD 2 is IOPMP entries 10 to 39; IOPMP entries 10 to 29 are treated as belonging to MD 0, so MD 2 contributes only IOPMP entries 30 to 39. An IOPMP entry therefore belongs to at most one MD under any setting.
+The index ranges above are defined by `MDCFG(_m_-1).t` and `MDCFG(_m_).t` alone. With an improper setting, an MD whose lower bound is not below its upper bound has an empty range, and the ranges of two MDs can overlap. When the ranges of several MDs contain the same IOPMP entry, the IOPMP treats the IOPMP entry as belonging to the lowest-indexed of those MDs only: the IOPMP entry applies to a transaction only through that MD. For example, with `MDCFG(0).t` to `MDCFG(2).t` = {30, 10, 40}, the range of MD 0 is IOPMP entries 0 to 29, the range of MD 1 is empty, and the range of MD 2 is IOPMP entries 10 to 39; IOPMP entries 10 to 29 are treated as belonging to MD 0, so MD 2 contributes only IOPMP entries 30 to 39. An IOPMP entry therefore belongs to at most one MD under any setting.
 
 [#MDCFG_PROGRAMMING_GUIDE]
 ==== Updating the MDCFG Table
@@ -160,7 +160,7 @@ This subsection is non-normative. It describes how software can change several `
 
 Software writes the MDCFG registers in several accesses, so changing several values passes through intermediate tables, and whether each of them has a proper setting depends on the write order.
 
-For example, let `MDCFG(0).t` to `MDCFG(3).t` be `{10, 20, 30, 45}` and the target be `{10, 40, 42, 45}`. Writing `MDCFG(1).t` = 40 first produces the intermediate table `{10, 40, 30, 45}`, in which `MDCFG(2).t` < `MDCFG(1).t`; writing `MDCFG(2).t` = 42 first avoids it.
+For example, let `MDCFG(0).t` to `MDCFG(3).t` be {10, 20, 30, 45} and the target be {10, 40, 42, 45}. Writing `MDCFG(1).t` = 40 first produces the intermediate table {10, 40, 30, 45}, in which `MDCFG(2).t` < `MDCFG(1).t`; writing `MDCFG(2).t` = 42 first avoids it.
 
 The order below assumes that the current table has a proper setting. After reset, `MDCFG(_m_).t` can hold any value unless the implementation defines it, so the first programming of the table needs no particular order as long as it is completed while `HWCFG0.enable` is 0, when the IOPMP checks no transaction. If `HWCFG0.enable` is hardwired to 1, the IOPMP checks transactions from reset, so software should read the table first. If the reset values form a proper setting, the order below applies; for example, from an all-zero table every value increases, so software writes from the highest index down to index 0. If the current table has an improper setting, whether from reset or from an erroneous write, no write order avoids further improper intermediate tables, and software should treat every memory domain as affected during that update, as described in the notes at the end of this subsection.
 
