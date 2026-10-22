@@ -8,7 +8,7 @@ If an optional register is not implemented, the behavior is implementation-defin
 .Register summary
 [cols="<3,<6,<14",options="header"]
 |===
-|OFFSET |Register |Description
+|Offset |Register |Description
 
 3+|INFO
 |0x0000 | `VERSION` |Indicates the specification and the IP vendor.
@@ -20,13 +20,13 @@ If an optional register is not implemented, the behavior is implementation-defin
 |0x0028 | `HWCFG_USER` | (Optional) user-defined configurations of current IOPMP instance.
 |0x002C | `ENTRYOFFSET` |Indicates the internal address offsets of each table.
 
-3+|Configuration Protection
+3+|Configuration protection
 |0x0040 | `MDLCK`    | Lock register for lower MDs in the SRCMD table.
 |0x0044 | `MDLCKH`   | (Optional) lock register for higher MDs in the SRCMD table.
 |0x0048 | `MDCFGLCK` | Lock register for the MDCFG table.
 |0x004C | `ENTRYLCK` | Lock register for IOPMP entry array.
 
-3+|Error Reporting
+3+|Error reporting
 |0x0060 | `ERR_CFG` | Indicates the reactions for the violations.
 |0x0064 | `ERR_INFO` | Indicates the information regarding captured violations.
 |0x0068 | `ERR_REQADDR` | Indicates lower request address regarding the first captured violation.
@@ -35,17 +35,17 @@ If an optional register is not implemented, the behavior is implementation-defin
 |0x0080 ~ 0x009F
 | `ERR_USER(0)` ~ `ERR_USER(7)` | (Optional) user-defined violation information.
 
-3+|MDCFG Table,  _m_ = 0...`HWCFG0.md_num`-1
+3+|MDCFG table, _m_ = 0...`HWCFG0.md_num`-1
 |0x0800 + (_m_) × 4 | `MDCFG(_m_)`  |MD config register, which specifies the indices of IOPMP entries belonging to an MD.
 
-3+|SRCMD Table, _s_ = 0...`HWCFG1.rrid_num`-1
+3+|SRCMD table, _s_ = 0...`HWCFG1.rrid_num`-1
 |0x1000 + (_s_) × 32 |`SRCMD_EN(_s_)` |
  The bitmapped MD enabling register of the RRID _s_ that `SRCMD_EN(_s_)[_m_]` indicates if the RRID is associated with MD _m_.
 
 |0x1004 + (_s_) × 32 |`SRCMD_ENH(_s_)`|
  (Optional) The bitmapped MD enabling register of the RRID _s_ that `SRCMD_ENH(_s_)[_m_]` indicates if the RRID is associated with MD (_m_+31).
 
-3+|Entry Array, _i_ =0...`HWCFG1.entry_num`-1
+3+|Entry array, _i_ = 0...`HWCFG1.entry_num`-1
 |`ENTRYOFFSET` + (_i_) × 16 | `ENTRY_ADDR(_i_)`| Bit 33:2 of address (region) for entry _i_.
 | `ENTRYOFFSET` + 0x4 + (_i_) × 16 |`ENTRY_ADDRH(_i_)` | (Optional) bit 65:34 of the address (region) for entry _i_.
 | `ENTRYOFFSET` + 0x8 + (_i_) × 16 |`ENTRY_CFG(_i_)` |The configuration of entry _i_.
