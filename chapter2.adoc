@@ -20,16 +20,16 @@ This document refers to the term “secure monitor” as the software responsibl
 |IOMMU| Input-Output Memory Management Unit cite:[IOMMU], a RISC-V non-ISA specification.
 |MD   | Memory domain.
 |MMIO | Memory mapped input/output devices.
+|N/A  | Not available.
 |NA4  | Naturally aligned four-byte region, one of the address matching mode used in RISC-V PMP cite:[PrivISA] and IOPMP.
 |NAPOT| Naturally aligned power-of-2 region, one of the address matching mode used in RISC-V PMP cite:[PrivISA] and IOPMP.
-|N/A  | Not available.
 |RRID | Request Role ID.
-|TOR  | Top boundary of an arbitrary range, one of the address matching mode used in RISC-V PMP cite:[PrivISA] and IOPMP.
-|WARL | Write any read legal, a behavior of fields.
-|WID  | World identifier, defined in the RISC-V Worlds specification cite:[Worlds].
 |RW1C | Read bit return the status and write '1' clear the status, a behavior of single bit fields.
+|TOR  | Top boundary of an arbitrary range, one of the address matching mode used in RISC-V PMP cite:[PrivISA] and IOPMP.
 |W1CS | Write '1' clear and sticky to 0, a behavior of single bit fields: writing '1' clears the bit. If the bit is cleared, this state remains fixed until IOPMP registers are reset.
 |W1SS | Write '1' set and sticky to 1, a behavior of single bit fields: writing '1' sets the bit. If the bit is set, this state remains fixed until IOPMP registers are reset.
+|WARL | Write any read legal, a behavior of fields.
+|WID  | World identifier, defined in the RISC-V Worlds specification cite:[Worlds].
 |X( _n_ )| The _n_-th register in the register array X, which starts from 0.
 |X[ _n_ ]| The _n_-th bit of a register X or register field X.
 |X( _n_ : _m_ )| The _n_-th to _m_-th registers of a register X.
