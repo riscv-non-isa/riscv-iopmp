@@ -31,7 +31,7 @@ This document refers to the term “secure monitor” as the software responsibl
 |W1CS | Write '1' clear and sticky to 0, a behavior of single bit fields: writing '1' clears the bit. If the bit is cleared, this state remains fixed until IOPMP registers are reset.
 |W1SS | Write '1' set and sticky to 1, a behavior of single bit fields: writing '1' sets the bit. If the bit is set, this state remains fixed until IOPMP registers are reset.
 |X( _n_ )| The _n_-th register in the register array X, which starts from 0.
-|X[ _n_ ]| The _n_-th bit of a register X or register field X
+|X[ _n_ ]| The _n_-th bit of a register X or register field X.
 |X( _n_ : _m_ )| The _n_-th to _m_-th registers of a register X.
 |X[ _n_ : _m_ ]| The _n_-th to _m_-th bits of a register X or register field X.
 |===

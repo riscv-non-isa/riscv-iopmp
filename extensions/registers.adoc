@@ -17,7 +17,7 @@ This chapter also introduces an additional error type (`ERR_INFO.etype`).
 .10+|0x0010 .10+|`HWCFG2`  |`prio_entry`     |15:0  .3+|<<NON_PRIORITY_ENTRIES>>
                            |`prio_ent_prog`  |16:16
                            |`non_prio_en`    |17:17
-                           |`rsv`            |25:18    |(Must be zero on write, reserved for future.)
+                           |`rsv`            |25:18    |(Must be zero on write, reserved for future)
                            |`msi_en`         |26:26    |<<MSI>>
                            |`peis`           |27:27 .2+|<<PEIS_PEES>>
                            |`pees`           |28:28
@@ -120,7 +120,7 @@ Stall transactions from selected RRIDs:
 * 0: the RRIDs are associated with a selected MD
 * 1: the RRIDs are not associated with any selected MD
 
-Please refer <<#STALL_TRANSACTIONS, Stall transactions>> for detailed operations
+Please refer <<#STALL_TRANSACTIONS, Stall transactions>> for detailed operations.
 |`is_busy`   |0:0    |R      |0         a|Indicates the status of previous writing `MDSTALL` and `RRIDSCP`:
 
 * 0: the write has taken effect or no previous write
@@ -177,9 +177,9 @@ To suppress an error response on an IOPMP rule violation.
 * 0x0: the IOPMP triggers interrupt by wired interrupt
 * 0x1: the IOPMP triggers interrupt by MSI
 |`stall_violation_en` |4:4    |WARL   |IMP        |Indicates whether the IOPMP faults stalled transactions. When the bit is set, the IOPMP faults the transactions if the corresponding RRID is not exempt from stall and the IOPMP cannot accommodate more stall transactions.
-|`rsv1`               |7:5    |ZERO   |0          |Must be zero on write, reserved for future
-|`msidata`            |18:8   |WARL   |IMP        |The data to trigger MSI
-|`rsv2`               |31:19  |ZERO   |0          |Must be zero on write, reserved for future
+|`rsv1`               |7:5    |ZERO   |0          |Must be zero on write, reserved for future.
+|`msidata`            |18:8   |WARL   |IMP        |The data to trigger MSI.
+|`rsv2`               |31:19  |ZERO   |0          |Must be zero on write, reserved for future.
 |===
 
 [#REG_EXT_ERR_INFO]
@@ -194,7 +194,7 @@ This convention helps avoid accidentally clearing adjacent status bits during re
 |Field      |Bits   |R/W   |Default |Description
 |`v`        |0:0    |RW1C  |0       | Indicates whether the illegal capture recorder (`ERR_REQID`, `ERR_REQADDR`, `ERR_REQADDRH`, `ERR_INFO.ttype`, and `ERR_INFO.etype`) contains valid information. When a violation is captured, `v` is set and remains set until software acknowledges the captured violation. The associated captured error fields are hardware-generated and read-only, so software cannot forge the captured fault context through these registers. An interrupt will be triggered if a violation is detected and related interrupt enable/suppression configure bits are not disabled, and the interrupt will remain asserted until `v` is cleared. +
 Writing 1 to `ERR_INFO.v` acknowledges the captured violation, clears `v`, reactivates the illegal recorder, and deasserts the interrupt if no other interrupt condition remains pending. Writing 0 causes no effect on the bit.
-|`ttype`    |2:1    |R     |0      a|Indicates the transaction type of the first captured violation
+|`ttype`    |2:1    |R     |0      a|Indicates the transaction type of the first captured violation:
 
 - 0x00 = reserved
 - 0x01 = read access
@@ -217,7 +217,7 @@ Write 1 clears the bit. Write 0 causes no effect on the bit.
 
 |`svc`      |8:8    |R      |0      |Indicate there is a subsequent violation caught in `ERR_MFR`.
 Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
-| `rsv`     |31:9   |ZERO   |0      |Must be zero on write, reserved for future
+| `rsv`     |31:9   |ZERO   |0      |Must be zero on write, reserved for future.
 |===
 
 [#REG_EXT_ERR_MFR]
@@ -311,9 +311,9 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field   |Bits       |R/W    |Default    |Description
-|`r`     |0:0        |WARL   |DC         |The read permission to protected memory region
-|`w`     |1:1        |WARL   |DC         |The write permission to the protected memory region
-|`x`     |2:2        |WARL   |DC         |The instruction fetch permission to the protected memory region
+|`r`     |0:0        |WARL   |DC         |The read permission to protected memory region.
+|`w`     |1:1        |WARL   |DC         |The write permission to the protected memory region.
+|`x`     |2:2        |WARL   |DC         |The instruction fetch permission to the protected memory region.
 |`a`     |4:3        |WARL   |DC         a|The address-matching mode of the IOPMP entry. See <<#ADDRESS_MATCHING_MODES, Address Matching Modes>>.
 
 * 0x0: OFF
@@ -331,10 +331,10 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |`sewe`  |9:9        |WARL      |IMP       a|Suppress the (bus) error on an illegal write access/AMO caught by the entry:
 
 * 0x0: respond an error if `ERR_CFG.rs` is 0x0.
-* 0x1: do not respond an error. User to define the behavior, e.g., respond a success if response is needed
+* 0x1: do not respond an error. User to define the behavior, e.g., respond a success if response is needed.
 |`sexe`  |10:10      |WARL      |IMP       a|Suppress the (bus) error on an illegal instruction fetch caught by the entry:
 
 * 0x0: respond an error if `ERR_CFG.rs` is 0x0.
 * 0x1: do not respond an error. User to define the behavior, e.g., respond a success with an implementation-defined value to the requester.
-|`rsv`   |31:11      |ZERO   |0          |Must be zero on write, reserved for future
+|`rsv`   |31:11      |ZERO   |0          |Must be zero on write, reserved for future.
 |===
