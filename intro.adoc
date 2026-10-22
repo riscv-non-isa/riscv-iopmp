@@ -1,7 +1,7 @@
 [[intro]]
 == Introduction
 
-On a RISC-V platform, there may be requesters other than RISC-V harts that are able to initiate bus transactions. While the PMP/ePMP ISA extensions cite:[PrivISA] provide a standardized interface for a RISC-V hart to configure its own access control at the physical address layer, an equivalent function is often required at the system level too, in order to protect systems against DMA (direct memory access) attacks and related vulnerabilities. This specification defines the interfaces and behaviors of a Physical Memory Protection Unit for Input/Output Devices, or "IOPMP", to address this requirement. IOPMP units apply access control at the physical address layer to all transactions passing through them, irrespective of their (hart or non-hart) origin.
+On a RISC-V platform, there may be requesters other than RISC-V harts that are able to initiate bus transactions. While PMP and the `Smepmp` extension cite:[PrivISA] provide a standardized interface for a RISC-V hart to configure its own access control at the physical address layer, an equivalent function is often required at the system level too, in order to protect systems against DMA (direct memory access) attacks and related vulnerabilities. This specification defines the interfaces and behaviors of a Physical Memory Protection Unit for Input/Output Devices, or "IOPMP", to address this requirement. IOPMP units apply access control at the physical address layer to all transactions passing through them, irrespective of their (hart or non-hart) origin.
 
 <<IOPMP_SYSTEM_POSITION>> conceptually illustrates the integration of IOPMP into a system as an example.
 
