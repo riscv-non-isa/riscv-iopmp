@@ -31,7 +31,7 @@ This section summarizes the additional registers and fields required when implem
 :xrefstyle_bak!:
 
 [#REG_EXT_HWCFG3]
-==== Hardware Configuration 3 (`HWCFG3`)
+==== Hardware Configuration 3 (`HWCFG3`) Register
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field             |Bits  |R/W   |Default   |Description
@@ -69,7 +69,7 @@ All fields related to instruction fetch can be fixed to 0, or not implemented.
 |===
 
 [#REG_EXT_SRCMD_PERM]
-==== MD _m_ RRID Permission (`SRCMD_PERM(_m_)` and `SRCMD_PERMH(_m_)`)
+==== MD _m_ RRID Permission (`SRCMD_PERM(_m_)` and `SRCMD_PERMH(_m_)`) Registers
 
 `SRCMD_PERM(_m_)` is read and write permissions of RRID 0 ~ 15 for MD _m_.
 

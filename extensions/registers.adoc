@@ -88,7 +88,7 @@ This chapter also introduces an additional error type (`ERR_INFO.etype`).
 :xrefstyle_bak!:
 
 [#REG_EXT_HWCFG2]
-==== Hardware Configuration 2 (`HWCFG2`)
+==== Hardware Configuration 2 (`HWCFG2`) Register
 
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
@@ -108,7 +108,7 @@ If `HWCFG2.non_prio_en` is 0, the default value of `prio_ent_prog` is DC.
 |===
 
 [#REG_EXT_MDSTALL]
-==== MD-Based Stall Control (`MDSTALL` and `MDSTALLH`)
+==== MD-Based Stall Control (`MDSTALL` and `MDSTALLH`) Registers
 `MDSTALL` is optional and used to support atomicity issue while programming the IOPMP, as the IOPMP rule may not be updated in a single transaction.
 
 [cols="<2,<1,<1,<1,<6",options="header"]
@@ -137,7 +137,7 @@ Please refer <<#STALL_TRANSACTIONS, Stall transactions>> for detailed operations
 |===
 
 [#REG_EXT_RRIDSCP]
-==== RRID Cherry Pick Stall Control (`RRIDSCP`)
+==== RRID Cherry Pick Stall Control (`RRIDSCP`) Register
 `RRIDSCP` is optional and used to support fine-grained control for <<#REG_EXT_MDSTALL,MD-Based Stall Control>>.
 
 [cols="<2,<1,<1,<1,<6",options="header"]
@@ -158,7 +158,7 @@ Please refer <<#STALL_TRANSACTIONS, Stall transactions>> for detailed operations
 |===
 
 [#REG_EXT_ERR_CFG]
-==== Error Configuration (`ERR_CFG`) with All Extensions
+==== Error Configuration (`ERR_CFG`) Register with All Extensions
 `ERR_CFG` is a read/write WARL register used to configure the global error reporting behavior on an IOPMP violation.
 
 [cols="<2,<1,<1,<1,<6",options="header"]
@@ -183,7 +183,7 @@ To suppress an error response on an IOPMP rule violation.
 |===
 
 [#REG_EXT_ERR_INFO]
-==== Error Information (`ERR_INFO`) with All Extensions
+==== Error Information (`ERR_INFO`) Register with All Extensions
 `ERR_INFO` captures more detailed error information.
 Error status bits that are cleared by software use the RW1C convention unless otherwise specified.
 RW1C allows software to acknowledge a pending status bit by writing 1 to the selected bit, while writing 0 to a bit leaves that bit unchanged.
@@ -221,7 +221,7 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |===
 
 [#REG_EXT_ERR_MFR]
-==== Multi-Faults Record (`ERR_MFR`)
+==== Multi-Faults Record (`ERR_MFR`) Register
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field  |Bits     |R/W    |Default    |Description
@@ -235,7 +235,7 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |===
 
 [#REG_EXT_ERR_MSIADDR]
-==== MSI Message Address (`ERR_MSIADDR` and `ERR_MSIADDRH`)
+==== MSI Message Address (`ERR_MSIADDR` and `ERR_MSIADDRH`) Registers
 
 `ERR_MSIADDR` indicates the lower MSI message address for error reporting.
 [cols="<2,<1,<1,<1,<6",options="header"]
@@ -252,7 +252,7 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |===
 
 [#REG_EXT_SRCMD_R]
-==== RRID _s_ Read Permission (`SRCMD_R(_s_)` and `SRCMD_RH(_s_)`)
+==== RRID _s_ Read Permission (`SRCMD_R(_s_)` and `SRCMD_RH(_s_)`) Registers
 
 `SRCMD_R(_s_)` is the read permission register of RRID _s_ for lower MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
 [cols="<2,<1,<1,<1,<6",options="header"]
@@ -270,7 +270,7 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |===
 
 [#REG_EXT_SRCMD_W]
-==== RRID _s_ Write Permission (`SRCMD_W(_s_)` and `SRCMD_WH(_s_)`)
+==== RRID _s_ Write Permission (`SRCMD_W(_s_)` and `SRCMD_WH(_s_)`) Registers
 
 `SRCMD_W(_s_)` is the write permission register of RRID _s_ for lower MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
 [cols="<2,<1,<1,<1,<6",options="header"]
@@ -288,7 +288,7 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |===
 
 [#REG_EXT_SRCMD_X]
-==== RRID _s_ Instruction Fetch Permission (`SRCMD_X(_s_)` and `SRCMD_XH(_s_)`)
+==== RRID _s_ Instruction Fetch Permission (`SRCMD_X(_s_)` and `SRCMD_XH(_s_)`) Registers
 
 `SRCMD_X(_s_)` is the instruction fetch permission register of RRID _s_ for lower MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
 [cols="<2,<1,<1,<1,<6",options="header"]
@@ -306,7 +306,7 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |===
 
 [#REG_EXT_ENTRY_CFG]
-==== Entry _i_ Configuration (`ENTRY_CFG(_i_)`) with All Extensions
+==== Entry _i_ Configuration (`ENTRY_CFG(_i_)`) Register with All Extensions
 
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
