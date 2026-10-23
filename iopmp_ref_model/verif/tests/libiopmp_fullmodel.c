@@ -2890,6 +2890,14 @@ int main(void)
     FAIL_IF(iopmp_get_and_clear_msi_werr(&iopmp, NULL) != IOPMP_ERR_INVALID_PARAMETER);
     END_TEST();
 
+    START_TEST("Query the pending interrupt");
+    val_bool = true;
+    ret = iopmp_check_pending_interrupt(&iopmp, &val_bool);
+    FAIL_IF(ret != IOPMP_OK);
+    FAIL_IF(val_bool != false);
+    FAIL_IF(iopmp_check_pending_interrupt(&iopmp, NULL) != IOPMP_ERR_INVALID_PARAMETER);
+    END_TEST();
+
     START_TEST("Capture an error when the record is empty");
     FAIL_IF(iopmp_capture_error(&iopmp, &err_report, false) != IOPMP_ERR_NOT_EXIST);
     FAIL_IF(iopmp_capture_error(&iopmp, NULL, false) != IOPMP_ERR_INVALID_PARAMETER);
@@ -2960,8 +2968,22 @@ int main(void)
     FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
     FAIL_IF(iopmp_get_support_mfr(&iopmp) != false);
     FAIL_IF(iopmp_capture_error(&iopmp, &err_report, false) != IOPMP_ERR_NOT_SUPPORTED);
-    FAIL_IF(iopmp_invalidate_error(&iopmp) != IOPMP_ERR_NOT_SUPPORTED);
     FAIL_IF(iopmp_mfr_get_sv_window(&iopmp, &val_u16, &val_u16) != IOPMP_ERR_NOT_SUPPORTED);
+    /* ERR_INFO.v still flags the interrupt, and software still clears it */
+    FAIL_IF(program_full_mdcfg_table(&iopmp) != 0);
+    ret = iopmp_set_rrid_md_association(&iopmp, 2, 0x8, 0, &val_u64, false);
+    FAIL_IF(ret != IOPMP_OK);
+    FAIL_IF(iopmp_set_global_intr(&iopmp, true) != IOPMP_OK);
+    FAIL_IF(iopmp_set_enable(&iopmp) != IOPMP_OK);
+    receiver_port(2, 364, 0, 0, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_validate_access(&iopmp_dev, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    FAIL_IF(iopmp_trans_rsp.status != IOPMP_ERROR);
+    FAIL_IF(intrpt != 1);
+    FAIL_IF(iopmp_check_pending_interrupt(&iopmp, &val_bool) != IOPMP_OK);
+    FAIL_IF(val_bool != true);
+    FAIL_IF(iopmp_invalidate_error(&iopmp) != IOPMP_OK);
+    FAIL_IF(iopmp_check_pending_interrupt(&iopmp, &val_bool) != IOPMP_OK);
+    FAIL_IF(val_bool != false);
     cfg.no_err_rec = false;
     cfg.mfr_en = true;
     cfg.imp_err_reqid_eid = true;

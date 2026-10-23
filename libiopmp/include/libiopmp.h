@@ -1712,13 +1712,31 @@ enum iopmp_error iopmp_get_and_clear_msi_werr(IOPMP_t *iopmp, bool *msi_werr);
 enum iopmp_error iopmp_set_stall_violation_en(IOPMP_t *iopmp, bool *enable);
 
 /**
- * \brief Invalidate the error record by clearing ERR_INFO.v bit
+ * \brief Check if an interrupt is pending, that is, if ERR_INFO.v bit is set
+ *
+ * ERR_INFO.v is also set by an error that returns a bus error without
+ * triggering an interrupt. It is implemented even if \p iopmp does not
+ * implement the error capture record, so software can still tell whether
+ * \p iopmp has a pending error to acknowledge by iopmp_invalidate_error().
+ *
+ * \param[in] iopmp             The IOPMP instance to be checked
+ * \param[out] pending          The pointer to store ERR_INFO.v
+ *
+ * \retval IOPMP_OK if successes
+ * \retval IOPMP_ERR_INVALID_PARAMETER if given \p pending is NULL
+ */
+enum iopmp_error iopmp_check_pending_interrupt(IOPMP_t *iopmp, bool *pending);
+
+/**
+ * \brief Acknowledge the error by clearing ERR_INFO.v bit
+ *
+ * ERR_INFO.v is also the interrupt pending bit. It is cleared even if \p iopmp
+ * does not implement the error capture record. If the record is implemented,
+ * clearing the bit also invalidates it.
  *
  * \param[in] iopmp             The IOPMP instance to be invalidated
  *
  * \retval IOPMP_OK if successes
- * \retval IOPMP_ERR_NOT_SUPPORTED if \p iopmp does not support clear error
- *         interrupt pending bit
  */
 enum iopmp_error iopmp_invalidate_error(IOPMP_t *iopmp);
 

@@ -1006,18 +1006,36 @@ enum iopmp_error iopmp_set_stall_violation_en(IOPMP_t *iopmp, bool *enable)
     return ret;
 }
 
+enum iopmp_error iopmp_check_pending_interrupt(IOPMP_t *iopmp, bool *pending)
+{
+    iopmp_assert(iopmp_is_initialized(iopmp));
+
+    if (pending == NULL) {
+        return IOPMP_ERR_INVALID_PARAMETER;
+    }
+
+    /*
+     * ERR_INFO.v is also the interrupt pending bit, so it is implemented even
+     * if the error capture record is not implemented.
+     */
+    if ((iopmp->ops_override != NULL) &&
+        (iopmp->ops_override->check_pending_interrupt != NULL)) {
+        iopmp->ops_override->check_pending_interrupt(iopmp, pending);
+    } else {
+        generic_check_pending_interrupt(iopmp, pending);
+    }
+
+    return IOPMP_OK;
+}
+
 enum iopmp_error iopmp_invalidate_error(IOPMP_t *iopmp)
 {
     iopmp_assert(iopmp_is_initialized(iopmp));
 
     /*
-     * The error capture record is optional.
-     * If it is not implemented, ERR_INFO.v should be wired to zero.
+     * ERR_INFO.v is also the interrupt pending bit, so it is implemented and
+     * must be cleared even if the error capture record is not implemented.
      */
-    if (iopmp->no_err_rec == 1U) {
-        return IOPMP_ERR_NOT_SUPPORTED;
-    }
-
     if ((iopmp->ops_override != NULL) &&
         (iopmp->ops_override->invalidate_error != NULL)) {
         iopmp->ops_override->invalidate_error(iopmp);

@@ -41,17 +41,17 @@ static iopmpErrorType_t perm_to_etype(perm_type_e perm)
   * @param intrpt Pointer to the variable to store wired interrupt flag.
   *               This flag is set to 1 if the following conditions are true:
   *                 - the transaction fails
-  *                 - a primary error capture occurs
+  *                 - there is no pending error, that is, ERR_INFO.v = 0
   *                 - the interrupts are not suppressed
   *                 - IOPMP doesn't implement MSI extension, or MSI is not enabled
   *               This flag is set to 0 if the following conditions are true:
   *                 - this transaction fails
-  *                 - a primary error capture occurs
+  *                 - there is no pending error, that is, ERR_INFO.v = 0
   *                 - the interrupts are suppressed, or IOPMP implements MSI extension
   *                   and triggers MSI instead of wired interrupt
  **/
 void iopmp_validate_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iopmp_trans_rsp_t* iopmp_trans_rsp, uint8_t *intrpt) {
-    // No wired interrupt until an error capture below raises one
+    // No wired interrupt until the error report below raises one
     *intrpt = 0;
 
     iopmp_trans_rsp->rrid         = trans_req->rrid;
@@ -349,11 +349,9 @@ pass_checks:
 stop_and_report_fault:
     iopmp_trans_rsp->violation = 1;
 
-    // If IOPMP implements error capture feature, IOPMP triggers error capture
-    // to log the error information into the registers.
-    if (!iopmp->reg_file.hwcfg0.no_err_rec) {
-        errorCapture(iopmp, trans_perm, error_type, rrid, error_eid, trans_req->addr, gen_intrpt, gen_buserr, intrpt);
-    }
+    // IOPMP sets ERR_INFO.v and triggers the interrupt, and logs the error
+    // information into the registers if it implements the error capture record.
+    errorReport(iopmp, trans_perm, error_type, rrid, error_eid, trans_req->addr, gen_intrpt, gen_buserr, intrpt);
     // Return response with default status if no match/error occurs
     // In case of error suppression, success response is returned, with user defined value on initiator port
     // NOTE: You can change the `user` value

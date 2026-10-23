@@ -179,7 +179,7 @@ int error_record_chk(iopmp_dev_t *iopmp, uint8_t err_type, uint8_t req_perm, uin
         FAIL_IF((err_info_temp.ttype != req_perm));
         FAIL_IF((err_info_temp.etype != (err_type)));
         FAIL_IF((read_register(iopmp, ERR_REQADDR_OFFSET, 4) != (uint32_t)((req_addr >> 2) & 0xFFFFFFFF)));
-        FAIL_IF((read_register(iopmp, ERR_REQADDRH_OFFSET, 4) != (uint32_t)((req_addr >> 34) & 0xFFFFFFFF)));
+        FAIL_IF((read_register(iopmp, ERR_REQADDRH_OFFSET, 4) != (iopmp->reg_file.hwcfg0.addrh_en ? (uint32_t)((req_addr >> 34) & 0xFFFFFFFF) : 0)));
     } else {
         FAIL_IF((err_info_temp.v == 1));
     }

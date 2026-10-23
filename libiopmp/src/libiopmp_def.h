@@ -100,6 +100,9 @@ struct iopmp_operations_override {
                                       IOPMP_ERR_REPORT_t *err_report,
                                       bool clear);
 
+    /** Check if error record valid bit, the interrupt pending bit, is set. */
+    void (*check_pending_interrupt)(IOPMP_t *iopmp, bool *pending);
+
     /** Clear error record valid bit. */
     void (*invalidate_error)(IOPMP_t *iopmp);
 

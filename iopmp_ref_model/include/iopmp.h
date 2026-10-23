@@ -162,9 +162,9 @@ uint8_t write_memory(uint64_t *data, uint64_t addr, uint32_t size);
 // Function Declarations: Core IOPMP operations
 void iopmpRuleAnalyzer(iopmp_dev_t *iopmp, iopmp_rule_analyzer_input_t *input,
                        iopmp_rule_analyzer_output_t *output);
-void errorCapture(iopmp_dev_t *iopmp, perm_type_e trans_type, uint8_t error_type,
-                  uint16_t rrid, uint16_t entry_id, uint64_t err_addr,
-                  bool gen_intrpt, bool gen_buserr, uint8_t *intrpt);
+void errorReport(iopmp_dev_t *iopmp, perm_type_e trans_type, uint8_t error_type,
+                 uint16_t rrid, uint16_t entry_id, uint64_t err_addr,
+                 bool gen_intrpt, bool gen_buserr, uint8_t *intrpt);
 void generate_interrupt(iopmp_dev_t *iopmp, bool gen_intrpt, uint8_t *intrpt);
 
 /*

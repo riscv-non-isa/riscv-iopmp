@@ -166,8 +166,9 @@ int reset_iopmp(iopmp_dev_t *iopmp, iopmp_cfg_t *cfg)
 
     // One can implement the error capture record, but doesn't implement the
     // error entry index record (ERR_REQID.eid). In this case, eid should be
-    // wired to 0xffff.
-    if (!cfg->imp_err_reqid_eid) {
+    // hardwired to 0xffff. If the error capture record is not implemented,
+    // ERR_REQID is not implemented as a whole and reads zero.
+    if (!cfg->no_err_rec && !cfg->imp_err_reqid_eid) {
         iopmp->reg_file.err_reqid.eid       = 0xFFFF;
     }
 
@@ -726,11 +727,14 @@ void write_register(iopmp_dev_t *iopmp, uint64_t offset, reg_intf_dw data, uint8
         break;
 
     case ERR_INFO_OFFSET:
-        if (!iopmp->reg_file.hwcfg0.no_err_rec) {
-            iopmp->reg_file.err_info.v        &= ~err_info_temp.v;
+        // ERR_INFO.v is implemented even if the error capture record is not
+        iopmp->reg_file.err_info.v            &= ~err_info_temp.v;
+        // ERR_INFO.msi_werr is implemented if IOPMP implements MSI extension,
+        // regardless of the error capture record
+        if (iopmp->reg_file.hwcfg2.msi_en) {
             iopmp->reg_file.err_info.msi_werr &= ~err_info_temp.msi_werr;
-            iopmp->reg_file.err_info.rsv       = 0;
         }
+        iopmp->reg_file.err_info.rsv           = 0;
         break;
 
     case ERR_REQADDR_OFFSET:
@@ -809,6 +813,13 @@ void write_register(iopmp_dev_t *iopmp, uint64_t offset, reg_intf_dw data, uint8
         if (srcmd_tbl_access && !is_srcmd_locked) {
             uint32_t srcmd_reg = SRCMD_REG_INDEX(offset);
             uint32_t srcmd_idx = SRCMD_TABLE_INDEX(offset);
+
+            // SRCMD_R(H), SRCMD_W(H) and SRCMD_X(H) are implemented only if
+            // HWCFG2.sps_en is set. Otherwise, writes to them are ignored and
+            // they read zero.
+            if ((srcmd_reg >= 2) && !iopmp->reg_file.hwcfg2.sps_en) {
+                return;
+            }
 
             switch (srcmd_reg) {
             // SRCMD_EN Register

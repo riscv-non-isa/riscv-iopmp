@@ -44,7 +44,7 @@ COMMON_SOURCES := $(SRC_DIR)/iopmp_reg.c \
                   $(SRC_DIR)/iopmp_interrupt.c \
                   $(SRC_DIR)/iopmp_rule_analyzer.c \
                   $(SRC_DIR)/iopmp_validate.c \
-                  $(SRC_DIR)/iopmp_error_capture.c \
+                  $(SRC_DIR)/iopmp_error_report.c \
                   $(VERIF)/test_utils.c
 
 # Models and configurations

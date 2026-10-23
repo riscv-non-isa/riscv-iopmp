@@ -1037,6 +1037,96 @@ int main()
     cfg = cfg_saved;
     END_TEST();)
 
+    START_TEST("The interrupt works without the error capture record");
+    cfg_saved = cfg;
+    cfg.no_err_rec = true;
+    cfg.mfr_en = false;
+    cfg.imp_err_reqid_eid = false;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    write_register(&iopmp, ERR_CFG_OFFSET, 0x2, 4);
+    configure_srcmd_n(&iopmp, SRCMD_ENH, 2, 0x1, 4);
+    configure_srcmd_n(&iopmp, SRCMD_XH, 2, 0x1, 4);
+    configure_mdcfg_n(&iopmp, 31, 2, 4);
+    configure_entry_n(&iopmp, ENTRY_ADDR, 1, 90, 4);         // (364 >> 2) and keeping lsb 0
+    configure_entry_n(&iopmp, ENTRY_CFG, 1, (NAPOT | R), 4); // Address Mode is NAPOT, with read permission
+    set_hwcfg0_enable(&iopmp);
+    receiver_port(2, 360, 0, 3, INSTR_FETCH, 0, &iopmp_trans_req);
+    // Requestor Port Signals
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    FAIL_IF((intrpt != 1));
+    FAIL_IF((iopmp_trans_rsp.status != IOPMP_ERROR));
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
+    // ERR_INFO.v flags the pending interrupt, but nothing else is recorded
+    err_info_temp.raw = read_register(&iopmp, ERR_INFO_OFFSET, 4);
+    FAIL_IF((err_info_temp.v != 1));
+    FAIL_IF((err_info_temp.ttype != 0));
+    FAIL_IF((err_info_temp.etype != 0));
+    FAIL_IF((read_register(&iopmp, ERR_REQADDR_OFFSET, 4) != 0));
+    FAIL_IF((read_register(&iopmp, ERR_REQADDRH_OFFSET, 4) != 0));
+    FAIL_IF(((read_register(&iopmp, ERR_REQID_OFFSET, 4) & 0xFFFF) != 0));
+    // Writing 1 to ERR_INFO.v acknowledges the interrupt
+    write_register(&iopmp, ERR_INFO_OFFSET, 1, 4);
+    FAIL_IF((read_register(&iopmp, ERR_INFO_OFFSET, 4) != 0));
+    // The next violation raises it again
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    FAIL_IF((intrpt != 1));
+    FAIL_IF((read_register(&iopmp, ERR_INFO_OFFSET, 4) != 1));
+    // Reset configuration
+    cfg = cfg_saved;
+    END_TEST();
+
+    START_TEST("ERR_REQID reads zero without the error capture record");
+    cfg_saved = cfg;
+    cfg.imp_err_reqid_eid = false;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    FAIL_IF((read_register(&iopmp, ERR_REQID_OFFSET, 4) != 0xFFFF0000));
+    // Without the error capture record, ERR_REQID is not implemented at all
+    cfg.no_err_rec = true;
+    cfg.mfr_en = false;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    FAIL_IF((read_register(&iopmp, ERR_REQID_OFFSET, 4) != 0));
+    // Reset configuration
+    cfg = cfg_saved;
+    END_TEST();
+
+    START_TEST("ERR_REQADDRH reads zero when addrh_en is 0");
+    cfg_saved = cfg;
+    cfg.addrh_en = false;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    set_hwcfg0_enable(&iopmp);
+    // RRID(2) has no MD, so the transaction hits no rule. Its address needs
+    // more than the 34 bits ERR_REQADDR holds.
+    receiver_port(2, (1ULL << 34) | 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    // Requestor Port Signals
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    FAIL_IF((iopmp_trans_rsp.status != IOPMP_ERROR));
+    err_info_temp.raw = read_register(&iopmp, ERR_INFO_OFFSET, 4);
+    FAIL_IF((err_info_temp.v != 1));
+    FAIL_IF((read_register(&iopmp, ERR_REQADDR_OFFSET, 4) != (360 >> 2)));
+    FAIL_IF((read_register(&iopmp, ERR_REQADDRH_OFFSET, 4) != 0));
+    // Reset configuration
+    cfg = cfg_saved;
+    END_TEST();
+
+    START_TEST("SRCMD_R/W/X(H) read zero when sps_en is 0");
+    cfg_saved = cfg;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    configure_srcmd_n(&iopmp, SRCMD_R, 32, 0x10, 4);
+    FAIL_IF((read_register(&iopmp, SRCMD_TABLE_BASE_OFFSET + SRCMD_R + (32 * SRCMD_REG_STRIDE), 4) != 0x10));
+    // Without the SPS extension, writes to SRCMD_R/W/X(H) are ignored
+    cfg.sps_en = false;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    for (uint8_t srcmd_reg = SRCMD_R; srcmd_reg <= SRCMD_XH; srcmd_reg += 4) {
+        configure_srcmd_n(&iopmp, srcmd_reg, 32, 0x10, 4);
+        FAIL_IF((read_register(&iopmp, SRCMD_TABLE_BASE_OFFSET + srcmd_reg + (32 * SRCMD_REG_STRIDE), 4) != 0));
+    }
+    // SRCMD_EN is still implemented
+    configure_srcmd_n(&iopmp, SRCMD_EN, 32, 0x10, 4);
+    FAIL_IF((read_register(&iopmp, SRCMD_TABLE_BASE_OFFSET + SRCMD_EN + (32 * SRCMD_REG_STRIDE), 4) != 0x10));
+    // Reset configuration
+    cfg = cfg_saved;
+    END_TEST();
+
     START_TEST("RRIDSCP read/write behaviors");
     cfg_saved = cfg;
     cfg.stall_en = true;
@@ -1226,6 +1316,51 @@ int main()
     FAIL_IF(read_data != 0x8F); // Interrupt is not suppressed
     CHECK_IOPMP_TRANS(&iopmp, IOPMP_ERROR, ILLEGAL_INSTR_FETCH);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
+    END_TEST();)
+
+    START_TEST_IF(iopmp.reg_file.hwcfg2.msi_en, "MSI write error without the error capture record",
+    uint64_t read_data = 0;
+    cfg_saved = cfg;
+    cfg.no_err_rec = true;
+    cfg.mfr_en = false;
+    cfg.imp_err_reqid_eid = false;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    write_memory(&read_data, 0x8000, 4);    // Clear the MSI the tests above sent
+    bus_error = 0x8000;
+    write_register(&iopmp, ERR_CFG_OFFSET, 0x5A0A, 4);
+    if (iopmp.reg_file.hwcfg0.addrh_en) {
+        write_register(&iopmp, ERR_MSIADDR_OFFSET, 0x8000, 4);
+    } else {
+        write_register(&iopmp, ERR_MSIADDR_OFFSET, (0x8000 >> 2), 4);
+    }
+    configure_srcmd_n(&iopmp, SRCMD_ENH, 2, 0x1, 4);
+    configure_srcmd_n(&iopmp, SRCMD_XH, 2, 0x1, 4);
+    configure_mdcfg_n(&iopmp, 31, 2, 4);
+    configure_entry_n(&iopmp, ENTRY_ADDR, 1, 90, 4);
+    configure_entry_n(&iopmp, ENTRY_CFG, 1, (NAPOT | R), 4);
+    set_hwcfg0_enable(&iopmp);
+    receiver_port(2, 360, 0, 3, INSTR_FETCH, 0, &iopmp_trans_req);
+    // Requestor Port Signals
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    FAIL_IF((iopmp_trans_rsp.status != IOPMP_ERROR));
+    FAIL_IF((intrpt != 0));     // MSI is selected
+    err_info_temp.raw = read_register(&iopmp, ERR_INFO_OFFSET, 4);
+    FAIL_IF((err_info_temp.v != 1));
+    FAIL_IF((err_info_temp.msi_werr != 1));
+    // The model sends no MSI while ERR_INFO.msi_werr is set
+    bus_error = 0;
+    write_register(&iopmp, ERR_INFO_OFFSET, 0x1, 4);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    read_memory(0x8000, 4, &read_data);
+    FAIL_IF((read_data != 0));
+    // Writing 1 to ERR_INFO.msi_werr clears it, and the next MSI is sent
+    write_register(&iopmp, ERR_INFO_OFFSET, 0x9, 4);
+    FAIL_IF((read_register(&iopmp, ERR_INFO_OFFSET, 4) != 0));
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    read_memory(0x8000, 4, &read_data);
+    FAIL_IF((read_data != 0x5A));
+    // Reset configuration
+    cfg = cfg_saved;
     END_TEST();)
 #endif
 

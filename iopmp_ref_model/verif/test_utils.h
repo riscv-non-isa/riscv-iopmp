@@ -106,7 +106,7 @@ extern void set_hwcfg0_enable(iopmp_dev_t *iopmp);
         FAIL_IF((err_info_temp.ttype != iopmp_trans_req.perm));                                                             \
         FAIL_IF((err_info_temp.etype != (ERR_TYPE)));                                                                       \
         FAIL_IF((read_register(iopmp, ERR_REQADDR_OFFSET, 4) != (uint32_t)((iopmp_trans_req.addr >> 2) & 0xFFFFFFFF)));     \
-        FAIL_IF((read_register(iopmp, ERR_REQADDRH_OFFSET, 4) != (uint32_t)((iopmp_trans_req.addr >> 34) & 0xFFFFFFFF)));   \
+        FAIL_IF((read_register(iopmp, ERR_REQADDRH_OFFSET, 4) != ((iopmp)->reg_file.hwcfg0.addrh_en ? (uint32_t)((iopmp_trans_req.addr >> 34) & 0xFFFFFFFF) : 0))); \
         if (bus_error == 0) { FAIL_IF((err_info_temp.msi_werr != 0)); }                                                     \
         else { FAIL_IF((err_info_temp.msi_werr != 1)); }                                                                    \
     } else {                                                                                                                \
