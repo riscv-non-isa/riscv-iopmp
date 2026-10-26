@@ -18,7 +18,7 @@ This optimization breaks the sequential data dependency of the two-stage lookup,
 
 [NOTE]
 ====
-_k_ * `HWCFG0.md_num` can be greater than `HWCFG1.entry_num`. Indices beyond the end of the IOPMP entry array select no entry; see <<IOPMP_ENTRY, IOPMP Entries>>.
+_k_ * `HWCFG0.md_num` can be greater than `HWCFG1.entry_num`. Indices beyond the end of the IOPMP entry array select no entry; see <<terminology_and_concepts.adoc#IOPMP_ENTRY, IOPMP Entries>>.
 ====
 
 For a particular case of _k_=1 (`HWCFG3.md_entry_num`=0), every memory domain has exactly one IOPMP entry index. Software can skip the concept of the memory domain when using such an IOPMP.

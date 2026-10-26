@@ -90,7 +90,8 @@ OPTIONS := --trace \
            --failure-level=ERROR
 REQUIRES := --require=asciidoctor-bibtex \
             --require=asciidoctor-diagram \
-            --require=asciidoctor-mathematical
+            --require=asciidoctor-mathematical \
+            --require=./scripts/cross-page-xrefs.rb
 
 .PHONY: all build clean build-container build-no-container build-docs
 
