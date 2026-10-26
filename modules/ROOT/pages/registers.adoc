@@ -84,7 +84,7 @@ INFO registers are used to indicate the IOPMP instance configuration info.
 |`no_err_rec`   |23:23  |R      |IMP       |Indicate if error record (`ERR_INFO.ttype`, `ERR_INFO.etype`, `ERR_REQADDR`, `ERR_REQADDRH`, `ERR_REQID` and `ERR_USER(0)` ~ `ERR_USER(7)`) is not implemented.
 |`md_num`       |29:24  |R      |IMP       |Indicate the supported number of MD in the instance.
 |`addrh_en`     |30:30  |R      |IMP       |Indicate if `ENTRY_ADDRH(_i_)` and `ERR_REQADDRH` are implemented.
-|`tor_en`       |31:31  |R      |IMP       |Indicate if TOR address-matching mode is supported. See <<ADDRESS_MATCHING_MODES, Address Matching Modes>>.
+|`tor_en`       |31:31  |R      |IMP       |Indicate if TOR address-matching mode is supported. See <<terminology_and_concepts.adoc#ADDRESS_MATCHING_MODES, Address Matching Modes>>.
 |===
 
 === Hardware Configuration 1 (`HWCFG1`) Register
@@ -96,10 +96,10 @@ INFO registers are used to indicate the IOPMP instance configuration info.
 |===
 
 === Hardware Configuration 2 (`HWCFG2`) Register
-See xref:IOPMP_EXTENSIONS[xrefstyle=full].
+See xref:extensions.adoc#IOPMP_EXTENSIONS[xrefstyle=full].
 
 === Hardware Configuration 3 (`HWCFG3`) Register
-See xref:APPLICATION_NOTE[xrefstyle=full].
+See xref:application_note.adoc#APPLICATION_NOTE[xrefstyle=full].
 
 
 === User-defined Hardware Configuration (`HWCFG_USER`) Register
@@ -260,7 +260,7 @@ The MDCFG table is a lookup to specify the number of IOPMP entries that is assoc
 
 - If `MDCFG(_m_-1).t` {le} _j_ < `MDCFG(_m_).t`, where _m_ > 0.
 - If _j_ < `MDCFG(0).t`, where _m_ = 0.
-- If `MDCFG(_k_-1).t` > `MDCFG(_k_).t` for any _k_, the MDCFG table has an improper setting and the ranges of MDs can overlap; see <<MDCFG_IMPROPER_SETTING, Improper Settings>>.
+- If `MDCFG(_k_-1).t` > `MDCFG(_k_).t` for any _k_, the MDCFG table has an improper setting and the ranges of MDs can overlap; see <<terminology_and_concepts.adoc#MDCFG_IMPROPER_SETTING, Improper Settings>>.
 
 |`rsv`  |31:16      |ZERO   |0          |Must be zero on write, reserved for future.
 |===
@@ -315,7 +315,7 @@ A complete 64-bit address consists of these two registers, `ENTRY_ADDR` and `ENT
 |`r`     |0:0        |WARL   |DC         |The read permission to protected memory region.
 |`w`     |1:1        |WARL   |DC         |The write permission to the protected memory region.
 |`x`     |2:2        |WARL   |DC         |The instruction fetch permission to the protected memory region.
-|`a`     |4:3        |WARL   |DC        a|The address-matching mode of the IOPMP entry. See <<ADDRESS_MATCHING_MODES, Address Matching Modes>>.
+|`a`     |4:3        |WARL   |DC        a|The address-matching mode of the IOPMP entry. See <<terminology_and_concepts.adoc#ADDRESS_MATCHING_MODES, Address Matching Modes>>.
 
 * 0x0: OFF
 * 0x1: TOR

@@ -59,7 +59,7 @@ An IOPMP entry describes a memory region together with the permissions that appl
 
 The IOPMP entry array is the set of all entries in an IOPMP instance. `HWCFG1.entry_num` reports the number of entries in the array, and the entries are indexed from 0 to `HWCFG1.entry_num` - 1. The legal range of `HWCFG1.entry_num` is 1 to 65535; the value zero is reserved for future standard use.
 
-For an entry indexed by _i_, `ENTRY_ADDR(_i_)`, `ENTRY_ADDRH(_i_)`, and `ENTRY_CFG(_i_).a` together encode the memory region; see <<#ADDRESS_MATCHING_MODES, Address Matching Modes>>. `ENTRY_ADDR(_i_)` and `ENTRY_ADDRH(_i_)` hold the encoded address for an IOPMP with addresses greater than 34 bits. For addresses less than or equal to 34 bits, only `ENTRY_ADDR(_i_)` is used. To determine whether `ENTRY_ADDRH(_i_)` is implemented, software can check `HWCFG0.addrh_en`. Please refer to <<HWCFG0,Hardware Configuration 0>> for more details about `HWCFG0.addrh_en`.
+For an entry indexed by _i_, `ENTRY_ADDR(_i_)`, `ENTRY_ADDRH(_i_)`, and `ENTRY_CFG(_i_).a` together encode the memory region; see <<#ADDRESS_MATCHING_MODES, Address Matching Modes>>. `ENTRY_ADDR(_i_)` and `ENTRY_ADDRH(_i_)` hold the encoded address for an IOPMP with addresses greater than 34 bits. For addresses less than or equal to 34 bits, only `ENTRY_ADDR(_i_)` is used. To determine whether `ENTRY_ADDRH(_i_)` is implemented, software can check `HWCFG0.addrh_en`. Please refer to <<registers.adoc#HWCFG0,Hardware Configuration 0>> for more details about `HWCFG0.addrh_en`.
 
 `ENTRY_CFG(_i_).r/w/x` indicate the read access, write access, and instruction fetch permission and they are WARL. That is, an implementation can decide which bits are programmable or hardwired and which bit combinations are unwanted.
 
@@ -129,7 +129,7 @@ The SRCMD table is an array indexed by RRID that associates each RRID with its m
 
 The register `SRCMD_EN(_s_)` must be implemented for each existing RRID _s_. Every bit in the 31-bit field `SRCMD_EN(_s_).md` indicates a memory domain. Bit _j_ in `SRCMD_EN(_s_).md` indicates if MD _j_ is associated with RRID _s_. If the number of MDs is more than 31, the register `SRCMD_ENH(_s_)` and its 32-bit field `SRCMD_ENH(_s_).mdh` can be implemented to support up to 63 memory domains. Bit _j_ in `SRCMD_ENH(_s_).mdh` indicates if MD (_j_ + 31) is associated with RRID _s_. For unimplemented memory domains, the corresponding bits should be hardwired read-only zero.
 
-Every `SRCMD_EN(_s_)` has a 1-bit lock field, `SRCMD_EN(_s_).l`, which locks `SRCMD_EN(_s_)` and `SRCMD_ENH(_s_)`, if implemented. The lock behavior is described in <<SRCMD_PROTECTION, SRCMD Table Protection>>.
+Every `SRCMD_EN(_s_)` has a 1-bit lock field, `SRCMD_EN(_s_).l`, which locks `SRCMD_EN(_s_)` and `SRCMD_ENH(_s_)`, if implemented. The lock behavior is described in <<configuration_protection.adoc#SRCMD_PROTECTION, SRCMD Table Protection>>.
 
 
 [#MDCFG_TABLE]
@@ -223,7 +223,7 @@ Because `MDCFG(_m_).t` is WARL, software should write only values that the imple
 
 [NOTE]
 ====
-The write order only keeps the table proper. An IOPMP entry that moves between memory domains keeps its contents, so a transaction checked against an intermediate table can be granted or denied by a rule written for another memory domain. Software should therefore update the table with the transferred IOPMP entries set to OFF or already programmed for their new memory domain, and keep transactions from being checked against the affected memory domains during the update, that is, MD _m_ and MD _m_+1 for every changed `MDCFG(_m_).t`, for example, by stalling them as described in <<Program_IOPMPs, Safe Runtime Configuration>> or by deassociating them from every RRID in the SRCMD table beforehand. If software reads the table back to verify the update, it should fence the reads after the final write and before the write that resumes the transactions.
+The write order only keeps the table proper. An IOPMP entry that moves between memory domains keeps its contents, so a transaction checked against an intermediate table can be granted or denied by a rule written for another memory domain. Software should therefore update the table with the transferred IOPMP entries set to OFF or already programmed for their new memory domain, and keep transactions from being checked against the affected memory domains during the update, that is, MD _m_ and MD _m_+1 for every changed `MDCFG(_m_).t`, for example, by stalling them as described in <<extensions.adoc#Program_IOPMPs, Safe Runtime Configuration>> or by deassociating them from every RRID in the SRCMD table beforehand. If software reads the table back to verify the update, it should fence the reads after the final write and before the write that resumes the transactions.
 ====
 
 [NOTE]
@@ -253,7 +253,7 @@ image::iopmp_unit_block_diagram.png[]
 === IOPMP Entry Priority
 IOPMP entries are prioritized according to their index values. Entries with lower indices are assigned a higher priority. When multiple entries match a transaction, the entry with the lowest index (highest priority) takes precedence.
 
-NOTE: The specification uses priority-based entry matching to provide deterministic behavior. Non-prioritized entries are supported for specific use cases, with their detailed behavior documented in <<NON_PRIORITY_ENTRIES,Non-priority IOPMP entries>>.
+NOTE: The specification uses priority-based entry matching to provide deterministic behavior. Non-prioritized entries are supported for specific use cases, with their detailed behavior documented in <<extensions.adoc#NON_PRIORITY_ENTRIES,Non-priority IOPMP entries>>.
 
 [#ENTRY_MATCHING]
 === IOPMP Entry Matching
@@ -306,7 +306,7 @@ On an illegal transaction, the IOPMP:
 * triggers an interrupt if the interrupt is enabled, as described in <<#ERROR_INTERRUPT,Interrupt>>; and
 * captures the details of the illegal transaction, including its error type, in the error capture record if the record is implemented and the conditions in <<#ERROR_CAPTURE_RECORD,Error Capture Record>> are met.
 
-Software configures the response and the interrupt through `ERR_CFG`, and extensions such as <<PEIS_PEES,Per-entry Interrupt/Bus Error Suppression>> and <<MSI,Message-Signaled Interrupts (MSI) Extension>> can refine them. For error type = "User-defined error" (0x0E, 0x0F), the interrupt and the error response are user-defined.
+Software configures the response and the interrupt through `ERR_CFG`, and extensions such as <<extensions.adoc#PEIS_PEES,Per-entry Interrupt/Bus Error Suppression>> and <<extensions.adoc#MSI,Message-Signaled Interrupts (MSI) Extension>> can refine them. For error type = "User-defined error" (0x0E, 0x0F), the interrupt and the error response are user-defined.
 
 [#ERROR_RESPONSE]
 === Error Response
