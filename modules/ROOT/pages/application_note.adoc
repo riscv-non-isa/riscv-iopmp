@@ -1,38 +1,35 @@
-:appendix-number: @
-[appendix]
-:appendix-caption!:
 [#APPLICATION_NOTE]
-== Application Note
+= Application Note
 
 :figure-caption: Figure
 :sectnums!:
 
-include::intro.adoc[]
+include::{partialsdir}/application_note/intro.adoc[]
 
-include::application_note_registers.adoc[]
+include::{partialsdir}/application_note/application_note_registers.adoc[]
 
 :sectnums:
 
 // Write Protection Devices 
-include::write_protection_devices.adoc[]
+include::{partialsdir}/application_note/write_protection_devices.adoc[]
 
 // Instruction Fetch Protection Devices 
-include::x_protection_devices.adoc[]
+include::{partialsdir}/application_note/x_protection_devices.adoc[]
 
 // Data Only Devices and Buses
-include::data_devices_buses.adoc[]
+include::{partialsdir}/application_note/data_devices_buses.adoc[]
 
 // SRCMD Table Reduction (includes Source-enforcement as Format 1)
-include::srcmd_reduction.adoc[]
+include::{partialsdir}/application_note/srcmd_reduction.adoc[]
 
 // MDCFG Table Reduction
-include::mdcfg_reduction.adoc[]
+include::{partialsdir}/application_note/mdcfg_reduction.adoc[]
 
 // Run out memory domains and RRID translate
-include::run_out_md.adoc[]
+include::{partialsdir}/application_note/run_out_md.adoc[]
 
 // IOPMP Models
-include::iopmp_models.adoc[]
+include::{partialsdir}/application_note/iopmp_models.adoc[]
 
 // Bibliography
 // include::bibliography.adoc[]

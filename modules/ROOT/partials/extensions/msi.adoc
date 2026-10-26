@@ -1,5 +1,5 @@
 [#MSI]
-=== Message-Signaled Interrupts (MSI) Extension
+== Message-Signaled Interrupts (MSI) Extension
 
 The extension can trigger message-signaled interrupts (MSI) by writing a word of data to a specific physical address. It can be used in the systems built with an Incoming Message-Signaled Interrupt Controller (IMSIC) cite:[AIA].
 

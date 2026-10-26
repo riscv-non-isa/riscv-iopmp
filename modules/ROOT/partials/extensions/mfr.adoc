@@ -1,5 +1,5 @@
 [#MFR]
-=== Multi-Faults Record
+== Multi-Faults Record
 The primary error capture registers are designed to lock upon detecting the *first* violation to preserve its details. This behavior, while necessary for root cause analysis, creates a "blind spot". Once `ERR_INFO.v` is set, all *subsequent* violations from any RRID are ignored, and their occurrence is permanently lost. The secure monitor remains unaware of these additional faults until it handles the interrupt and clears the `ERR_INFO.v` bit, at which point it's too late to know what else has failed.
 
 This extension, Multi-Faults Record (MFR), addresses this issue by providing a low-cost, secondary logging mechanism. It does not record the full details (like address or type) of subsequent faults. Instead, it maintains a simple, high-performance bitmap to log *which RRIDs* have generated at least one subsequent violation. This allows the secure monitor to efficiently identify all misbehaving agents during a single fault event, rather than only discovering the first one.

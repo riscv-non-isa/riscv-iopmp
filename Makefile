@@ -67,7 +67,7 @@ ifneq ($(SKIP_DOCKER),true)
 	DOCKER_QUOTE := "
 endif
 
-SRC_DIR := ./
+SRC_DIR := src
 BUILD_DIR := build
 
 DOCS_PDF := $(DOCS:%.adoc=%.pdf)

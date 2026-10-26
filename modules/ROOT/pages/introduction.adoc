@@ -1,5 +1,5 @@
 [[intro]]
-== Introduction
+= Introduction
 
 On a RISC-V platform, there may be requesters other than RISC-V harts that are able to initiate bus transactions. While PMP and the `Smepmp` extension cite:[PrivISA] provide a standardized interface for a RISC-V hart to configure its own access control at the physical address layer, an equivalent function is often required at the system level too, in order to protect systems against DMA (direct memory access) attacks and related vulnerabilities. This specification defines the interfaces and behaviors of a Physical Memory Protection Unit for Input/Output Devices, or "IOPMP", to address this requirement. IOPMP units apply access control at the physical address layer to all transactions passing through them, irrespective of their (hart or non-hart) origin.
 
@@ -7,16 +7,16 @@ On a RISC-V platform, there may be requesters other than RISC-V harts that are a
 
 [#IOPMP_SYSTEM_POSITION]
 .example integrations of IOPMP(s) in a system. {figure-caption} (a) shows a system deploying two IOPMPs. The IOPMPs take three inputs: RRID, the transaction type (read/write/instruction fetch), and the request range (address/len). {figure-caption} (b) shows a system deploying multiple IOPMPs. In this deployment, IOPMPs are at each resource, final destination.
-image::images/iopmp_system_position.png[align="center"]
+image::iopmp_system_position.png[align="center"]
 
-=== Target System Scaling
+== Target System Scaling
 The IOPMP architecture is intended to scale from small embedded systems to large heterogeneous platforms with many independent requesters and protection regions.
 An implementation can support hundreds of active request-role IDs (RRIDs), and the architecture allows up to 65,535 IOPMP entries in one IOPMP instance.
 This scale motivates the two-stage mapping hierarchy described in this specification: an RRID first selects one or more memory domains, and each memory domain then selects the IOPMP entries that define the protected address regions and permissions.
 
 The same scaling goal also motivates optional mechanisms that reduce lookup latency or implementation cost in larger systems, such as non-priority entries, table-reduction formats, and implementation-specific caching of protection checks.
 
-=== Relationship to IOMMU
+== Relationship to IOMMU
 
 The RISC-V IOMMU (cite:[IOMMU], Input-Output Memory Management Unit) is a system-level generalization of the ISA's MMU mechanism, in much the same way that the IOPMP is a system-level generalization of the PMP, so comparing the two ISA mechanisms can help draw comparisons between the corresponding system-level mechanisms. For example, though the PMP and MMU both provide a form of isolation, they are very different mechanisms with very different usage, benefits, and complexity of implementation, and so they are typically seen as complementary concepts (rather than alternatives). The same general observation is also true of IOPMP and IOMMU. Some other ISA-to-system comparisons:
 

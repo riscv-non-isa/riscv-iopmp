@@ -1,4 +1,4 @@
-=== Instruction Fetch Protection Devices
+== Instruction Fetch Protection Devices
 
 The `no_x` bit enables global instruction fetch protection, which is particularly useful for protecting data-only memory regions such as peripherals which don't have any instruction of processors. This feature simplifies implementations by reducing the need for programming individual permission bits and minimizing the overhead of per-entry rule lookups.
 
