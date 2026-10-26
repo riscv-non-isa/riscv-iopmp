@@ -1,4 +1,4 @@
-// Fallbacks for previewing this file on its own; iopmp.adoc defines them for the full build.
+// Fallbacks for previewing this file on its own; riscv-iopmp.adoc defines them for the full build.
 ifndef::le[:le: &#8804;]
 ifndef::ge[:ge: &#8805;]
 === Registers
