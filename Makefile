@@ -13,7 +13,7 @@
 # the Doc Template for RISC-V Extensions.
 
 DOCS := \
-	iopmp.adoc
+	riscv-iopmp.adoc
 
 SPECNAME := riscv-iopmp
 
