@@ -1,4 +1,4 @@
-=== Introduction
+== Introduction
 
 This application note provides practical guidelines for implementing and configuring the IOPMP in various system scenarios. The primary objectives of these guidelines are to enable area-efficient implementations, simplify design complexity, and optimize IOPMP configurations for specific use cases.
 

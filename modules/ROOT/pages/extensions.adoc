@@ -1,18 +1,18 @@
 [#IOPMP_EXTENSIONS]
-== Extensions
+= Extensions
 
 This chapter presents IOPMP extensions designed for specific use cases. The features described in this chapter are optional extensions to the baseline IOPMP specification. Implementations are not required to support these extensions. However, an implementation that claims conformance to an extension MUST adhere to the definitions specified herein. <<EXT_REGS>> describes all relevant registers. The subsequent sections describe each IOPMP extension in detail.
 
-include::extensions/registers.adoc[]
+include::{partialsdir}/extensions/registers.adoc[]
 
-include::extensions/srcmd_extension.adoc[]
+include::{partialsdir}/extensions/srcmd_extension.adoc[]
 
-include::extensions/non_priority_entries.adoc[]
+include::{partialsdir}/extensions/non_priority_entries.adoc[]
 
-include::extensions/per_entry_suppression.adoc[]
+include::{partialsdir}/extensions/per_entry_suppression.adoc[]
 
-include::extensions/mfr.adoc[]
+include::{partialsdir}/extensions/mfr.adoc[]
 
-include::extensions/msi.adoc[]
+include::{partialsdir}/extensions/msi.adoc[]
 
-include::extensions/programming.adoc[]
+include::{partialsdir}/extensions/programming.adoc[]

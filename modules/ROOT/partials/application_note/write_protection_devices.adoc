@@ -1,4 +1,4 @@
-=== Write Protection Devices
+== Write Protection Devices
 
 Systems that are primarily used as read-only memory regions, such as Flash memory or read-only memory (ROM), can leverage global write protection to reduce implementation complexity and hardware overhead. The IOPMP provides the `no_w` configuration bit in the `HWCFG3` register (<<#REG_EXT_HWCFG3,Hardware Configuration 3>>) to enable this functionality.
 

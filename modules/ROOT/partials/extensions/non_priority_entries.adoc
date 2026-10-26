@@ -1,5 +1,5 @@
 [#NON_PRIORITY_ENTRIES]
-=== Non-priority IOPMP entries
+== Non-priority IOPMP entries
 The baseline IOPMP specification defines a priority-based matching logic, where entries with lower indices are assigned a higher priority and take precedence. While this model provides deterministic behavior and robust security, it presents significant implementation challenges, particularly for systems requiring a large number of entries.
 
 This priority-based model has two primary scalability limitations:
@@ -17,7 +17,7 @@ This creates a clear trade-off:
 
 For systems requiring a large number of entries, a hybrid model using both types is recommended. This allows an implementation to achieve a balance between security and scalability, using priority entries for critical, static rules, and non-priority entries for the bulk of dynamic, performance-sensitive access control.
 
-==== Functional Description
+=== Functional Description
 `HWCFG2.non_prio_en` indicates whether the IOPMP supports non-priority entries. When the extension is enabled, `HWCFG2.non_prio_en` is 1 and entries with indices greater than or equal to `HWCFG2.prio_entry` are non-prioritized. These are treated equally and assigned the lowest priority. Entries with indices less than `prio_entry` are prioritized. The value of `prio_entry` is implementation-defined. Additionally, a field `HWCFG2.prio_ent_prog` indicates whether `prio_entry` is programmable.
 <<#REG_EXT_HWCFG2,Hardware Configuration 2>> describes the details of the fields.
 
@@ -46,7 +46,7 @@ IOPMPs don't report error type = 0x04 "Partial hit on a priority rule" on non-pr
 
 If one matching entry is priority, the reaction is the same as baseline IOPMP entry array.
 
-==== Error Reporting
+=== Error Reporting
 If one matching entry is non-priority, the transaction is legal if any matching entry permits its access type. If no matching entry permits, the transaction is illegal with error type = "illegal read access" (0x01) for read access transaction, "illegal write access/AMO" (0x02) for write access/AMO transaction, or "illegal instruction fetch" (0x03) for instruction fetch transaction.
 
 For an illegal transaction matching multiple non-priority entries, if the interrupt is triggered or the bus error response is returned, `ERR_REQID.eid` stores the index of any of them.

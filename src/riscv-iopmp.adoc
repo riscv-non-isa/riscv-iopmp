@@ -17,20 +17,20 @@ ifndef::spec_short[:spec_short: riscv-iopmp]
 :preface-title: Preamble
 :colophon:
 :appendix-caption: Appendix
-:imagesdir: .
-// Marks the aggregate build. Included files use it to pick image paths that
-// are relative to this file's directory; without it (e.g. when a single
-// included file is previewed on its own) they fall back to paths relative to
-// their own directory. See {imgpath} in the included files.
-:iopmp-spec-build:
-:title-logo-image: image:./docs-resources/images/risc-v_logo.svg[pdfwidth=3.25in,align=center]
+// Images live in modules/ROOT/images/ so the pages find them on the Antora site
+// as well; this is relative to this file.
+:imagesdir: ../modules/ROOT/images
+// The pages include their fragments from the module's partials directory. Antora
+// defines this attribute itself; here it is relative to the including page.
+:partialsdir: ../partials
+:title-logo-image: image:../../../docs-resources/images/risc-v_logo.svg[pdfwidth=3.25in,align=center]
 // Settings:
 :experimental:
 :reproducible:
 // needs to be changed? bug discussion started
 //:WaveDromEditorApp: app/wavedrom-editor.app
 :imagesoutdir: images
-:bibtex-file: example.bib
+:bibtex-file: modules/ROOT/resources/riscv-iopmp.bib
 :bibtex-order: appearance
 :bibtex-style: ieee
 :icons: font
@@ -68,27 +68,30 @@ RISC-V IOPMP Task Group
 
 toc::[]
 
+// Chapter sources live under modules/ROOT/pages/ so they double as standalone
+// Antora pages (each with a level-0 title). leveloffset=+1 demotes those titles
+// by one level here, reproducing the historical PDF section structure. This file
+// is the single PDF assembler; the pages are the single content source.
 [preface]
-== Copyright and license information
-This specification is licensed under the Creative Commons
-Attribution 4.0 International License (CC-BY 4.0). The full
-license text is available at
-https://creativecommons.org/licenses/by/4.0/.
-
-Copyright 2025 by RISC-V International.
+include::../modules/ROOT/pages/copyright.adoc[leveloffset=+1]
 
 [preface]
-include::contributors.adoc[]
+include::../modules/ROOT/pages/contributors.adoc[leveloffset=+1]
 
-include::intro.adoc[]
-include::chapter2.adoc[]
-include::chapter3.adoc[]
-include::chapter4.adoc[]
-include::extensions.adoc[]
+include::../modules/ROOT/pages/introduction.adoc[leveloffset=+1]
+include::../modules/ROOT/pages/terminology_and_concepts.adoc[leveloffset=+1]
+include::../modules/ROOT/pages/configuration_protection.adoc[leveloffset=+1]
+include::../modules/ROOT/pages/registers.adoc[leveloffset=+1]
+include::../modules/ROOT/pages/extensions.adoc[leveloffset=+1]
 
 //the index must precede the bibliography
 //include::index.adoc[]
-include::bibliography.adoc[]
+include::../modules/ROOT/pages/bibliography.adoc[leveloffset=+1]
 
 
-include::application_note/application_note.adoc[]
+// The Application Note is an unnumbered appendix. These settings are PDF-only,
+// so they are kept here rather than in the page.
+:appendix-number: @
+[appendix]
+:appendix-caption!:
+include::../modules/ROOT/pages/application_note.adoc[leveloffset=+1]

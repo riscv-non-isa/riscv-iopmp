@@ -2,14 +2,12 @@
 ifndef::le[:le: &#8804;]
 ifndef::ge[:ge: &#8805;]
 [#srcmd-table-formats]
-=== SRCMD Table Reduction
+== SRCMD Table Reduction
 
-ifdef::iopmp-spec-build[:imgpath: images]
-ifndef::iopmp-spec-build[:imgpath: ../images]
 
 The IOPMP specification provides SRCMD table reduction strategies to minimize hardware resource utilization in systems with simplified access control requirements. These strategies enable area-efficient implementations by reducing or eliminating SRCMD table lookups while maintaining essential protection functionality.
 
-==== Source-Enforcement
+=== Source-Enforcement
 
 Systems with requesters that already implement firewall mechanisms, such as RISC-V harts with Physical Memory Protection (PMP), can optimize IOPMP implementation by applying rule checking selectively. This approach, known as source-enforcement (IOPMP-SE), enables significant area savings and design simplification when protection is needed only for a subset of requesters.
 
@@ -17,9 +15,9 @@ Source-enforcement is particularly beneficial in heterogeneous systems where som
 
 [#IOPMP_SE_Example]
 .Example implementation of source-enforcement where RISC-V harts use PMP while heterogeneous cores and DMA rely on IOPMP-SE.
-image::{imgpath}/IOPMP_SE.drawio.png[]
+image::IOPMP_SE.drawio.png[]
 
-==== SRCMD Table in the Exclusive Format
+=== SRCMD Table in the Exclusive Format
 
 Exclusive Format implements a direct mapping where RRID _i_ associates exclusively with memory domain _i_. This one-to-one mapping eliminates the need for SRCMD table lookups, providing benefits in area efficiency, access latency reduction, and implementation complexity. The format supports scenarios with a single requester or multiple requesters requiring identical access permissions.
 
@@ -29,7 +27,7 @@ The SRCMD table format is discovered through the `srcmd_fmt` field in `HWCFG3` r
 `HWCFG3.srcmd_fmt` = 1 indicates the SRCMD table format is Exclusive Format.
 
 [#SRCMD-MD-indexed]
-==== SRCMD Table in the MD-indexed Format
+=== SRCMD Table in the MD-indexed Format
 This section introduces the MD-indexed Format (Format 2) for the SRCMD table. This format is provided as an alternative implementation, driven by a key strategic goal: to lower the barrier for migrating existing, non-RISC-V systems to the RISC-V ecosystem.
 
 The primary objective of non-ISA specifications like IOPMP is to accelerate the broad adoption of RISC-V CPUs. However, the baseline RRID-indexed programming model (Format 0), while powerful, may present a significant software migration obstacle for platforms with established, legacy programming models. Some existing systems architect their access control from the perspective of the resource (the memory regions) rather than the requester (the RRID).
@@ -42,7 +40,7 @@ For 0 {le} _m_ {le} 30, `MDLCK.md[_m_]` locks `SRCMD_PERM(_m_)` and `SRCMD_PERMH
 
 [#Example_Format_2]
 .An example block diagram of an SRCMD table implementation in the MD-indexed Format.
-image::{imgpath}/srcmd_format2_example.png[]
+image::srcmd_format2_example.png[]
 
 `SRCMD_PERM(_m_)` is implemented when `HWCFG3.srcmd_fmt` = 2, and `SRCMD_PERMH(_m_)` is implemented only when `HWCFG3.srcmd_fmt` = 2 and `HWCFG1.rrid_num` > 16.
 In MD-indexed Format, an IOPMP checks both the permission of `SRCMD_PERM(H)(_m_)` and the `ENTRY_CFG.r/w/x` permission.

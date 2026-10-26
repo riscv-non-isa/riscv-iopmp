@@ -1,6 +1,6 @@
 [[Program_IOPMPs]]
 :numbered:
-=== Safe Runtime Configuration
+== Safe Runtime Configuration
 
 This section introduces an extension to stall transactions by RRIDs and describes how to use the extension to update IOPMP's settings safely in runtime.
 
@@ -16,11 +16,11 @@ However, the aforementioned method may not be suitable for certain systems. Anot
 It could be a heavy burden for the security software to guarantee that no transactions are in progress from all related requesters. This extension enables the method for updating IOPMP's settings that avoids checking transactions in an incomplete setting and burdening the security software.
 
 
-==== Atomicity Requirement
+=== Atomicity Requirement
 The Atomicity Requirement is that when updating an IOPMP, all transactions from receiver ports must be checked either before any changes are made or after all changes are completed. Essentially, checking a transaction in a partial setting should be avoided. The succeeding sections will describe the mechanism that helps the security software satisfy this requirement.
 
 [#PROGRAMMING_STEPS]
-==== Programming Steps
+=== Programming Steps
 The general approach for a security software to the atomicity requirement has three major steps, conceptually described as follows:
 
 ** Step 1: Stall the related transactions that the following updates may impact.
@@ -37,7 +37,7 @@ In some cases, Step 1 and Step 3 may be skipped as long as no transaction check 
 NOTE: Stalling a transaction could be implemented in the following ways but not limited to: (1) IOPMP may enqueue the transactions to stall but not be checked, (2) ask the requester to retry the transaction by a retry message, and (3) enqueue first and ask to retry if the queue is full.
 
 [#STALL_TRANSACTIONS]
-==== Stall Transactions
+=== Stall Transactions
 For Step 1, it's possible to postpone all transactions until all updates are finished. However, this could cause unrelated transactions to experience unnecessary delays. This might not be tolerable for devices that require low latency, like a display controller that periodically retrieves a frame from its video buffer. This section explains the mechanism that only stalls specific transactions to prevent the aforementioned scenario and ensure the atomicity requirement. All the features mentioned below are optional.
 
 In Step 2, the decision of whether a transaction should be stalled cannot reference the current settings because these settings are under updating. Therefore, the only reliable information for this decision is the RRID carried by the transaction. To simplify the following descriptions, we use _rrid_stall_ to represent an abstract bit array, where _rrid_stall_[_s_] = 1 indicates that transactions with RRID _s_ must be stalled. The IOPMP stalls a transaction based on its corresponding _rrid_stall_. Please note that it may not be an actual bit array in practice just for easier expression and is not directly accessible by software.
@@ -62,7 +62,7 @@ NOTE: Although _rrid_stall_ is derived from the SRCMD table, it should be update
 
 NOTE: When writing `MDSTALL`, the specification only defines the transactions with RRID=_s_ must be stalled for all _rrid_stall_[_s_] = 1. It doesn't request the rest of the transactions to stall or not. It only asks that all transactions be resumed when writing `MDSTALL` with a zero.
 
-==== Cherry Pick
+=== Cherry Pick
 Writing `RRIDSCP` register (<<#REG_EXT_RRIDSCP,RRID Cherry Pick Stall Control>>) is an optional substep after writing `MDSTALL` within Step 1 of <<#PROGRAMMING_STEPS, Programming Steps>>. Software can select or deselect the transactions with specific RRIDs to stall if the previous writing `MDSTALL`/`MDSTALLH` doesn't stall all the desired transactions. Software can write the register zero or multiple times in the substep.
 
 [NOTE]
@@ -74,7 +74,7 @@ Software should, whenever possible, prioritize using the `MDSTALL`/`MDSTALLH` ba
 The `RRIDSCP` register comprises two fields: a 2-bit `RRIDSCP.op` and a field for `RRIDSCP.rrid`. By setting `RRIDSCP.op` = 1, the _rrid_stall_[_s_] is set for _s_ = `RRIDSCP.rrid`. Conversely, by setting `RRIDSCP.op` = 2, the _rrid_stall_[_s_] is clear for _s_ = `RRIDSCP.rrid`. This register is used to fine-tune the result of writing `MDSTALL`/`MDSTALLH`. The writing `RRIDSCP.op` = 0 queries the value of _rrid_stall_[_s_] for a valid _s_. The value will be returned in the two most significant bits in the following reading `RRIDSCP`. `RRIDSCP.op`=3 is reserved.
 
 [#FAULTING_STALLED_TRANSACTIONS]
-==== Faulting stalled transactions
+=== Faulting stalled transactions
 Faulting stalled transactions can be allowed. To allow faulting over stalling when an IOPMP cannot accommodate more stalled transactions, such as when the receiver port lacks a buffer for transaction storage, set bit `stall_violation_en` in register `ERR_CFG` (<<#REG_EXT_ERR_CFG,Error Configuration with All Extensions>>) to 1 before Step 1 of <<#PROGRAMMING_STEPS, Programming Steps>>. If any transaction is faulted due to the stalled transactions, the error information shall be logged in `ERR_INFO` (<<#REG_EXT_ERR_INFO,Error Information with All Extensions>>), where `ERR_INFO.etype` = 0x07 (error due to stalled transactions). The procedure for faulting checking transactions is identical to Steps 1-3 of <<#PROGRAMMING_STEPS, Programming Steps>>, except that, besides stalling and delaying the transactions, transactions can be faulted and cannot be resumed if the IOPMP can't handle more stalled transactions.
 If `stall_violation_en` is updated during Steps 1 to 3 of <<#PROGRAMMING_STEPS, Programming Steps>>, the behavior is undefined.
 
@@ -85,13 +85,13 @@ In certain implementations, rather than stalling the related transactions, the s
 This function also can prevent the risk of deadlock in some systems. If an implementation or a system doesn't have sufficient buffer capacity for handling all stalled transactions during programming, the stalled transactions may backpressure from receiver port of the IOPMP and then cause a hang on the port due to its implementation limitation. Therefore, the hang on the port potentially causes a deadlock in the system since transactions for programming IOPMP during Step 2 and Step 3 of <<#PROGRAMMING_STEPS, Programming Steps>> have the possibility to hang indirectly in the circumstance. 
 ====
 
-==== Resume Stall
+=== Resume Stall
 
 In order to resume all stalled transactions, writing 0 to `MDSTALLH`, then writing 0 to `MDSTALL`.
 This corresponds to Step 3 of <<#PROGRAMMING_STEPS, Programming Steps>>.
 After `MDSTALL` is written by zero, an IOPMP should clear `MDSTALL.is_busy` within some time, at which point all transactions have been resumed.
 
-==== The Order to Stall
+=== The Order to Stall
 In Step 1 of <<#PROGRAMMING_STEPS, Programming Steps>>, `MDSTALL` can be written at most once and before a resume. Writing a non-zero value to `MDSTALL` multiple times after a resume leads to RRIDs' stall states being undefined.
 
 After `MDSTALL` and all `RRIDSCP` are written, the action to stall desired transactions may not take effect immediately in some implementations in which the subsequent setting updates (Step 2) could affect the transactions still under checking. To determine whether the action takes effect, software can read back and check the bit `MDSTALL.is_busy`, which is in the same location as `MDSTALL.exempt` on a write. `is_busy` = 0 indicates it has taken effect or no previous write; otherwise, it has not. A new writing `RRIDSCP` may temporarily switch `is_busy` to 1 and then switch to 0 at some time.
@@ -112,7 +112,7 @@ Based on <<#PROGRAMMING_STEPS, Programming Steps>>, complete steps to program an
 
 Some steps may be skipped according to the actual implementation.
 
-==== Implementation Options
+=== Implementation Options
 
 `HWCFG2.stall_en` indicates if the IOPMP implements the extension, which are `MDSTALL`, `MDSTALLH`, `RRIDSCP`, `ERR_CFG.stall_violation_en`, and additional error type = 0x07 "error due to a stalled transaction".
 

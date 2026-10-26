@@ -1,5 +1,5 @@
 [#PEIS_PEES]
-=== Per-entry Interrupt/Bus Error Suppression
+== Per-entry Interrupt/Bus Error Suppression
 
 This extension provides a fine-grained, per-entry mechanism to selectively suppress interrupt triggers and bus error responses for specific access violations.
 
@@ -9,9 +9,9 @@ If these guard regions are protected by an IOPMP entry (which is a correct and s
 
 The per-entry suppression extension addresses this problem. It allows software to define these known guard regions with specific IOPMP entries and then set flags (e.g., `sire`, `sere`) to suppress the interrupt and bus error for violations at that specific entry. This ensures that speculative prefetches do not stall the system or generate false alarms, while still preventing access to truly illegal content and without adding interference to the system.
 
-The per-entry suppression extension only extends the <<#ERROR_REPORTING,error reporting>> of illegal transactions in which an entry is matched but does not grant transaction permission to operate.
+The per-entry suppression extension only extends the <<ERROR_REPORTING,error reporting>> of illegal transactions in which an entry is matched but does not grant transaction permission to operate.
 
-==== Interrupt Suppression
+=== Interrupt Suppression
 The bit `peis` in register `HWCFG2` (<<#REG_EXT_HWCFG2,Hardware Configuration 2>>) indicates whether the IOPMP supports per-entry interrupt suppression. If `HWCFG2.peis` is 1, every entry _i_ has three interrupt suppression bits, `sire`, `siwe`, `sixe`, in register `ENTRY_CFG(_i_)` (<<#REG_EXT_ENTRY_CFG,Entry _i_ Configuration with All Extensions>>).
 The bits suppress interrupt triggering due to illegal read access, illegal writes access/AMO and illegal instruction fetch respectively.
 
@@ -26,7 +26,7 @@ When an illegal transaction occurs with error type "illegal read access" (0x01),
 
 Where `!` represents logical NOT, and `&&` represents logical AND.
 
-==== Bus Error Suppression
+=== Bus Error Suppression
 The bit `pees` in register `HWCFG2` (<<#REG_EXT_HWCFG2,Hardware Configuration 2>>) indicates whether the IOPMP supports per-entry bus error suppression. If `HWCFG2.pees` is 1, every entry _i_ has three interrupt suppression bits, `sere`, `sewe`, `sexe`, in register `ENTRY_CFG(_i_)` (<<#REG_EXT_ENTRY_CFG,Entry _i_ Configuration with All Extensions>>).
 The bits suppress bus error due to illegal read access, illegal writes access/AMO and illegal instruction fetch respectively.
 
@@ -41,7 +41,7 @@ When an illegal transaction occurs with error type "illegal read access" (0x01),
 
 Where `!` represents logical NOT, and `&&` represents logical AND.
 
-==== Per-entry Suppression on Non-priority Entries
+=== Per-entry Suppression on Non-priority Entries
 An IOPMP may match multiple entries when it supports xref:NON_PRIORITY_ENTRIES[xrefstyle=full]. To suppress interrupt, all matching entries must suppress interrupt together. Similarly, to suppress bus error response, all matching entries also must suppress bus error response together. The following describes the detailed relation.
 
 For the cases with multiple matched non-priority entries indexed by _i_~0~, _i_~1~, …​, _i~N~_ , the condition of per-entry interrupt suppression is:
