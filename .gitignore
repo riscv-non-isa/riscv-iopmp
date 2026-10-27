@@ -33,3 +33,7 @@ _images/
 # docs-resources submodule. Both are regenerated on every build.
 /antora-pages-playbook.yml
 /modules/ROOT/images/risc-v_logo.svg
+
+# macOS
+.DS_Store
+**/.DS_Store
