@@ -37,3 +37,6 @@ _images/
 # macOS
 .DS_Store
 **/.DS_Store
+
+# asciidoctor-diagram checksum cache, regenerated on every build
+/.asciidoctor/
