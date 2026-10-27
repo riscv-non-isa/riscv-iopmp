@@ -4,15 +4,15 @@
 
 This section introduces an extension to stall transactions by RRIDs and describes how to use the extension to update IOPMP's settings safely in runtime.
 
-At times, attempting to configuring all IOPMP settings when the system starts can be difficult or even impossible, especially before I/O agents are active or connected to the system. As a result, it is necessary to update IOPMP settings during runtime. 
+At times, attempting to configuring all IOPMP settings when the system starts can be difficult or even impossible, especially before I/O agents are active or connected to the system. As a result, it is necessary to update IOPMP settings during runtime.
 
-To configure all IOPMP settings during runtime, security software without the extension can 
+To configure all IOPMP settings during runtime, security software without the extension can
 configure additional MDs for different settings in the MDCFG table and entry array, and switch the associated MDs for an RRID in the SRCMD table from a single access.
 
 [NOTE]
 The aforementioned method is not applicable if an IOPMP supports number of MD greater than 31 and its control port only supports 32-bit access. Security software needs two accesses to switch the association in the configuration. It results in an incomplete setting between the first access and the second access and potentially create a vulnerability.
 
-However, the aforementioned method may not be suitable for certain systems. Another method to update IOPMP settings is necessary. This may occur when a device is enabled, disabled, added, removed, or when the accessible area of a device changes. When updating, it is important to avoid checking transactions in an incomplete setting. However, updating IOPMP settings often involves a series of control accesses, and if a transaction check occurs during the update, it can potentially create a vulnerability. 
+However, the aforementioned method may not be suitable for certain systems. Another method to update IOPMP settings is necessary. This may occur when a device is enabled, disabled, added, removed, or when the accessible area of a device changes. When updating, it is important to avoid checking transactions in an incomplete setting. However, updating IOPMP settings often involves a series of control accesses, and if a transaction check occurs during the update, it can potentially create a vulnerability.
 It could be a heavy burden for the security software to guarantee that no transactions are in progress from all related requesters. This extension enables the method for updating IOPMP's settings that avoids checking transactions in an incomplete setting and burdening the security software.
 
 
@@ -49,7 +49,7 @@ Register `MDSTALL` and `MDSTALLH` (<<#REG_EXT_MDSTALL,MD-Based Stall Control>>) 
 
 Where:
 
-* `^` is bitwise logical exclusive OR operator, 
+* `^` is bitwise logical exclusive OR operator,
 * `&` is bitwise logical AND operator, and
 * `Reduction_OR()` is a function that applies bitwise logical OR across all input values.
 
@@ -58,7 +58,7 @@ For any unimplemented MD, the corresponding bit in `MDSTALL.md` or `MDSTALLH.mdh
 
 _rrid_stall_ should be updated only when `MDSTALL.exempt` is written, that is, when `MDSTALL` is written. When `MDSTALLH` is written, the only action is to hold the value.
 
-NOTE: Although _rrid_stall_ is derived from the SRCMD table, it should be updated only when `MDSTALL.exempt` is written. We cannot use the table when stalling transactions because the table updates may still be in progress when the IOPMP decides if a transaction should be stalled. Writing `MDSTALL` is just like capturing a snapshot of the table at the moment right before updating any settings. The _rrid_stall_ reflects the SRCMD table before any updates. 
+NOTE: Although _rrid_stall_ is derived from the SRCMD table, it should be updated only when `MDSTALL.exempt` is written. We cannot use the table when stalling transactions because the table updates may still be in progress when the IOPMP decides if a transaction should be stalled. Writing `MDSTALL` is just like capturing a snapshot of the table at the moment right before updating any settings. The _rrid_stall_ reflects the SRCMD table before any updates.
 
 NOTE: When writing `MDSTALL`, the specification only defines the transactions with RRID=_s_ must be stalled for all _rrid_stall_[_s_] = 1. It doesn't request the rest of the transactions to stall or not. It only asks that all transactions be resumed when writing `MDSTALL` with a zero.
 
@@ -82,7 +82,7 @@ If `stall_violation_en` is updated during Steps 1 to 3 of <<#PROGRAMMING_STEPS, 
 ====
 In certain implementations, rather than stalling the related transactions, the system may opt to fault the checking transactions during an IOPMP atomic update. Faulting transactions can be advantageous if the system lacks sufficient buffer capacity to record and store all transactions during the IOPMP programming process.
 
-This function also can prevent the risk of deadlock in some systems. If an implementation or a system doesn't have sufficient buffer capacity for handling all stalled transactions during programming, the stalled transactions may backpressure from receiver port of the IOPMP and then cause a hang on the port due to its implementation limitation. Therefore, the hang on the port potentially causes a deadlock in the system since transactions for programming IOPMP during Step 2 and Step 3 of <<#PROGRAMMING_STEPS, Programming Steps>> have the possibility to hang indirectly in the circumstance. 
+This function also can prevent the risk of deadlock in some systems. If an implementation or a system doesn't have sufficient buffer capacity for handling all stalled transactions during programming, the stalled transactions may backpressure from receiver port of the IOPMP and then cause a hang on the port due to its implementation limitation. Therefore, the hang on the port potentially causes a deadlock in the system since transactions for programming IOPMP during Step 2 and Step 3 of <<#PROGRAMMING_STEPS, Programming Steps>> have the possibility to hang indirectly in the circumstance.
 ====
 
 === Resume Stall
@@ -108,7 +108,7 @@ Based on <<#PROGRAMMING_STEPS, Programming Steps>>, complete steps to program an
 ** Step 2: update IOPMP's settings
 ** Step 3.1: write 0 to `MDSTALLH`
 ** Step 3.2: write 0 to `MDSTALL` // resume all transactions
-** Step 3.3: poll until `MDSTALL.is_busy` == 0  // optional, to ensure all resumes take effect. 
+** Step 3.3: poll until `MDSTALL.is_busy` == 0  // optional, to ensure all resumes take effect.
 
 Some steps may be skipped according to the actual implementation.
 
