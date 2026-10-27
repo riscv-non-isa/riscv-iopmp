@@ -10,10 +10,10 @@ include::{partialsdir}/application_note/application_note_registers.adoc[]
 
 :sectnums:
 
-// Write Protection Devices 
+// Write Protection Devices
 include::{partialsdir}/application_note/write_protection_devices.adoc[]
 
-// Instruction Fetch Protection Devices 
+// Instruction Fetch Protection Devices
 include::{partialsdir}/application_note/x_protection_devices.adoc[]
 
 // Data Only Devices and Buses

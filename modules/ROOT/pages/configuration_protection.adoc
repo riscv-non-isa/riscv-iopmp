@@ -62,4 +62,3 @@ Error record registers do not have corresponding locks, as they are intended to 
 == Prelocked Configurations
 Prelocked configurations in the specification mean the fields or registers are locked right after reset. In practice, they could be hardwired and/or implemented by read-only memory. Every lock mechanism in this chapter can be optionally pre-locked.
 The non-zero reset value of `MDCFGLCK.f` reflects the pre-locked `MDCFG(_j_)`, where _j_< `MDCFGLCK.f`. The non-zero reset value of `ENTRYLCK.f` reflects the existing pre-locked entries. `SRCMD_EN(H)` can have prelocked bits fully or partially based on presets of `MDLCK.md` and `SRCMD_EN.l`. Please refer <<#SUMMARY_PROTECTION, Summary of Table, Register, and Field Locks>> for all lock bits.
-
