@@ -1,0 +1,22 @@
+// Navigation file for Antora
+// https://docs.antora.org/antora/latest/navigation/
+//
+// Update this file to reflect your specification's chapter structure.
+//
+// SECTION NUMBERING: the RISC-V central playbook assigns chapter numbers by the
+// LINE NUMBER of each xref entry below, via its numbering_rules (see ANTORA.md,
+// "Section numbering"). If you add, remove, or reorder entries here -- or edit
+// these header comments -- the line numbers shift, so the matching rule in the
+// central playbook (antora.riscv.org) MUST be updated, or site numbering drifts.
+// To update number, open an issue at https://github.com/riscv-admin/antora-dev.riscv.org
+
+* xref:index.adoc[RISC-V IOPMP Architecture Specification]
+** xref:copyright.adoc[Copyright and license information]
+** xref:contributors.adoc[Contributors]
+** xref:introduction.adoc[Introduction]
+** xref:terminology_and_concepts.adoc[Terminology and Concepts]
+** xref:configuration_protection.adoc[Configuration Protection]
+** xref:registers.adoc[Registers]
+** xref:extensions.adoc[Extensions]
+** xref:bibliography.adoc[Bibliography]
+** xref:application_note.adoc[Application Note]
