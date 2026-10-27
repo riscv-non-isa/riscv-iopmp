@@ -30,4 +30,3 @@ To illustrate, consider an operating system in S-mode using an MMU to manage use
 * If the device driver runs in the OS kernel and manages device I/O on the application's behalf, it can provide physical addresses directly to the device, without needing an IOMMU to mimic the virtual address mapping of the MMU.
 * Conversely, if the application provides I/O buffer descriptors directly to the device, then an IOMMU may be required to ensure the application can't use that I/O to circumvent its virtual address space. Some optimized data-path solutions use this approach.
 * In both cases, an IOPMP is probably required at the system level if a PMP is used within the hart to constrain the OS as a whole, otherwise the OS might use device I/O to escape its constraints. (Here we see that the IOPMP requirement is largely orthogonal to the IOMMU requirement.)
-
