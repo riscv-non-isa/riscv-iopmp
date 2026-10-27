@@ -67,7 +67,7 @@ ifneq ($(SKIP_DOCKER),true)
 	DOCKER_QUOTE := "
 endif
 
-SRC_DIR := ./
+SRC_DIR := src
 BUILD_DIR := build
 
 DOCS_PDF := $(DOCS:%.adoc=%.pdf)
@@ -90,7 +90,8 @@ OPTIONS := --trace \
            --failure-level=ERROR
 REQUIRES := --require=asciidoctor-bibtex \
             --require=asciidoctor-diagram \
-            --require=asciidoctor-mathematical
+            --require=asciidoctor-mathematical \
+            --require=./scripts/cross-page-xrefs.rb
 
 .PHONY: all build clean build-container build-no-container build-docs
 

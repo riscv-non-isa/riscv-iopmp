@@ -1,0 +1,52 @@
+[#NON_PRIORITY_ENTRIES]
+== Non-priority IOPMP entries
+The baseline IOPMP specification defines a priority-based matching logic, where entries with lower indices are assigned a higher priority and take precedence. While this model provides deterministic behavior and robust security, it presents significant implementation challenges, particularly for systems requiring a large number of entries.
+
+This priority-based model has two primary scalability limitations:
+
+1.  *Latency Impact*: As the number of priority entries increases, the complexity of the matching logic grows. An implementation must check a transaction against potentially many rules, ensuring that only the highest-priority match takes effect. This deep combinatorial logic can extend the critical path, forcing a longer clock period or requiring the insertion of additional pipeline stages, both of which increase the overall transaction check latency.
+
+2.  *Caching and Area Inefficiency*: Priority entries cannot be cached efficiently for high-speed lookups. A simple, parallel address match is insufficient, as the permission from a lower-priority match (even if it hits in a cache) can be subsequently overwritten by any higher-priority entry. This forces implementations to perform complex, sequential checks rather than simple, parallel ones, hindering area optimization in high-performance designs.
+
+This extension introduces *non-priority entries* to address these scalability limitations, enabling reduced latency, power consumption, and area. Non-priority entries are all treated equally at the lowest priority, which allows their matching logic to be effectively cached, parallelized, and optimized, thus saving address matching circuitry.
+
+This creates a clear trade-off:
+
+* *Priority Entries* offer superior security. A small number of high-priority, locked entries can provide defense-in-depth, safeguarding critical regions even if runtime secure software is compromised.
+* *Non-Priority Entries* offer superior performance, lower cost, and scalability for managing a large number of rules.
+
+For systems requiring a large number of entries, a hybrid model using both types is recommended. This allows an implementation to achieve a balance between security and scalability, using priority entries for critical, static rules, and non-priority entries for the bulk of dynamic, performance-sensitive access control.
+
+=== Functional Description
+`HWCFG2.non_prio_en` indicates whether the IOPMP supports non-priority entries. When the extension is enabled, `HWCFG2.non_prio_en` is 1 and entries with indices greater than or equal to `HWCFG2.prio_entry` are non-prioritized. These are treated equally and assigned the lowest priority. Entries with indices less than `prio_entry` are prioritized. The value of `prio_entry` is implementation-defined. Additionally, a field `HWCFG2.prio_ent_prog` indicates whether `prio_entry` is programmable.
+<<#REG_EXT_HWCFG2,Hardware Configuration 2>> describes the details of the fields.
+
+
+[NOTE]
+====
+Priority entries safeguard the most sensitive data, even in the event of secure software being compromised. However, implementing a large number of priority entries results in higher latency and increased area usage. In contrast,non-priority entries are treated equally and can be cached in smaller numbers. A mix of entry types provides flexibility in balancing security and performance.
+====
+
+An entry qualifies as a matching entry with the extension for an incoming transaction if:
+
+* For priority entries, its region covers any byte of the transaction,
+* For non-priority entries, its region covers all bytes of the transaction,
+* It is associated with the RRID carried by the transaction; and
+* It holds the highest priority among entries that meet the previous criteria.
+
+[NOTE]
+====
+Multiple matching entries are allowed for non-priority entries because they share the lowest priority.
+====
+
+[NOTE]
+====
+IOPMPs don't report error type = 0x04 "Partial hit on a priority rule" on non-priority entries because non-priority entries must cover all bytes of the transaction.
+====
+
+If one matching entry is priority, the reaction is the same as baseline IOPMP entry array.
+
+=== Error Reporting
+If one matching entry is non-priority, the transaction is legal if any matching entry permits its access type. If no matching entry permits, the transaction is illegal with error type = "illegal read access" (0x01) for read access transaction, "illegal write access/AMO" (0x02) for write access/AMO transaction, or "illegal instruction fetch" (0x03) for instruction fetch transaction.
+
+For an illegal transaction matching multiple non-priority entries, if the interrupt is triggered or the bus error response is returned, `ERR_REQID.eid` stores the index of any of them.

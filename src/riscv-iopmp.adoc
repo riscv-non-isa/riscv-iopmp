@@ -1,0 +1,97 @@
+[[header]]
+:description: RISC-V IOPMP Architecture Specification
+:company: RISC-V.org
+// Version and phase come from the build (the Makefile passes them from
+// scripts/release-info.sh); these fallbacks only apply to a manual asciidoctor
+// invocation.
+ifndef::revnumber[:revnumber: v0.0]
+ifndef::revdate[:revdate: 1/2023]
+ifndef::phase[:phase: draft-and-development]
+ifndef::phase_display[:phase_display: {phase}]
+ifndef::phase_notice[:phase_notice: Assume everything is subject to change. At this stage, ideas, structures, and content are still evolving. Feedback and iteration are encouraged as nothing is final, and adjustments may be frequent.]
+ifndef::revremark[:revremark: This document is under development. Expect potential changes. Visit http://riscv.org/spec-state for further details.]
+ifndef::milestone_id[:milestone_id: {phase}]
+ifndef::spec_short[:spec_short: riscv-iopmp]
+:url-riscv: http://riscv.org
+:doctype: book
+:preface-title: Preamble
+:colophon:
+:appendix-caption: Appendix
+// Images live in modules/ROOT/images/ so the pages find them on the Antora site
+// as well; this is relative to this file.
+:imagesdir: ../modules/ROOT/images
+// The pages include their fragments from the module's partials directory. Antora
+// defines this attribute itself; here it is relative to the including page.
+:partialsdir: ../partials
+:title-logo-image: image:../../../docs-resources/images/risc-v_logo.svg[pdfwidth=3.25in,align=center]
+// Settings:
+:experimental:
+:reproducible:
+// needs to be changed? bug discussion started
+//:WaveDromEditorApp: app/wavedrom-editor.app
+:imagesoutdir: images
+:bibtex-file: modules/ROOT/resources/riscv-iopmp.bib
+:bibtex-order: appearance
+:bibtex-style: ieee
+:icons: font
+:lang: en
+:listing-caption: Listing
+:figure-caption: Figure
+:sectnums:
+:toc: macro
+:toclevels: 4
+:toc-title: Table of Contents
+:sectnumlevels: 4
+:source-highlighter: pygments
+ifdef::backend-pdf[]
+:source-highlighter: coderay
+endif::[]
+:data-uri:
+:hide-uri-scheme:
+:stem: latexmath
+:footnote:
+:xrefstyle: short
+// Comparison operators, following the RISC-V ISA manual convention.
+// Included files that use them repeat these as ifndef fallbacks for standalone preview.
+:le: &#8804;
+:ge: &#8805;
+
+= RISC-V IOPMP Architecture Specification
+RISC-V IOPMP Task Group
+
+// Preamble
+// "Document State" is page 2 of the PDF; the TOC follows it (page 3) via the
+// toc::[] macro. See ARC_SUBMISSION.md section 3.3.
+[preface]
+== Document State
+*Note:* {phase_notice}
+
+toc::[]
+
+// Chapter sources live under modules/ROOT/pages/ so they double as standalone
+// Antora pages (each with a level-0 title). leveloffset=+1 demotes those titles
+// by one level here, reproducing the historical PDF section structure. This file
+// is the single PDF assembler; the pages are the single content source.
+[preface]
+include::../modules/ROOT/pages/copyright.adoc[leveloffset=+1]
+
+[preface]
+include::../modules/ROOT/pages/contributors.adoc[leveloffset=+1]
+
+include::../modules/ROOT/pages/introduction.adoc[leveloffset=+1]
+include::../modules/ROOT/pages/terminology_and_concepts.adoc[leveloffset=+1]
+include::../modules/ROOT/pages/configuration_protection.adoc[leveloffset=+1]
+include::../modules/ROOT/pages/registers.adoc[leveloffset=+1]
+include::../modules/ROOT/pages/extensions.adoc[leveloffset=+1]
+
+//the index must precede the bibliography
+//include::index.adoc[]
+include::../modules/ROOT/pages/bibliography.adoc[leveloffset=+1]
+
+
+// The Application Note is an unnumbered appendix. These settings are PDF-only,
+// so they are kept here rather than in the page.
+:appendix-number: @
+[appendix]
+:appendix-caption!:
+include::../modules/ROOT/pages/application_note.adoc[leveloffset=+1]
