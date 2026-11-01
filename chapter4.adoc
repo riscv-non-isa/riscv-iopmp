@@ -256,11 +256,12 @@ The MDCFG table is a lookup to specify the number of IOPMP entries that is assoc
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field  |Bits       |R/W    |Default    |Description
-|`t`    |15:0       |WARL   |DC/IMP    a| Indicate the encoding of the range of memory domain _m_. An IOPMP entry with index _j_ belongs to MD _m_
+|`t`    |15:0       |WARL   |DC/IMP    a| Indicate the encoding of the range of memory domain _m_. An IOPMP entry index _j_ is in the range of MD _m_ if
 
-- If `MDCFG(_m_-1).t` {le} _j_ < `MDCFG(_m_).t`, where _m_ > 0.
-- If _j_ < `MDCFG(0).t`, where _m_ = 0.
-- If `MDCFG(_k_-1).t` > `MDCFG(_k_).t` for any _k_, the MDCFG table has an improper setting and the ranges of MDs can overlap; see <<#MDCFG_IMPROPER_SETTING, Improper Settings>>.
+- `MDCFG(_m_-1).t` {le} _j_ < `MDCFG(_m_).t`, where _m_ > 0.
+- _j_ < `MDCFG(0).t`, where _m_ = 0.
+
+An IOPMP entry belongs to the lowest-indexed MD whose range contains its index; see <<#MDCFG_TABLE, MDCFG Table>>.
 
 |`rsv`  |31:16      |ZERO   |0          |Must be zero on write, reserved for future.
 |===
