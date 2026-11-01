@@ -32,7 +32,6 @@
 :sectnums:
 :toc: left
 :toclevels: 4
-:sectnumlevels: 4
 :source-highlighter: pygments
 ifdef::backend-pdf[]
 :source-highlighter: coderay
