@@ -31,28 +31,21 @@ static iopmpErrorType_t perm_to_etype(perm_type_e perm)
 
 /**
   * @brief Processes the IOPMP transaction request, traversing the SRCMD and MDCFG tables
-  *        and entry array to match address and permissions.
+  *        and entry array to match address and permissions. It returns the
+  *        response without updating the error capture registers.
+  *
+  * ERR_CFG.ie, ERR_CFG.rs, and the per-entry suppression bits are sampled here.
   *
   * @param iopmp The IOPMP instance.
   * @param trans_req The transaction request with required address, permissions, etc.
   * @param iopmp_trans_rsp Pointer to the protocol-independent transaction
   *               result, containing the response status after suppression and
   *               optional check-result metadata.
-  * @param intrpt Pointer to the variable to store wired interrupt flag.
-  *               This flag is set to 1 if the following conditions are true:
-  *                 - the transaction fails
-  *                 - there is no pending error, that is, ERR_INFO.v = 0
-  *                 - the interrupts are not suppressed
-  *                 - IOPMP doesn't implement MSI extension, or MSI is not enabled
-  *               This flag is set to 0 if the following conditions are true:
-  *                 - this transaction fails
-  *                 - there is no pending error, that is, ERR_INFO.v = 0
-  *                 - the interrupts are suppressed, or IOPMP implements MSI extension
-  *                   and triggers MSI instead of wired interrupt
+  * @param violation Pointer to the violation for iopmp_report_violation().
  **/
-void iopmp_validate_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iopmp_trans_rsp_t* iopmp_trans_rsp, uint8_t *intrpt) {
-    // No wired interrupt until the error report below raises one
-    *intrpt = 0;
+void iopmp_check_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iopmp_trans_rsp_t* iopmp_trans_rsp, iopmp_violation_t *violation) {
+    // Nothing to report until the checks below find a violation
+    memset(violation, 0, sizeof(*violation));
 
     iopmp_trans_rsp->rrid         = trans_req->rrid;
     iopmp_trans_rsp->rrid_stalled = 0;
@@ -349,9 +342,14 @@ pass_checks:
 stop_and_report_fault:
     iopmp_trans_rsp->violation = 1;
 
-    // IOPMP sets ERR_INFO.v and triggers the interrupt, and logs the error
-    // information into the registers if it implements the error capture record.
-    errorReport(iopmp, trans_perm, error_type, rrid, error_eid, trans_req->addr, gen_intrpt, gen_buserr, intrpt);
+    violation->ttype      = trans_perm;
+    violation->etype      = error_type;
+    violation->rrid       = rrid;
+    violation->eid        = error_eid;
+    violation->addr       = trans_req->addr;
+    violation->gen_intrpt = gen_intrpt;
+    violation->gen_buserr = gen_buserr;
+
     // Return response with default status if no match/error occurs
     // In case of error suppression, success response is returned, with user defined value on initiator port
     // NOTE: You can change the `user` value
@@ -359,4 +357,14 @@ stop_and_report_fault:
         iopmp_trans_rsp->status = IOPMP_SUCCESS;
         iopmp_trans_rsp->user = USER;
     }
+}
+
+/**
+  * @brief iopmp_check_access() followed by iopmp_report_violation().
+ **/
+void iopmp_validate_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iopmp_trans_rsp_t* iopmp_trans_rsp, uint8_t *intrpt) {
+    iopmp_violation_t violation;
+
+    iopmp_check_access(iopmp, trans_req, iopmp_trans_rsp, &violation);
+    iopmp_report_violation(iopmp, &violation, intrpt);
 }
