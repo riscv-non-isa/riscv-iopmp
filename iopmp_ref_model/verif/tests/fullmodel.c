@@ -1127,6 +1127,72 @@ int main()
     cfg = cfg_saved;
     END_TEST();
 
+    START_TEST("Checking a transaction does not report its violation");
+    iopmp_violation_t violation[2];
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    write_register(&iopmp, ERR_CFG_OFFSET, 0x2, 4);   // ERR_CFG.ie = 1
+    set_hwcfg0_enable(&iopmp);
+    // RRID(2) has no MD, so the transaction hits no rule
+    receiver_port(2, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_check_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &violation[0]);
+    FAIL_IF((iopmp_trans_rsp.status != IOPMP_ERROR));
+    FAIL_IF((iopmp_trans_rsp.violation != 1));
+    // The response is ready, but nothing is reported yet
+    FAIL_IF((read_register(&iopmp, ERR_INFO_OFFSET, 4) != 0));
+    FAIL_IF((read_register(&iopmp, ERR_REQADDR_OFFSET, 4) != 0));
+    iopmp_report_violation(&iopmp, &violation[0], &intrpt);
+    FAIL_IF((intrpt != 1));
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_ERROR, NOT_HIT_ANY_RULE);
+    END_TEST();
+
+    START_TEST("The error record holds the first reported violation");
+    err_mfr_t err_mfr_rb;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    write_register(&iopmp, ERR_CFG_OFFSET, 0x2, 4);   // ERR_CFG.ie = 1
+    set_hwcfg0_enable(&iopmp);
+    // RRID(2) and RRID(3) have no MD, so their transactions hit no rule
+    receiver_port(2, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_check_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &violation[0]);
+    receiver_port(3, 720, 0, 3, WRITE_ACCESS, 0, &iopmp_trans_req);
+    iopmp_check_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &violation[1]);
+    // Report the later checked one first
+    iopmp_report_violation(&iopmp, &violation[1], &intrpt);
+    FAIL_IF((intrpt != 1));
+    iopmp_report_violation(&iopmp, &violation[0], &intrpt);
+    FAIL_IF((intrpt != 0));
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_ERROR, NOT_HIT_ANY_RULE);
+    FAIL_IF(((read_register(&iopmp, ERR_REQID_OFFSET, 4) & 0xFFFF) != 3));
+    // The other one is a subsequent violation of RRID(2)
+    err_mfr_rb.raw = read_register(&iopmp, ERR_MFR_OFFSET, 4);
+    FAIL_IF((err_mfr_rb.svi != 0));
+    FAIL_IF((err_mfr_rb.svs != 1));
+    FAIL_IF((err_mfr_rb.svw != 0x4));
+    END_TEST();
+
+    START_TEST("Reporting a legal transaction does nothing");
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    write_register(&iopmp, ERR_CFG_OFFSET, 0x2, 4);   // ERR_CFG.ie = 1
+    // HWCFG0.enable = 0, so IOPMP allows every transaction
+    receiver_port(2, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_check_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &violation[0]);
+    iopmp_report_violation(&iopmp, &violation[0], &intrpt);
+    FAIL_IF((intrpt != 0));
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_SUCCESS, ENTRY_MATCH);
+    END_TEST();
+
+    START_TEST("ERR_CFG.ie is sampled when the transaction is checked");
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    write_register(&iopmp, ERR_CFG_OFFSET, 0x2, 4);   // ERR_CFG.ie = 1
+    set_hwcfg0_enable(&iopmp);
+    receiver_port(2, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_check_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &violation[0]);
+    // Clearing ERR_CFG.ie before the report doesn't suppress the interrupt
+    write_register(&iopmp, ERR_CFG_OFFSET, 0, 4);
+    iopmp_report_violation(&iopmp, &violation[0], &intrpt);
+    FAIL_IF((intrpt != 1));
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_ERROR, NOT_HIT_ANY_RULE);
+    END_TEST();
+
     START_TEST("RRIDSCP read/write behaviors");
     cfg_saved = cfg;
     cfg.stall_en = true;

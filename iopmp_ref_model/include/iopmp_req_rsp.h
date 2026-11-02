@@ -56,4 +56,15 @@ typedef struct __attribute__((__packed__)) {
                             // error suppression answered it with IOPMP_SUCCESS
 } iopmp_trans_rsp_t;
 
+// Structure for a violation found by iopmp_check_access()
+typedef struct __attribute__((__packed__)) {
+    perm_type_e ttype;      // ERR_INFO.ttype
+    uint8_t     etype;      // ERR_INFO.etype
+    uint16_t    rrid;       // ERR_REQID.rrid
+    uint16_t    eid;        // ERR_REQID.eid
+    uint64_t    addr;       // ERR_REQADDR(H)
+    bool        gen_intrpt; // Triggers an interrupt
+    bool        gen_buserr; // Returns a bus error
+} iopmp_violation_t;
+
 #endif
