@@ -81,28 +81,37 @@ These functions are designed for use within a testbench to input stimuli and obt
 3. **`reg_intf_dw read_register(iopmp_dev_t *iopmp, uint64_t offset, uint8_t num_bytes)`**
    Reads data from a memory-mapped register identified by the specified offset. The IOPMP instance to be read is specified by `iopmp`. The number of bytes to read is specified by `num_bytes`. If the access is invalid, the function returns zeros. The data type `reg_intf_dw` is dependent on the bus width defined in `config.h`.
 
-4. **`int create_memory(uint8_t mem_gb)`**
+4. **`void iopmp_validate_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iopmp_trans_rsp_t *iopmp_trans_rsp, uint8_t *intrpt)`**
+   `iopmp_check_access()` followed by `iopmp_report_violation()`.
+
+5. **`void iopmp_check_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iopmp_trans_rsp_t *iopmp_trans_rsp, iopmp_violation_t *violation)`**
+   Checks the transaction request `trans_req` and returns the response in `iopmp_trans_rsp` without updating the error capture registers. `violation` holds the violation for `iopmp_report_violation()`. `ERR_CFG.ie`, `ERR_CFG.rs`, and the per-entry suppression bits are sampled by this function.
+
+6. **`void iopmp_report_violation(iopmp_dev_t *iopmp, const iopmp_violation_t *violation, uint8_t *intrpt)`**
+   Reports a violation found by `iopmp_check_access()`: IOPMP sets `ERR_INFO.v`, logs the error capture record if it is implemented, and triggers the interrupt. `intrpt` is set to 1 if a wired interrupt is triggered. The error capture record holds the first violation reported while `ERR_INFO.v` is 0. Reporting a legal transaction does nothing.
+
+7. **`int create_memory(uint8_t mem_gb)`**
    Allocates memory of the specified size in gigabytes. mem_gb is used for the size of the memory to allocate in gigabytes. It returns 0 if the memory allocation was successful, -1 otherwise.
 
-5. **`uint8_t read_memory(uint64_t addr, uint8_t size, uint64_t *data)`**
+8. **`uint8_t read_memory(uint64_t addr, uint8_t size, uint64_t *data)`**
    Read data from a specific memory address. The param addr is the memory address from where the data should be read. The param size is the size of the data in bytes. The pram data is the pointer to the data for read. It returns 0 if the read was successful, BUS_ERROR if the address corresponds to a bus error.
 
-6. **`uint8_t write_memory(uint64_t *data, uint64_t addr, uint32_t size)`**
+9. **`uint8_t write_memory(uint64_t *data, uint64_t addr, uint32_t size)`**
    This function writes data to a specific memory address, the param data indicates Pointer to the data to write, the param addr is the memory address where the data should be written and param size will be the size of the data in bytes. it returns 0 if the write was successful, BUS_ERROR if the address corresponds to a bus error.
 
-7. **`void configure_srcmd_n(iopmp_dev_t *iopmp, uint8_t srcmd_reg, uint16_t srcmd_idx, reg_intf_dw data, uint8_t num_bytes)`**
+10. **`void configure_srcmd_n(iopmp_dev_t *iopmp, uint8_t srcmd_reg, uint16_t srcmd_idx, reg_intf_dw data, uint8_t num_bytes)`**
    This function is used for SRCMD Table Configurations. The param srcmd_reg could be SRCMD_EN, SRCMD_ENH, SRCMD_R, SRCMD_RH, SRCMD_W, SRCMD_WH. srcmd_idx could be any legal SRCMD table index, data contains the value that you want to write in this register. The IOPMP instance to be configured is specified by `iopmp`. The number of bytes to write is specified by `num_bytes`. It could be 4-Byte write or 8-Byte Write.
 
-8. **`void configure_mdcfg_n(iopmp_dev_t *iopmp, uint8_t md_idx, reg_intf_dw data, uint8_t num_bytes)`**
+11. **`void configure_mdcfg_n(iopmp_dev_t *iopmp, uint8_t md_idx, reg_intf_dw data, uint8_t num_bytes)`**
    This function is used for MDCFG Table Configurations. md_idx could be any legal MDCFG table index, data contains the value that you want to write in this register. The IOPMP instance to be configured is specified by `iopmp`. The number of bytes to write is specified by `num_bytes`. It could be 4-Byte write or 8-Byte Write.
 
-9. **`void configure_entry_n(iopmp_dev_t *iopmp, uint8_t entry_reg, uint64_t entry_idx, reg_intf_dw data, uint8_t num_bytes)`**
+12. **`void configure_entry_n(iopmp_dev_t *iopmp, uint8_t entry_reg, uint64_t entry_idx, reg_intf_dw data, uint8_t num_bytes)`**
    This function is used for Entry Table Configurations. entry_idx could be any legal Entry table index, data contains the value that you want to write in this register. The IOPMP instance to be configured is specified by `iopmp`. The number of bytes to write is specified by `num_bytes`. It could be 4-Byte write or 8-Byte Write.
 
-10. **`void receiver_port(uint16_t rrid, uint64_t addr, uint32_t length, uint32_t size, perm_type_e perm, bool is_amo, iopmp_trans_req_t *iopmp_trans_req)`**
+13. **`void receiver_port(uint16_t rrid, uint64_t addr, uint32_t length, uint32_t size, perm_type_e perm, bool is_amo, iopmp_trans_req_t *iopmp_trans_req)`**
    This function contains receiver port signals, that will be passed to the iopmp, where rrid is RRID Of the Bus Initiator, addr is Address to be checked, length is length Number of transfers, size is It should be 0 for 1-byte, 1 for 2-byte, 2 for 4-byte access, perm is the permissions required for this transcation, is_amo indicates whether this transaction is AMO or not, iopmp_trans_req is a pointer, pass it as it is.
 
-11. **`int error_record_chk(iopmp_dev_t *iopmp, uint8_t err_type, uint8_t req_perm, uint64_t req_addr, bool err_rcd)`**
+14. **`int error_record_chk(iopmp_dev_t *iopmp, uint8_t err_type, uint8_t req_perm, uint64_t req_addr, bool err_rcd)`**
    This could be used to check the error record register data. The IOPMP instance to be checked is specified by `iopmp`. err_type is the type of Error, req_perm contains the Requested permissions, req_addr contains the requested address, err_rcd indicated if Set if error should be recorded
 
 ## **Compilation and Simulation of IOPMP Models**
