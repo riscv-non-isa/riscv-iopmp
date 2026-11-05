@@ -2747,10 +2747,10 @@ int main(void)
     FAIL_IF(val_u64 != 0x2);
     END_TEST();
 
-    START_TEST("An improperly set MDCFG table reports no entry, not underflow");
+    START_TEST("A decreasing MDCFG table reports no entry, not underflow");
     FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
-    /* The reference model only makes the MDCFG table monotonic once the IOPMP
-     * is enabled, so MDCFG(2).t stays 0 while MDCFG(1).t is already 32 */
+    /* The reference model keeps the MDCFG values as written, so MDCFG(2).t
+     * stays 0 while MDCFG(1).t is already 32 */
     val_u32 = 16;
     FAIL_IF(iopmp_set_md_entry_association_multi(&iopmp, 0, &val_u32, 1) != IOPMP_OK);
     val_u32 = 16;

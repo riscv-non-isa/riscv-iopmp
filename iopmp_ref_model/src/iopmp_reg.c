@@ -450,29 +450,6 @@ reg_intf_dw read_register(iopmp_dev_t *iopmp, uint64_t offset, uint8_t num_bytes
     return iopmp->reg_file.regs4[offset / num_bytes];
 }
 
-static void handle_mdcfg_improper_settings(iopmp_dev_t *iopmp)
-{
-#if (MDCFG_TABLE_IMPROPER_SETTING_BEHAVIOR == 0)
-    /*
-     * MDCFG table must be monotonically incremental. Some reference
-     * behaviors for an improper setting are given in the specification,
-     * e.g., "correct the values to make the table have a proper setting".
-     * The reference model authomatically fixes it if current MDCFG table
-     * violates the monotonically incremental rule. Programmer can check
-     * this register after programming done.
-     *
-     * The MDCFG look up table is implemented in the following way:
-     * - For any m >= 1, if (MDCFG(m).t < MDCFG(m-1).t):
-     *                       MDCFG(m).t = MDCFG(m-1).t
-     */
-    for (int m = 1; m < iopmp->reg_file.hwcfg0.md_num; m++) {
-        if (iopmp->reg_file.mdcfg[m].t < iopmp->reg_file.mdcfg[m - 1].t) {
-            iopmp->reg_file.mdcfg[m].t = iopmp->reg_file.mdcfg[m - 1].t;
-        }
-    }
-#endif
-}
-
 /**
  * @brief Updates the stall status for each RRID based on memory domain stall conditions.
  *
@@ -605,7 +582,6 @@ void write_register(iopmp_dev_t *iopmp, uint64_t offset, reg_intf_dw data, uint8
         // HWCFG0.enable is W1SS
         if (hwcfg0_temp.enable && !iopmp->reg_file.hwcfg0.enable) {
             iopmp->reg_file.hwcfg0.enable = true;
-            handle_mdcfg_improper_settings(iopmp);
         }
         break;
 
@@ -821,10 +797,6 @@ void write_register(iopmp_dev_t *iopmp, uint64_t offset, reg_intf_dw data, uint8
         if (mdcfg_idx >= iopmp->reg_file.mdcfglck.f) {
             iopmp->reg_file.mdcfg[mdcfg_idx].t = mdcfg_temp.t;
             iopmp->reg_file.mdcfg[mdcfg_idx].rsv = 0;
-
-            if (iopmp->reg_file.hwcfg0.enable) {
-                handle_mdcfg_improper_settings(iopmp);
-            }
         }
     }
 

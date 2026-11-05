@@ -750,6 +750,31 @@ int main()
     CHECK_IOPMP_TRANS(&iopmp, IOPMP_ERROR, ILLEGAL_INSTR_FETCH);
     write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
     END_TEST();)
+
+    START_TEST("An entry in several MD ranges belongs to the lowest MD");
+    reset_iopmp(&iopmp, &cfg);
+    // MD(0) has entries 0~7, MD(1) is empty, and the range of MD(2) is entries
+    // 2~11, of which only 8~11 belong to MD(2)
+    configure_mdcfg_n(&iopmp, 0, 8, 4);
+    configure_mdcfg_n(&iopmp, 1, 2, 4);
+    configure_mdcfg_n(&iopmp, 2, 12, 4);
+    configure_entry_n(&iopmp, ENTRY_ADDR, 4, 90, 4);        // 360 ~ 367
+    configure_entry_n(&iopmp, ENTRY_CFG, 4, (NAPOT | R), 4);
+    configure_entry_n(&iopmp, ENTRY_ADDR, 10, 0x400, 4);    // 0x1000 ~ 0x1007
+    configure_entry_n(&iopmp, ENTRY_CFG, 10, (NAPOT | R), 4);
+    set_hwcfg0_enable(&iopmp);
+    // RRID(2) has MD(2) only, which doesn't own entry 4
+    receiver_port(2, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_ERROR, NOT_HIT_ANY_RULE);
+    write_register(&iopmp, ERR_INFO_OFFSET, 0x1, 4);
+    receiver_port(0, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_SUCCESS, ENTRY_MATCH);
+    receiver_port(2, 0x1000, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_SUCCESS, ENTRY_MATCH);
+    END_TEST();
 #endif
 
     free(memory);
