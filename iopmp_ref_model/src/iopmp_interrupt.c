@@ -67,7 +67,7 @@ void generate_interrupt(iopmp_dev_t *iopmp, bool gen_intrpt, uint8_t *intrpt) {
             msi_addr = CONCAT32(iopmp->reg_file.err_msiaddrh.raw, iopmp->reg_file.err_msiaddr.raw);
         } else {
             // {MSI_ADDR[33:2], 2'b00}
-            msi_addr = CONCAT32(0, iopmp->reg_file.err_msiaddr.raw << 2);
+            msi_addr = (uint64_t)iopmp->reg_file.err_msiaddr.raw << 2;
         }
         uint64_t msi_data = iopmp->reg_file.err_cfg.msidata;
         // Write MSI data to memory

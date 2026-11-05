@@ -1428,6 +1428,27 @@ int main()
     // Reset configuration
     cfg = cfg_saved;
     END_TEST();)
+
+    START_TEST_IF(iopmp.reg_file.hwcfg2.msi_en, "ERR_MSIADDR alone carries an MSI address above 4G",
+    cfg_saved = cfg;
+    cfg.addrh_en = false;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    // Without ERR_MSIADDRH, ERR_MSIADDR holds bits 33:2 of the MSI address.
+    // The address is a bus error, so the MSI sets msi_werr only if it reaches
+    // the address.
+    bus_error = 1ULL << 32;
+    write_register(&iopmp, ERR_MSIADDR_OFFSET, (uint32_t)(bus_error >> 2), 4);
+    write_register(&iopmp, ERR_CFG_OFFSET, 0x5A0A, 4);
+    set_hwcfg0_enable(&iopmp);
+    // RRID(2) has no MD, so the transaction hits no rule
+    receiver_port(2, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    FAIL_IF((intrpt != 0));     // MSI is selected
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_ERROR, NOT_HIT_ANY_RULE);
+    bus_error = 0;
+    // Reset configuration
+    cfg = cfg_saved;
+    END_TEST();)
 #endif
 
     free(memory);
