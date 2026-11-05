@@ -143,6 +143,15 @@ The MDCFG table maps each memory domain to its IOPMP entries. Every memory domai
 
 The ranges above are defined by `MDCFG(_m_-1).t` and `MDCFG(_m_).t` alone, so an MD whose lower bound is not below its upper bound has an empty range. If the ranges of two MDs overlap, the lower-indexed MD takes precedence: an IOPMP entry belongs to the lowest-indexed MD whose range contains its index, and applies to a transaction only through that MD. For example, with `MDCFG(0).t` to `MDCFG(2).t` = {30, 10, 40}, the range of MD 0 is IOPMP entries 0 to 29, the range of MD 1 is empty, and the range of MD 2 is IOPMP entries 10 to 39; IOPMP entries 10 to 29 belong to MD 0, so MD 2 contributes only IOPMP entries 30 to 39. An IOPMP entry therefore belongs to at most one MD for any values in the MDCFG table.
 
+If `MDCFG(_m_-1).t` {le} `MDCFG(_m_).t` for every _m_ with 0 < _m_ < `HWCFG0.md_num`, the MDCFG table is non-decreasing and no ranges overlap, so every IOPMP entry in the range of an MD belongs to that MD.
+
+[NOTE]
+====
+Software should program the MDCFG table so that no ranges overlap, because an IOPMP entry in an overlap applies to transactions only through the lower-indexed MD, even if software intended it for the higher-indexed MD. One way is to keep `MDCFG(_m_-1).t` {le} `MDCFG(_m_).t` up to the last MD that software uses and to give every later MD an empty range. For example, with five MDs, the table {30, 40, 50, 0, 0} uses MD 0 to MD 2 and leaves MD 3 and MD 4 with empty ranges.
+
+Overlapping ranges are also never needed: every association of IOPMP entries with MDs that the MDCFG table can express can be expressed without overlapping ranges. For example, {30, 10, 40} gives the same association as {30, 30, 40}.
+====
+
 [NOTE]
 ====
 This specification does not require `MDCFG(_m_).t` to be bounded by `HWCFG1.entry_num`, so a memory domain can have a range of IOPMP entry indices that extends past the end of the IOPMP entry array. Indices beyond the array select no entry; see <<#IOPMP_ENTRY, IOPMP Entries>>. Requiring the bound would add a comparison against `HWCFG1.entry_num` on every write to `MDCFG(_m_)`, and would not improve security, because the indices beyond the array contribute no rule and therefore cannot grant access.
