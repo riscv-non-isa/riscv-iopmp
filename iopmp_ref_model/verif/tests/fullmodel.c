@@ -1449,6 +1449,26 @@ int main()
     // Reset configuration
     cfg = cfg_saved;
     END_TEST();)
+
+    START_TEST_IF(iopmp.reg_file.hwcfg2.stall_en && iopmp.imp_rridscp,
+                  "MDSTALL.is_busy reads 0 after MDSTALL.exempt is written",
+    mdstall_t mdstall_rb;
+    rridscp_t rridscp_query;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    configure_srcmd_n(&iopmp, SRCMD_EN, 5, 0x10, 4);    // RRID(5) has MD(3)
+    // Stall the RRIDs without MD(3)
+    write_register(&iopmp, MDSTALL_OFFSET, 0x11, 4);
+    mdstall_rb.raw = read_register(&iopmp, MDSTALL_OFFSET, 4);
+    FAIL_IF((mdstall_rb.is_busy != 0));
+    FAIL_IF((mdstall_rb.md != 0x8));
+    // RRID(5) is exempt, and RRID(6) is stalled
+    write_register(&iopmp, RRIDSCP_OFFSET, 5, 4);
+    rridscp_query.raw = read_register(&iopmp, RRIDSCP_OFFSET, 4);
+    FAIL_IF((rridscp_query.stat != RRIDSCP_STAT_RRID_NOT_STALLED));
+    write_register(&iopmp, RRIDSCP_OFFSET, 6, 4);
+    rridscp_query.raw = read_register(&iopmp, RRIDSCP_OFFSET, 4);
+    FAIL_IF((rridscp_query.stat != RRIDSCP_STAT_RRID_STALLED));
+    END_TEST();)
 #endif
 
     free(memory);

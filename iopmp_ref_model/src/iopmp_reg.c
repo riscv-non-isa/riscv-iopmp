@@ -621,9 +621,10 @@ void write_register(iopmp_dev_t *iopmp, uint64_t offset, reg_intf_dw data, uint8
 
     case MDSTALL_OFFSET:
         if (iopmp->reg_file.hwcfg2.stall_en) {
-            iopmp->reg_file.mdstall.exempt = mdstall_temp.exempt;
-            iopmp->reg_file.mdstall.md     = mdstall_temp.md;
-            rrid_stall_update(iopmp, iopmp->reg_file.mdstall.exempt);
+            // MDSTALL.exempt is write-only. Its bit reads as MDSTALL.is_busy,
+            // which stays 0 since the model applies every write at once.
+            iopmp->reg_file.mdstall.md = mdstall_temp.md;
+            rrid_stall_update(iopmp, mdstall_temp.exempt);
             if ((mdstall_temp.raw == 0) && (iopmp->reg_file.mdstall.raw == 0)) {
                 // The stalled transactions are resumed. If IOPMP implements a
                 // stall buffer, IOPMP flushes all the stalled transactions in

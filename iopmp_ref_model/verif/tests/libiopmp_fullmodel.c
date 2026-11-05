@@ -3163,6 +3163,12 @@ int main(void)
     val_u64 = 0x8;
     ret = iopmp_stall_transactions_by_mds(&iopmp, &val_u64, true, false);
     FAIL_IF(ret != IOPMP_OK);
+    /* MDSTALL.is_busy shares bit 0 with MDSTALL.exempt, but reads 0 though
+     * exempt was written to 1 */
+    val_bool = false;
+    ret = iopmp_transactions_are_stalled(&iopmp, false, &val_bool);
+    FAIL_IF(ret != IOPMP_OK);
+    FAIL_IF(val_bool != true);
     FAIL_IF(iopmp_resume_transactions(&iopmp, false) != IOPMP_OK);
     END_TEST();
 
