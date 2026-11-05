@@ -261,7 +261,7 @@ The MDCFG table is a lookup to specify the number of IOPMP entries that is assoc
 - `MDCFG(_m_-1).t` {le} _j_ < `MDCFG(_m_).t`, where _m_ > 0.
 - _j_ < `MDCFG(0).t`, where _m_ = 0.
 
-An IOPMP entry belongs to the lowest-indexed MD whose range contains its index; see <<#MDCFG_TABLE, MDCFG Table>>.
+If `MDCFG(_k_-1).t` > `MDCFG(_k_).t` for any _k_, the range of MD _k_ is empty. If the ranges of two MDs overlap as a result, the lower-indexed MD takes precedence: an IOPMP entry belongs to the lowest-indexed MD whose range contains its index; see <<#MDCFG_TABLE, MDCFG Table>>.
 
 |`rsv`  |31:16      |ZERO   |0          |Must be zero on write, reserved for future.
 |===
