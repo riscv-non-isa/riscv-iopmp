@@ -1469,6 +1469,29 @@ int main()
     rridscp_query.raw = read_register(&iopmp, RRIDSCP_OFFSET, 4);
     FAIL_IF((rridscp_query.stat != RRIDSCP_STAT_RRID_STALLED));
     END_TEST();)
+
+    START_TEST_IF(iopmp.reg_file.hwcfg2.mfr_en,
+                  "ERR_MFR.svi stays when no subsequent violation is found",
+    err_mfr_t err_mfr_svi;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    set_hwcfg0_enable(&iopmp);
+    write_register(&iopmp, ERR_MFR_OFFSET, 5 << 16, 4);     // ERR_MFR.svi = 5
+    FAIL_IF((read_register(&iopmp, ERR_MFR_OFFSET, 4) != (5 << 16)));
+    // RRID(33) has no MD. Its first violation is recorded, and its second one
+    // is a subsequent violation in window 2.
+    receiver_port(33, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    err_mfr_svi.raw = read_register(&iopmp, ERR_MFR_OFFSET, 4);
+    FAIL_IF((err_mfr_svi.svs != 1));
+    FAIL_IF((err_mfr_svi.svi != 2));
+    FAIL_IF((err_mfr_svi.svw != 0x2));
+    // The window has been read out, so the next read finds nothing
+    err_mfr_svi.raw = read_register(&iopmp, ERR_MFR_OFFSET, 4);
+    FAIL_IF((err_mfr_svi.svs != 0));
+    FAIL_IF((err_mfr_svi.svi != 2));
+    FAIL_IF((err_mfr_svi.svw != 0));
+    END_TEST();)
 #endif
 
     free(memory);

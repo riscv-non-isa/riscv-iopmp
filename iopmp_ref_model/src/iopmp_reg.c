@@ -368,16 +368,17 @@ reg_intf_dw read_register(iopmp_dev_t *iopmp, uint64_t offset, uint8_t num_bytes
     // If the requested offset corresponds to the error MFR (ERR_MFR_OFFSET)
     // handle reading from the error register.
     if (offset == ERR_MFR_OFFSET && iopmp->reg_file.hwcfg2.mfr_en) {
+        // Only svi is kept in the register. svs and svw report what this read
+        // finds, so they read as zeros if it finds no subsequent violation.
+        err_mfr_t err_mfr = { .raw = 0 };
+        err_mfr.svi = iopmp->reg_file.err_mfr.svi;
+
         // ERR_INFO.svc=0 indicates there is no subsequent violation.
         if (iopmp->reg_file.err_info.svc == 0)
-            return 0;
-
-        // Clear the error flags for error register.
-        iopmp->reg_file.err_mfr.svs = 0;
-        iopmp->reg_file.err_mfr.svw = 0;
+            return err_mfr.raw;
 
         // Start searching for errors from the current error index.
-        int start_index = iopmp->reg_file.err_mfr.svi;
+        int start_index = err_mfr.svi;
 
         // Loop over the RRIDs to find any error state.
         for (int i = 0; i < NUM_SVW; i++) {
@@ -386,9 +387,10 @@ reg_intf_dw read_register(iopmp_dev_t *iopmp, uint64_t offset, uint8_t num_bytes
 
             // If an error is found (svw is non-zero), update the error status.
             if (iopmp->err_svs.sv[current_index].svw) {
-                iopmp->reg_file.err_mfr.svw = iopmp->err_svs.sv[current_index].svw;   // Subsequent violation window
-                iopmp->reg_file.err_mfr.svi = current_index;                          // Update the error index.
-                iopmp->reg_file.err_mfr.svs = 1;                                      // Subsequent Violation Status
+                err_mfr.svw = iopmp->err_svs.sv[current_index].svw;   // Subsequent violation window
+                err_mfr.svi = current_index;                          // Update the error index.
+                err_mfr.svs = 1;                                      // Subsequent Violation Status
+                iopmp->reg_file.err_mfr.svi = current_index;          // The next search starts here
 
                 // Clear the error flag after processing.
                 iopmp->err_svs.sv[current_index].svw = 0;
@@ -405,7 +407,7 @@ reg_intf_dw read_register(iopmp_dev_t *iopmp, uint64_t offset, uint8_t num_bytes
             }
         }
 
-        return iopmp->reg_file.err_mfr.raw;
+        return err_mfr.raw;
     }
 
     // If the offset is within the valid range for entry registers, return the appropriate value.
