@@ -160,17 +160,19 @@ void iopmp_check_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iopmp_
         srcmd_enh = iopmp->reg_file.srcmd_table[rrid].srcmd_enh;
     }
 
-    int start_md_num;
     int end_md_num;
     // Determine MDCFG table range for entries
-    if (iopmp->reg_file.hwcfg3.srcmd_fmt == 0 ||
-        iopmp->reg_file.hwcfg3.srcmd_fmt == 2) {
-        start_md_num = 0;
-        end_md_num   = iopmp->reg_file.hwcfg0.md_num;
-    } else if (iopmp->reg_file.hwcfg3.srcmd_fmt == 1) {
-        start_md_num = rrid;
-        end_md_num   = rrid + 1;
+    if (iopmp->reg_file.hwcfg3.srcmd_fmt == 1) {
+        // RRID s associates exclusively with MD s, so no later MD is needed
+        end_md_num = rrid + 1;
+    } else {
+        end_md_num = iopmp->reg_file.hwcfg0.md_num;
     }
+
+    // The highest MDCFG(m).t of the MDs traversed so far. If the ranges of
+    // several MDs contain an entry, it belongs to the lowest of them only, so
+    // the next MD begins here.
+    int md_entry_base = 0;
 
     /* Prepare input of the rule analyzer which are fixed during entry checks */
     iopmp_rule_analyzer_input_t rule_analyzer_i;
@@ -185,17 +187,24 @@ void iopmp_check_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iopmp_
     rule_analyzer_o.grant_perm   = false;
 
     // Traverse each MD entry and perform address/permission checks
-    for (int cur_md = start_md_num; cur_md < end_md_num; ++cur_md) {
-        if (iopmp->reg_file.hwcfg3.srcmd_fmt == 0) {
-            if (!IS_MD_ASSOCIATED(cur_md, srcmd_en.md, srcmd_enh.mdh)) continue;
-        }
-
+    for (int cur_md = 0; cur_md < end_md_num; ++cur_md) {
         if (iopmp->reg_file.hwcfg3.mdcfg_fmt == 0) {
-            lwr_entry = (cur_md == 0) ? 0 : iopmp->reg_file.mdcfg[cur_md - 1].t;
+            lwr_entry = md_entry_base;
             upr_entry = iopmp->reg_file.mdcfg[cur_md].t;
+            // Every MD moves the base, whether the RRID has it or not
+            if (upr_entry > md_entry_base)
+                md_entry_base = upr_entry;
         } else {
             lwr_entry = cur_md * (iopmp->reg_file.hwcfg3.md_entry_num + 1);
             upr_entry = ((cur_md + 1) * (iopmp->reg_file.hwcfg3.md_entry_num + 1));
+        }
+
+        if (iopmp->reg_file.hwcfg3.srcmd_fmt == 0) {
+            if (!IS_MD_ASSOCIATED(cur_md, srcmd_en.md, srcmd_enh.mdh))
+                continue;
+        } else if (iopmp->reg_file.hwcfg3.srcmd_fmt == 1) {
+            if (cur_md != rrid)
+                continue;
         }
 
         for (int cur_entry = lwr_entry; cur_entry < upr_entry; cur_entry++) {

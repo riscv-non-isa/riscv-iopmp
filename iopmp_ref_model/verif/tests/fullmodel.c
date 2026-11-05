@@ -1524,6 +1524,54 @@ int main()
     // Reset configuration
     cfg = cfg_saved;
     END_TEST();)
+
+    START_TEST("Writing MDCFG(m) changes no other MDCFG register");
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    set_hwcfg0_enable(&iopmp);
+    configure_mdcfg_n(&iopmp, 0, 10, 4);
+    configure_mdcfg_n(&iopmp, 1, 20, 4);
+    configure_mdcfg_n(&iopmp, 2, 30, 4);
+    configure_mdcfg_n(&iopmp, 3, 45, 4);
+    // MDCFG(1).t passes MDCFG(2).t for a while, which leaves MDCFG(2).t as is
+    configure_mdcfg_n(&iopmp, 1, 40, 4);
+    configure_mdcfg_n(&iopmp, 1, 25, 4);
+    FAIL_IF((read_register(&iopmp, MDCFG_TABLE_BASE_OFFSET + (0 * 4), 4) != 10));
+    FAIL_IF((read_register(&iopmp, MDCFG_TABLE_BASE_OFFSET + (1 * 4), 4) != 25));
+    FAIL_IF((read_register(&iopmp, MDCFG_TABLE_BASE_OFFSET + (2 * 4), 4) != 30));
+    FAIL_IF((read_register(&iopmp, MDCFG_TABLE_BASE_OFFSET + (3 * 4), 4) != 45));
+    END_TEST();
+
+    START_TEST("An entry in several MD ranges belongs to the lowest MD");
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    // MD(0) has entries 0~7, MD(1) is empty, and the range of MD(2) is entries
+    // 2~11, of which only 8~11 belong to MD(2)
+    configure_mdcfg_n(&iopmp, 0, 8, 4);
+    configure_mdcfg_n(&iopmp, 1, 2, 4);
+    configure_mdcfg_n(&iopmp, 2, 12, 4);
+    configure_srcmd_n(&iopmp, SRCMD_EN, 5, 0x8, 4);     // RRID(5) has MD(2)
+    configure_srcmd_n(&iopmp, SRCMD_R, 5, 0x8, 4);
+    configure_srcmd_n(&iopmp, SRCMD_EN, 6, 0x2, 4);     // RRID(6) has MD(0)
+    configure_srcmd_n(&iopmp, SRCMD_R, 6, 0x2, 4);
+    configure_entry_n(&iopmp, ENTRY_ADDR, 4, 90, 4);        // 360 ~ 367
+    configure_entry_n(&iopmp, ENTRY_CFG, 4, (NAPOT | R), 4);
+    configure_entry_n(&iopmp, ENTRY_ADDR, 10, 0x400, 4);    // 0x1000 ~ 0x1007
+    configure_entry_n(&iopmp, ENTRY_CFG, 10, (NAPOT | R), 4);
+    set_hwcfg0_enable(&iopmp);
+    // Enabling the IOPMP keeps MDCFG(1).t below MDCFG(0).t
+    FAIL_IF((read_register(&iopmp, MDCFG_TABLE_BASE_OFFSET + (1 * 4), 4) != 2));
+    // Entry 4 belongs to MD(0), not MD(2)
+    receiver_port(5, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_ERROR, NOT_HIT_ANY_RULE);
+    write_register(&iopmp, ERR_INFO_OFFSET, 0x1, 4);
+    receiver_port(6, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_SUCCESS, ENTRY_MATCH);
+    // Entry 10 belongs to MD(2)
+    receiver_port(5, 0x1000, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_SUCCESS, ENTRY_MATCH);
+    END_TEST();
 #endif
 
     free(memory);

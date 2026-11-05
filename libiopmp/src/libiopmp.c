@@ -1775,8 +1775,8 @@ static inline void get_md_entry_association_nocheck(IOPMP_t *iopmp,
     get_md_entry_top(iopmp, mdidx, &md_entry_top);
 
     *entry_idx_start = md_entry_top_prev;
-    /* An improperly set MDCFG table is not monotonic. Report no entry for such
-     * a MD rather than underflowing the subtraction */
+    /* MDCFG(m).t can be below MDCFG(m-1).t, which gives MD m an empty range.
+     * Report no entry for such an MD rather than underflowing the subtraction */
     *num_entry = (md_entry_top > md_entry_top_prev) ?
                  (md_entry_top - md_entry_top_prev) : 0;
 }
