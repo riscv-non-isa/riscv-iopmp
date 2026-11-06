@@ -143,6 +143,20 @@ static bool tops_overlap(const uint32_t *tops, uint32_t n)
 }
 
 /*
+ * The MD that entry @j belongs to in @tops, that is, the lowest MD m with
+ * j < tops[m], or -1 if none
+ */
+static int entry_owner(const uint32_t *tops, uint32_t n, uint32_t j)
+{
+    for (uint32_t m = 0; m < n; m++) {
+        if (j < tops[m])
+            return (int)m;
+    }
+
+    return -1;
+}
+
+/*
  * True if the recorded MDCFG writes are exactly the (MD, top) pairs in
  * @expect
  */
@@ -189,8 +203,30 @@ static uint32_t update_digits(uint32_t code, uint32_t *digits, uint32_t n)
 }
 
 /*
+ * True if every entry that moves to another MD from the MDCFG table @before to
+ * the MDCFG table @after leaves and joins only MDs in @mds
+ */
+static bool owner_changes_within(const uint32_t *before, const uint32_t *after,
+                                 uint64_t mds)
+{
+    /* A top reaches UPDATE_TOP_MAX plus counts of up to UPDATE_TOP_MAX */
+    for (uint32_t j = 0; j < 2 * UPDATE_TOP_MAX; j++) {
+        int from = entry_owner(before, UPDATE_MD_NUM, j);
+        int to = entry_owner(after, UPDATE_MD_NUM, j);
+
+        if (from == to)
+            continue;
+        if ((from >= 0 && !((mds >> from) & 1)) || (to >= 0 && !((mds >> to) & 1)))
+            return false;
+    }
+
+    return true;
+}
+
+/*
  * Program the MDCFG table @cur, give MD(@start) ~ MD(@start + @k - 1) @counts
- * entries, and check every MDCFG write of the update
+ * entries, and check every MDCFG write of the update and the affected MDs
+ * reported for it
  */
 static int check_mdcfg_update(IOPMP_t *iopmp, const uint32_t *cur,
                               uint32_t start, const uint32_t *counts,
@@ -200,7 +236,8 @@ static int check_mdcfg_update(IOPMP_t *iopmp, const uint32_t *cur,
     uint32_t num_entries[UPDATE_MD_NUM];
     uint32_t top, written = 0;
     bool cur_overlap = tops_overlap(cur, UPDATE_MD_NUM);
-    enum iopmp_error ret;
+    enum iopmp_error ret, ret_aff;
+    uint64_t affected;
 
     memcpy(next, cur, sizeof(next));
     top = (start != 0) ? cur[start - 1] : 0;
@@ -210,6 +247,8 @@ static int check_mdcfg_update(IOPMP_t *iopmp, const uint32_t *cur,
     }
 
     FAIL_IF(libiopmp_setup_preinit_mdcfg(iopmp, cur, UPDATE_MD_NUM) != IOPMP_OK);
+    ret_aff = iopmp_get_md_entry_association_affected_mds(iopmp, start, counts,
+                                                          k, &affected);
     memcpy(num_entries, counts, k * sizeof(num_entries[0]));
     mdcfg_log_start();
     ret = iopmp_set_md_entry_association_multi(iopmp, start, num_entries, k);
@@ -218,22 +257,33 @@ static int check_mdcfg_update(IOPMP_t *iopmp, const uint32_t *cur,
     /* An update to an overlapping table is refused before any write */
     if (tops_overlap(next, UPDATE_MD_NUM)) {
         FAIL_IF(ret != IOPMP_ERR_NOT_ALLOWED);
+        FAIL_IF(ret_aff != IOPMP_ERR_NOT_ALLOWED);
         FAIL_IF(mdcfg_log_len != 0);
         return 0;
     }
     FAIL_IF(ret != IOPMP_OK);
+    FAIL_IF(ret_aff != IOPMP_OK);
     for (uint32_t i = 0; i < k; i++)
         FAIL_IF(num_entries[i] != counts[i]);
 
-    /* Each MD is written at most once, and no write makes the table overlap */
+    /* With an overlap already, any MD can be affected */
+    FAIL_IF(cur_overlap && (affected != ((uint64_t)1 << CFG_MD_NUM) - 1));
+
+    /*
+     * Each MD is written at most once, no write makes the table overlap, and
+     * only the reported MDs gain or lose entries
+     */
     memcpy(tops, cur, sizeof(tops));
     for (uint32_t i = 0; i < mdcfg_log_len; i++) {
         uint32_t m = mdcfg_log_md[i];
+        uint32_t before[UPDATE_MD_NUM];
 
         FAIL_IF(m >= UPDATE_MD_NUM || ((written >> m) & 1));
         written |= 1U << m;
+        memcpy(before, tops, sizeof(before));
         tops[m] = mdcfg_log_top[i];
         FAIL_IF(!cur_overlap && tops_overlap(tops, UPDATE_MD_NUM));
+        FAIL_IF(!owner_changes_within(before, tops, affected));
     }
 
     /* The update ends at @next, and writes exactly the MDs that change */
@@ -2777,6 +2827,54 @@ int main(void)
             }
         }
     }
+    END_TEST();
+
+    START_TEST("Report the MDs that an MD/entry association update affects");
+    FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
+    {
+        /*
+         * {10, 20, 30, 45} to {10, 40, 42, 45} moves entries among MD(1) ~
+         * MD(3)
+         */
+        uint32_t tops[4] = {10, 20, 30, 45};
+        uint32_t num_entries[4] = {10, 30, 2, 3};
+        FAIL_IF(libiopmp_setup_preinit_mdcfg(&iopmp, tops, 4) != IOPMP_OK);
+        FAIL_IF(iopmp_get_md_entry_association_affected_mds(&iopmp, 0, num_entries, 4, &val_u64) != IOPMP_OK);
+        FAIL_IF(val_u64 != 0xE);
+        /* Nothing is written */
+        FAIL_IF(read_register(&iopmp_dev, MDCFG_TABLE_BASE_OFFSET + 4, 4) != 20);
+        /* No MD for no update */
+        FAIL_IF(iopmp_get_md_entry_association_affected_mds(&iopmp, 0, num_entries, 0, &val_u64) != IOPMP_OK);
+        FAIL_IF(val_u64 != 0);
+    }
+    {
+        /*
+         * Bringing MD(3) of {30, 40, 50, 0, 0} into use changes MD(3) and the
+         * lower bound of MD(4)
+         */
+        uint32_t tops[5] = {30, 40, 50, 0, 0};
+        val_u32 = 10;
+        FAIL_IF(libiopmp_setup_preinit_mdcfg(&iopmp, tops, 5) != IOPMP_OK);
+        FAIL_IF(iopmp_get_md_entry_association_affected_mds(&iopmp, 3, &val_u32, 1, &val_u64) != IOPMP_OK);
+        FAIL_IF(val_u64 != 0x18);
+        /* Giving MD(3) no entry writes MDCFG(3).t = 50 but changes no MD */
+        val_u32 = 0;
+        FAIL_IF(iopmp_get_md_entry_association_affected_mds(&iopmp, 3, &val_u32, 1, &val_u64) != IOPMP_OK);
+        FAIL_IF(val_u64 != 0);
+    }
+    {
+        /* With MD(3) overlapping MD(1), any MD can be affected */
+        uint32_t tops[4] = {8, 16, 4, 24};
+        uint32_t num_entries[2] = {8, 8};
+        FAIL_IF(libiopmp_setup_preinit_mdcfg(&iopmp, tops, 4) != IOPMP_OK);
+        FAIL_IF(iopmp_get_md_entry_association_affected_mds(&iopmp, 2, num_entries, 2, &val_u64) != IOPMP_OK);
+        FAIL_IF(val_u64 != ((uint64_t)1 << CFG_MD_NUM) - 1);
+        /* An update that keeps the overlap is refused */
+        FAIL_IF(iopmp_get_md_entry_association_affected_mds(&iopmp, 0, num_entries, 1, &val_u64) != IOPMP_ERR_NOT_ALLOWED);
+    }
+    FAIL_IF(iopmp_get_md_entry_association_affected_mds(&iopmp, 0, &val_u32, 1, NULL) != IOPMP_ERR_INVALID_PARAMETER);
+    FAIL_IF(iopmp_get_md_entry_association_affected_mds(&iopmp, 0, NULL, 1, &val_u64) != IOPMP_ERR_INVALID_PARAMETER);
+    FAIL_IF(iopmp_get_md_entry_association_affected_mds(&iopmp, CFG_MD_NUM, &val_u32, 1, &val_u64) != IOPMP_ERR_OUT_OF_BOUNDS);
     END_TEST();
 
     START_TEST("Lock MDCFG and reject a later change");
