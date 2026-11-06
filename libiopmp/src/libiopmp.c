@@ -2047,18 +2047,27 @@ static enum iopmp_error write_md_entry_tops(IOPMP_t *iopmp,
     return IOPMP_OK;
 }
 
-enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
-                                                      uint32_t mdidx_start,
-                                                      uint32_t *num_entries,
-                                                      uint32_t md_num)
+/**
+ * \brief Check the arguments of an update of the MD/entry association
+ *
+ * \param[in] iopmp             The IOPMP instance
+ * \param[in] mdidx_start       The start index of target MDs
+ * \param[in] num_entries       The number of entries of each target MD
+ * \param[in] md_num            The number of target MDs
+ *
+ * \retval IOPMP_OK if the arguments are valid
+ * \retval IOPMP_ERR_NOT_ALLOWED if \p iopmp MDCFG format is not 0
+ * \retval IOPMP_ERR_INVALID_PARAMETER if given \p num_entries is NULL
+ * \retval IOPMP_ERR_OUT_OF_BOUNDS if given \p mdidx_start or \p md_num is out
+ *         of bounds
+ * \retval IOPMP_ERR_REG_IS_LOCKED if MDCFG of given \p mdidx_start has been
+ *         locked by MDCFGLCK.f
+ */
+static enum iopmp_error check_md_entry_update(IOPMP_t *iopmp,
+                                              uint32_t mdidx_start,
+                                              const uint32_t *num_entries,
+                                              uint32_t md_num)
 {
-    enum iopmp_error ret;
-    uint32_t base, this_top;
-    uint16_t tops[IOPMP_MD_NUM_MAX];
-    uint16_t next_tops[IOPMP_MD_NUM_MAX];
-
-    iopmp_assert(iopmp_is_initialized(iopmp));
-
     if (iopmp->mdcfg_fmt != IOPMP_MDCFG_FMT_0) {
         return IOPMP_ERR_NOT_ALLOWED;   /* Must call iopmp_set_md_entry_num() */
     }
@@ -2076,8 +2085,24 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
-    if (md_num == 0U) {
-        return IOPMP_OK;
+    return IOPMP_OK;
+}
+
+enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
+                                                      uint32_t mdidx_start,
+                                                      uint32_t *num_entries,
+                                                      uint32_t md_num)
+{
+    enum iopmp_error ret;
+    uint32_t base, this_top;
+    uint16_t tops[IOPMP_MD_NUM_MAX];
+    uint16_t next_tops[IOPMP_MD_NUM_MAX];
+
+    iopmp_assert(iopmp_is_initialized(iopmp));
+
+    ret = check_md_entry_update(iopmp, mdidx_start, num_entries, md_num);
+    if ((ret != IOPMP_OK) || (md_num == 0U)) {
+        return ret;
     }
 
     ret = prepare_md_entry_tops(iopmp, mdidx_start, num_entries, md_num, tops,
@@ -2099,6 +2124,67 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
     }
 
     return ret;
+}
+
+enum iopmp_error
+iopmp_get_md_entry_association_affected_mds(IOPMP_t *iopmp,
+                                            uint32_t mdidx_start,
+                                            const uint32_t *num_entries,
+                                            uint32_t md_num, uint64_t *mds)
+{
+    enum iopmp_error ret;
+    uint32_t highest = 0, next_highest = 0;
+    uint16_t tops[IOPMP_MD_NUM_MAX];
+    uint16_t next_tops[IOPMP_MD_NUM_MAX];
+
+    iopmp_assert(iopmp_is_initialized(iopmp));
+
+    ret = check_md_entry_update(iopmp, mdidx_start, num_entries, md_num);
+    if (ret != IOPMP_OK) {
+        return ret;
+    }
+
+    if (mds == NULL) {
+        return IOPMP_ERR_INVALID_PARAMETER;
+    }
+
+    *mds = 0;
+    if (md_num == 0U) {
+        return IOPMP_OK;
+    }
+
+    ret = prepare_md_entry_tops(iopmp, mdidx_start, num_entries, md_num, tops,
+                                next_tops);
+    if (ret != IOPMP_OK) {
+        return ret;
+    }
+
+    /* Without the guarantee of the write order, any MD can be affected */
+    if (md_ranges_overlap(tops, iopmp->md_num)) {
+        *mds = ((uint64_t)1U << iopmp->md_num) - 1U;
+        return IOPMP_OK;
+    }
+
+    /*
+     * The entries of MD(m) end at the highest top of MD(0) ~ MD(m), so MD(m)
+     * and MD(m+1) change if it changes
+     */
+    for (uint32_t m = 0; m < mdidx_start + md_num; m++) {
+        if (tops[m] > highest) {
+            highest = tops[m];
+        }
+        if (next_tops[m] > next_highest) {
+            next_highest = next_tops[m];
+        }
+        if ((m >= mdidx_start) && (highest != next_highest)) {
+            *mds |= (uint64_t)1U << m;
+            if ((m + 1U) < iopmp->md_num) {
+                *mds |= (uint64_t)1U << (m + 1U);
+            }
+        }
+    }
+
+    return IOPMP_OK;
 }
 
 enum iopmp_error iopmp_get_md_entry_num(IOPMP_t *iopmp, uint32_t *md_entry_num)

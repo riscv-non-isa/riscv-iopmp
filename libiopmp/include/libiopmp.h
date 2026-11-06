@@ -2182,8 +2182,9 @@ enum iopmp_error iopmp_get_md_entry_association(IOPMP_t *iopmp, uint32_t mdidx,
  *       MDCFG(m) changes the entries of MD(m) and MD(m+1) only. A transaction
  *       checked during the update can still meet a moved entry, so software
  *       should keep transactions from being checked against the affected MDs,
- *       for example, by stalling them, and should set the moved entries to OFF
- *       or program them for their new MDs beforehand. Software must also make
+ *       which iopmp_get_md_entry_association_affected_mds() reports, for
+ *       example, by stalling them, and should set the moved entries to OFF or
+ *       program them for their new MDs beforehand. Software must also make
  *       sure that nothing else writes the MDCFG table during the update, and
  *       that the writes reach the IOPMP in program order.
  */
@@ -2191,6 +2192,47 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
                                                       uint32_t mdidx_start,
                                                       uint32_t *num_entries,
                                                       uint32_t md_num);
+
+/**
+ * \brief Get the MDs whose entries an update of the MD/entry association
+ *        changes
+ *
+ * The function checks the update like iopmp_set_md_entry_association_multi()
+ * with the same arguments, but writes nothing. Software can stall the
+ * transactions of the reported MDs, for example, by
+ * iopmp_stall_transactions_by_mds(), before it performs the update.
+ *
+ * \param[in] iopmp             The IOPMP instance
+ * \param[in] mdidx_start       The start index of target MDs
+ * \param[in] num_entries       The number of entries to be associated with
+ *                              each target MD
+ * \param[in] md_num            The number of target MDs
+ * \param[out] mds              Bitmap of the MDs whose entries change at some
+ *                              point of the update
+ *
+ * \retval IOPMP_OK if successes
+ * \retval IOPMP_ERR_NOT_ALLOWED if \p iopmp MDCFG format is not 0, or if the
+ *         ranges of two MDs would overlap after the update
+ * \retval IOPMP_ERR_INVALID_PARAMETER if given \p num_entries or \p mds is
+ *         NULL
+ * \retval IOPMP_ERR_OUT_OF_BOUNDS if given \p mdidx_start or \p md_num is out
+ *         of bounds, or if an MD would end beyond the number of entries
+ * \retval IOPMP_ERR_REG_IS_LOCKED if MDCFG of given \p mdidx_start has been
+ *         locked by MDCFGLCK.f
+ *
+ * \note If no ranges of MDs overlap before the update, the reported MDs are
+ *       MD(m) and MD(m+1) for every target MD(m) where the highest top of
+ *       MD(0) ~ MD(m) changes, which is where the entries of MD(m) end. They
+ *       can include an MD whose entries do not change. Otherwise, every MD is
+ *       reported
+ * \note The MDs do not include the MD of entry i+1 if entry i+1 selects TOR
+ *       and software also gives entry i a new address
+ */
+enum iopmp_error
+iopmp_get_md_entry_association_affected_mds(IOPMP_t *iopmp,
+                                            uint32_t mdidx_start,
+                                            const uint32_t *num_entries,
+                                            uint32_t md_num, uint64_t *mds);
 
 /**
  * \brief Associate given entries with given MD(mdidx)
