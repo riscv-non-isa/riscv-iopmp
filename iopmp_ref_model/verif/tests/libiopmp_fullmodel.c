@@ -2468,6 +2468,25 @@ int main(void)
     FAIL_IF(iopmp_set_md_entry_association_multi(&iopmp, 0, &val_u32, 0) != IOPMP_OK);
     END_TEST();
 
+    START_TEST("Set MD/entry association checks every MD before writing any");
+    FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
+    FAIL_IF(program_full_mdcfg_table(&iopmp) != 0);
+    {
+        /* MD(1) is out of bounds, so MD(0) is not written either */
+        uint32_t num_entries[2] = {ENTRY_PER_MD / 2, CFG_ENTRY_NUM};
+        FAIL_IF(iopmp_set_md_entry_association_multi(&iopmp, 0, num_entries, 2) != IOPMP_ERR_OUT_OF_BOUNDS);
+        /* A count that wraps the top around is out of bounds as well */
+        num_entries[1] = UINT32_MAX;
+        FAIL_IF(iopmp_set_md_entry_association_multi(&iopmp, 0, num_entries, 2) != IOPMP_ERR_OUT_OF_BOUNDS);
+    }
+    for (uint32_t m = 0; m < 2; m++) {
+        ret = iopmp_get_md_entry_association(&iopmp, m, &val_u32, &val_u32_2);
+        FAIL_IF(ret != IOPMP_OK);
+        FAIL_IF(val_u32 != m * ENTRY_PER_MD);
+        FAIL_IF(val_u32_2 != ENTRY_PER_MD);
+    }
+    END_TEST();
+
     START_TEST("Lock MDCFG and reject a later change");
     FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
     FAIL_IF(program_full_mdcfg_table(&iopmp) != 0);

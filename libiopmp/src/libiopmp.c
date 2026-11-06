@@ -1889,11 +1889,21 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
         prev_top = 0;
     }
 
+    /*
+     * Check every top before writing any, so that an error leaves the MDCFG
+     * table untouched. Compare against the room left to avoid wrapping
+     */
+    this_top = prev_top;
     for (uint32_t m = 0; m < md_num; m++) {
-        this_top = prev_top + num_entries[m];
-        if (this_top > iopmp->entry_num) {
+        if ((this_top > iopmp->entry_num) ||
+            (num_entries[m] > (iopmp->entry_num - this_top))) {
             return IOPMP_ERR_OUT_OF_BOUNDS;
         }
+        this_top += num_entries[m];
+    }
+
+    for (uint32_t m = 0; m < md_num; m++) {
+        this_top = prev_top + num_entries[m];
         /* This operation is mandatory for MDCFG_FMT_0 */
         if ((iopmp->ops_override != NULL) &&
             (iopmp->ops_override->set_md_entry_top != NULL)) {
