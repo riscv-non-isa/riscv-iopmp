@@ -2161,16 +2161,20 @@ enum iopmp_error iopmp_get_md_entry_association(IOPMP_t *iopmp, uint32_t mdidx,
  * \param[in] md_num            The number of target MDs to be set
  *
  * \retval IOPMP_OK if successes
- * \retval IOPMP_ERR_NOT_ALLOWED if \p iopmp MDCFG format is not 0
+ * \retval IOPMP_ERR_NOT_ALLOWED if \p iopmp MDCFG format is not 0, or if the
+ *         ranges of two MDs would overlap after the update
  * \retval IOPMP_ERR_INVALID_PARAMETER if given \p num_entries is NULL
  * \retval IOPMP_ERR_OUT_OF_BOUNDS if given \p mdidx_start or \p md_num is out
- *         of bounds
+ *         of bounds, or if an MD would end beyond the number of entries
  * \retval IOPMP_ERR_REG_IS_LOCKED if MDCFG of given \p mdidx_start has been
  *         locked by MDCFGLCK.f
  * \retval IOPMP_ERR_ILLEGAL_VALUE if the written \p num_entries does not
  *         match the actual value. The actual value is output in \p num_entries
  *
  * \note This function must be called only when IOPMP MDCFG format is 0
+ * \note The function checks the whole update before writing any MDCFG. An
+ *       overlap among MDs outside the given ones also refuses the update, so
+ *       software can only fix such a table by including the overlapping MDs
  */
 enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
                                                       uint32_t mdidx_start,
@@ -2186,7 +2190,8 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
  *                              Output actual number of entries be associated.
  *
  * \retval IOPMP_OK if successes
- * \retval IOPMP_ERR_NOT_ALLOWED if \p iopmp MDCFG format is not 0
+ * \retval IOPMP_ERR_NOT_ALLOWED if \p iopmp MDCFG format is not 0, or if the
+ *         ranges of two MDs would overlap after the update
  * \retval IOPMP_ERR_INVALID_PARAMETER if given \p num_entry is NULL
  * \retval IOPMP_ERR_OUT_OF_BOUNDS if given \p mdidx or \p num_entry is out of
  *         bounds
