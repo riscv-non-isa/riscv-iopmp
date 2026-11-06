@@ -15,6 +15,19 @@ iopmp_dev_t iopmp_dev = {0};
 iopmp_cfg_t cfg = {0};
 uint8_t intrpt;
 
+/* MDCFG writes that io_write32() records while mdcfg_log_on is set */
+#define MDCFG_LOG_MAX       (2 * IOPMP_MAX_MD_NUM)
+static bool mdcfg_log_on;
+static uint32_t mdcfg_log_len;
+static uint32_t mdcfg_log_md[MDCFG_LOG_MAX];
+static uint32_t mdcfg_log_top[MDCFG_LOG_MAX];
+
+static void mdcfg_log_start(void)
+{
+    mdcfg_log_len = 0;
+    mdcfg_log_on = true;
+}
+
 /* Override libiopmp IO functions */
 uint32_t io_read32(uintptr_t addr)
 {
@@ -23,6 +36,13 @@ uint32_t io_read32(uintptr_t addr)
 
 void io_write32(uintptr_t addr, uint32_t val)
 {
+    if (mdcfg_log_on && (addr >= MDCFG_TABLE_BASE_OFFSET) &&
+        (addr < MDCFG_TABLE_BASE_OFFSET + (4 * IOPMP_MAX_MD_NUM)) &&
+        (mdcfg_log_len < MDCFG_LOG_MAX)) {
+        mdcfg_log_md[mdcfg_log_len] = (addr - MDCFG_TABLE_BASE_OFFSET) / 4;
+        mdcfg_log_top[mdcfg_log_len] = val & 0xFFFF;
+        mdcfg_log_len++;
+    }
     return write_register(&iopmp_dev, addr, val, 4);
 }
 
@@ -102,6 +122,128 @@ static enum iopmp_error libiopmp_setup_preinit_mdcfg(IOPMP_t *iopmp,
     memset(iopmp, 0, sizeof(*iopmp));
     return iopmp_init(iopmp, 0, cfg.srcmd_fmt, cfg.mdcfg_fmt,
                       IOPMP_IMPID_NOT_SPECIFIED);
+}
+
+/*
+ * True if the range of an MD in @tops overlaps the range of a lower MD, that
+ * is, it is not empty and begins below the top of some lower MD
+ */
+static bool tops_overlap(const uint32_t *tops, uint32_t n)
+{
+    uint32_t highest = 0;
+
+    for (uint32_t m = 1; m < n; m++) {
+        if (tops[m - 1] > highest)
+            highest = tops[m - 1];
+        if ((tops[m] > tops[m - 1]) && (tops[m - 1] < highest))
+            return true;
+    }
+
+    return false;
+}
+
+/*
+ * True if the recorded MDCFG writes are exactly the (MD, top) pairs in
+ * @expect
+ */
+static bool mdcfg_log_is(const uint32_t expect[][2], uint32_t n)
+{
+    if (mdcfg_log_len != n)
+        return false;
+    for (uint32_t i = 0; i < n; i++) {
+        if ((mdcfg_log_md[i] != expect[i][0]) ||
+            (mdcfg_log_top[i] != expect[i][1]))
+            return false;
+    }
+
+    return true;
+}
+
+/* The exhaustive MDCFG update test covers MD(0) ~ MD(3) with tops 0 ~ 5 */
+#define UPDATE_MD_NUM       4
+#define UPDATE_TOP_MAX      5
+
+/* The number of codes of @n digits, each 0 ~ UPDATE_TOP_MAX */
+static uint32_t update_codes(uint32_t n)
+{
+    uint32_t codes = 1;
+
+    for (uint32_t i = 0; i < n; i++)
+        codes *= UPDATE_TOP_MAX + 1;
+
+    return codes;
+}
+
+/* Split @code into @n digits 0 ~ UPDATE_TOP_MAX, and return their sum */
+static uint32_t update_digits(uint32_t code, uint32_t *digits, uint32_t n)
+{
+    uint32_t sum = 0;
+
+    for (uint32_t i = 0; i < n; i++) {
+        digits[i] = code % (UPDATE_TOP_MAX + 1);
+        code /= UPDATE_TOP_MAX + 1;
+        sum += digits[i];
+    }
+
+    return sum;
+}
+
+/*
+ * Program the MDCFG table @cur, give MD(@start) ~ MD(@start + @k - 1) @counts
+ * entries, and check every MDCFG write of the update
+ */
+static int check_mdcfg_update(IOPMP_t *iopmp, const uint32_t *cur,
+                              uint32_t start, const uint32_t *counts,
+                              uint32_t k)
+{
+    uint32_t next[UPDATE_MD_NUM], tops[UPDATE_MD_NUM];
+    uint32_t num_entries[UPDATE_MD_NUM];
+    uint32_t top, written = 0;
+    bool cur_overlap = tops_overlap(cur, UPDATE_MD_NUM);
+    enum iopmp_error ret;
+
+    memcpy(next, cur, sizeof(next));
+    top = (start != 0) ? cur[start - 1] : 0;
+    for (uint32_t i = 0; i < k; i++) {
+        top += counts[i];
+        next[start + i] = top;
+    }
+
+    FAIL_IF(libiopmp_setup_preinit_mdcfg(iopmp, cur, UPDATE_MD_NUM) != IOPMP_OK);
+    memcpy(num_entries, counts, k * sizeof(num_entries[0]));
+    mdcfg_log_start();
+    ret = iopmp_set_md_entry_association_multi(iopmp, start, num_entries, k);
+    mdcfg_log_on = false;
+
+    /* An update to an overlapping table is refused before any write */
+    if (tops_overlap(next, UPDATE_MD_NUM)) {
+        FAIL_IF(ret != IOPMP_ERR_NOT_ALLOWED);
+        FAIL_IF(mdcfg_log_len != 0);
+        return 0;
+    }
+    FAIL_IF(ret != IOPMP_OK);
+    for (uint32_t i = 0; i < k; i++)
+        FAIL_IF(num_entries[i] != counts[i]);
+
+    /* Each MD is written at most once, and no write makes the table overlap */
+    memcpy(tops, cur, sizeof(tops));
+    for (uint32_t i = 0; i < mdcfg_log_len; i++) {
+        uint32_t m = mdcfg_log_md[i];
+
+        FAIL_IF(m >= UPDATE_MD_NUM || ((written >> m) & 1));
+        written |= 1U << m;
+        tops[m] = mdcfg_log_top[i];
+        FAIL_IF(!cur_overlap && tops_overlap(tops, UPDATE_MD_NUM));
+    }
+
+    /* The update ends at @next, and writes exactly the MDs that change */
+    for (uint32_t m = 0; m < UPDATE_MD_NUM; m++) {
+        FAIL_IF(tops[m] != next[m]);
+        FAIL_IF(read_register(&iopmp_dev, MDCFG_TABLE_BASE_OFFSET + (m * 4), 4) != next[m]);
+        FAIL_IF(((written >> m) & 1) != (cur[m] != next[m]));
+    }
+
+    return 0;
 }
 
 int main(void)
@@ -2556,6 +2698,85 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK || val_u32 != 30 || val_u32_2 != 0);
     ret = iopmp_get_md_entry_association(&iopmp, 2, &val_u32, &val_u32_2);
     FAIL_IF(ret != IOPMP_OK || val_u32 != 30 || val_u32_2 != 10);
+    END_TEST();
+
+    START_TEST("Set MD/entry association orders the MDCFG writes");
+    FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
+    {
+        /*
+         * Increases go from the top down: writing MDCFG(1).t = 40 first would
+         * leave MDCFG(2).t = 30 below it
+         */
+        uint32_t tops[4] = {10, 20, 30, 45};
+        uint32_t num_entries[4] = {10, 30, 2, 3};
+        const uint32_t expect[][2] = {{2, 42}, {1, 40}};
+        FAIL_IF(libiopmp_setup_preinit_mdcfg(&iopmp, tops, 4) != IOPMP_OK);
+        mdcfg_log_start();
+        ret = iopmp_set_md_entry_association_multi(&iopmp, 0, num_entries, 4);
+        mdcfg_log_on = false;
+        FAIL_IF(ret != IOPMP_OK || !mdcfg_log_is(expect, 2));
+    }
+    {
+        /* Decreases go from the bottom up, and MDCFG(3).t stays unwritten */
+        uint32_t num_entries[4] = {5, 5, 10, 25};
+        const uint32_t expect[][2] = {{0, 5}, {1, 10}, {2, 20}};
+        mdcfg_log_start();
+        ret = iopmp_set_md_entry_association_multi(&iopmp, 0, num_entries, 4);
+        mdcfg_log_on = false;
+        FAIL_IF(ret != IOPMP_OK || !mdcfg_log_is(expect, 3));
+    }
+    {
+        /*
+         * MD(3) and MD(4) of {30, 40, 50, 0, 0} take their lower bounds from
+         * the MD before them, so they go up from the bottom
+         */
+        uint32_t tops[5] = {30, 40, 50, 0, 0};
+        uint32_t num_entries[2] = {10, 10};
+        const uint32_t expect[][2] = {{3, 60}, {4, 70}};
+        FAIL_IF(libiopmp_setup_preinit_mdcfg(&iopmp, tops, 5) != IOPMP_OK);
+        mdcfg_log_start();
+        ret = iopmp_set_md_entry_association_multi(&iopmp, 3, num_entries, 2);
+        mdcfg_log_on = false;
+        FAIL_IF(ret != IOPMP_OK || !mdcfg_log_is(expect, 2));
+    }
+    {
+        /*
+         * MDCFG(3).t goes up only after MDCFG(1).t has gone down, or MD(3)
+         * would overlap MD(1) on entries 0 ~ 9
+         */
+        uint32_t tops[5] = {0, 10, 0, 0, 0};
+        uint32_t num_entries[4] = {0, 0, 0, 10};
+        const uint32_t expect[][2] = {{1, 0}, {3, 10}};
+        FAIL_IF(libiopmp_setup_preinit_mdcfg(&iopmp, tops, 5) != IOPMP_OK);
+        mdcfg_log_start();
+        ret = iopmp_set_md_entry_association_multi(&iopmp, 0, num_entries, 4);
+        mdcfg_log_on = false;
+        FAIL_IF(ret != IOPMP_OK || !mdcfg_log_is(expect, 2));
+    }
+    END_TEST();
+
+    START_TEST("MDCFG updates never pass through overlapping ranges");
+    FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
+    /*
+     * Every MDCFG table, and every update that keeps the tops within
+     * UPDATE_TOP_MAX. The MDs after MD(UPDATE_MD_NUM - 1) stay 0
+     */
+    for (uint32_t t = 0; t < update_codes(UPDATE_MD_NUM); t++) {
+        uint32_t cur[UPDATE_MD_NUM], counts[UPDATE_MD_NUM];
+
+        update_digits(t, cur, UPDATE_MD_NUM);
+        for (uint32_t start = 0; start < UPDATE_MD_NUM; start++) {
+            for (uint32_t k = 1; start + k <= UPDATE_MD_NUM; k++) {
+                for (uint32_t c = 0; c < update_codes(k); c++) {
+                    if (update_digits(c, counts, k) > UPDATE_TOP_MAX)
+                        continue;
+                    /* check_mdcfg_update() reports the failure itself */
+                    if (check_mdcfg_update(&iopmp, cur, start, counts, k) != 0)
+                        return -1;
+                }
+            }
+        }
+    }
     END_TEST();
 
     START_TEST("Lock MDCFG and reject a later change");

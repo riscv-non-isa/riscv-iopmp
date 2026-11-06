@@ -2169,12 +2169,23 @@ enum iopmp_error iopmp_get_md_entry_association(IOPMP_t *iopmp, uint32_t mdidx,
  * \retval IOPMP_ERR_REG_IS_LOCKED if MDCFG of given \p mdidx_start has been
  *         locked by MDCFGLCK.f
  * \retval IOPMP_ERR_ILLEGAL_VALUE if the written \p num_entries does not
- *         match the actual value. The actual value is output in \p num_entries
+ *         match the actual value. The actual value is output in \p num_entries,
+ *         and no later MDCFG is written
  *
  * \note This function must be called only when IOPMP MDCFG format is 0
  * \note The function checks the whole update before writing any MDCFG. An
  *       overlap among MDs outside the given ones also refuses the update, so
  *       software can only fix such a table by including the overlapping MDs
+ * \note The function writes only the MDCFG registers that change. If no
+ *       ranges of MDs overlap before the update, the write order keeps every
+ *       intermediate MDCFG table free of overlaps as well, so a write of
+ *       MDCFG(m) changes the entries of MD(m) and MD(m+1) only. A transaction
+ *       checked during the update can still meet a moved entry, so software
+ *       should keep transactions from being checked against the affected MDs,
+ *       for example, by stalling them, and should set the moved entries to OFF
+ *       or program them for their new MDs beforehand. Software must also make
+ *       sure that nothing else writes the MDCFG table during the update, and
+ *       that the writes reach the IOPMP in program order.
  */
 enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
                                                       uint32_t mdidx_start,
