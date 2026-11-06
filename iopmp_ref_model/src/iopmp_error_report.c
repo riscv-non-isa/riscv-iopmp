@@ -98,7 +98,9 @@ void iopmp_report_violation(iopmp_dev_t *iopmp, const iopmp_violation_t *violati
         // Subsequent error capture occurs when the following conditions are true:
         //   - An interrupt is triggered or a bus error is returned
         //   - There is a pending error capture, that is, current ERR_INFO.v = '1'
-        bool subsq_record = (violation->gen_intrpt || violation->gen_buserr) && err_reqinfo_v;
+        //   - The RRID is implemented, since only such an RRID has an SV bit
+        bool subsq_record = (violation->gen_intrpt || violation->gen_buserr) && err_reqinfo_v &&
+                            (violation->rrid < iopmp->reg_file.hwcfg1.rrid_num);
 
         if (subsq_record) {
             // Update violation window

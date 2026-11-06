@@ -1475,8 +1475,8 @@ int main()
     err_mfr_t err_mfr_svi;
     FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
     set_hwcfg0_enable(&iopmp);
-    write_register(&iopmp, ERR_MFR_OFFSET, 5 << 16, 4);     // ERR_MFR.svi = 5
-    FAIL_IF((read_register(&iopmp, ERR_MFR_OFFSET, 4) != (5 << 16)));
+    write_register(&iopmp, ERR_MFR_OFFSET, 3 << 16, 4);     // ERR_MFR.svi = 3
+    FAIL_IF((read_register(&iopmp, ERR_MFR_OFFSET, 4) != (3 << 16)));
     // RRID(33) has no MD. Its first violation is recorded, and its second one
     // is a subsequent violation in window 2.
     receiver_port(33, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
@@ -1491,6 +1491,38 @@ int main()
     FAIL_IF((err_mfr_svi.svs != 0));
     FAIL_IF((err_mfr_svi.svi != 2));
     FAIL_IF((err_mfr_svi.svw != 0));
+    END_TEST();)
+
+    START_TEST_IF(iopmp.reg_file.hwcfg2.mfr_en,
+                  "ERR_MFR.svi drops the bits beyond the implemented windows",
+    err_mfr_t err_mfr_win;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    set_hwcfg0_enable(&iopmp);
+    // RRID(0) ~ RRID(63) are in windows 0 ~ 3, so svi implements 2 bits
+    write_register(&iopmp, ERR_MFR_OFFSET, 5 << 16, 4);
+    FAIL_IF((read_register(&iopmp, ERR_MFR_OFFSET, 4) != (1 << 16)));
+    // An unknown RRID has no SV bit, so only its first violation is recorded
+    receiver_port(80, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    err_info_temp.raw = read_register(&iopmp, ERR_INFO_OFFSET, 4);
+    FAIL_IF((err_info_temp.v != 1));
+    FAIL_IF((err_info_temp.svc != 0));
+    // RRID(1) is implemented, so its subsequent violation is recorded
+    receiver_port(1, 360, 0, 3, READ_ACCESS, 0, &iopmp_trans_req);
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    err_mfr_win.raw = read_register(&iopmp, ERR_MFR_OFFSET, 4);
+    FAIL_IF((err_mfr_win.svs != 1));
+    FAIL_IF((err_mfr_win.svi != 0));
+    FAIL_IF((err_mfr_win.svw != 0x2));
+    // RRID(0) ~ RRID(47) are in windows 0 ~ 2, so svi still implements 2 bits
+    cfg_saved = cfg;
+    cfg.rrid_num = 48;
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    write_register(&iopmp, ERR_MFR_OFFSET, 7 << 16, 4);
+    FAIL_IF((read_register(&iopmp, ERR_MFR_OFFSET, 4) != (3 << 16)));
+    // Reset configuration
+    cfg = cfg_saved;
     END_TEST();)
 #endif
 

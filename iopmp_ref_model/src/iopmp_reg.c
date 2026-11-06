@@ -337,6 +337,28 @@ static uint32_t read_entry_addr(iopmp_dev_t *iopmp, uint16_t entry_idx,
 }
 
 /**
+ * @brief Gets the number of record windows that ERR_MFR.svi can index
+ *
+ * Every 16 RRIDs share a window. ERR_MFR.svi only implements the bits that
+ * index the windows of RRID 0 ~ HWCFG1.rrid_num-1, so it can index a power of
+ * 2 windows. A window without any implemented RRID never records a subsequent
+ * violation.
+ *
+ * @param iopmp The IOPMP instance.
+ *
+ * @return The number of record windows that ERR_MFR.svi can index.
+ */
+static int get_err_mfr_svi_window_num(iopmp_dev_t *iopmp)
+{
+    int window_num = (iopmp->reg_file.hwcfg1.rrid_num + 15) / 16;
+    int svi_window_num = 1;
+
+    while (svi_window_num < window_num)
+        svi_window_num <<= 1;
+    return svi_window_num;
+}
+
+/**
  * @brief Reads a register based on the given offset and byte size.
  *
  * This function handles special cases for specific offsets (e.g., error registers)
@@ -379,11 +401,12 @@ reg_intf_dw read_register(iopmp_dev_t *iopmp, uint64_t offset, uint8_t num_bytes
 
         // Start searching for errors from the current error index.
         int start_index = err_mfr.svi;
+        int window_num = get_err_mfr_svi_window_num(iopmp);
 
-        // Loop over the RRIDs to find any error state.
-        for (int i = 0; i < NUM_SVW; i++) {
-            // Calculate the current index, with wrap-around using modulo.
-            int current_index = (start_index + i) % NUM_SVW;
+        // Loop over the windows that svi can index to find any error state.
+        for (int i = 0; i < window_num; i++) {
+            // The window after the last one is window 0.
+            int current_index = (start_index + i) % window_num;
 
             // If an error is found (svw is non-zero), update the error status.
             if (iopmp->err_svs.sv[current_index].svw) {
@@ -400,7 +423,7 @@ reg_intf_dw read_register(iopmp_dev_t *iopmp, uint64_t offset, uint8_t num_bytes
 
         // Clear ERR_INFO.svc if there is no subsequent violation.
         iopmp->reg_file.err_info.svc = 0;
-        for (int i = 0; i < NUM_SVW; i++) {
+        for (int i = 0; i < window_num; i++) {
             if (iopmp->err_svs.sv[i].svw) {
                 iopmp->reg_file.err_info.svc = 1;
                 break;
@@ -753,8 +776,11 @@ void write_register(iopmp_dev_t *iopmp, uint64_t offset, reg_intf_dw data, uint8
         return;
 
     case ERR_MFR_OFFSET:
+        // ERR_MFR.svi is WARL. A write drops the bits that svi doesn't
+        // implement.
         if (iopmp->reg_file.hwcfg2.mfr_en) {
-            iopmp->reg_file.err_mfr.svi = err_mfr_temp.svi;
+            iopmp->reg_file.err_mfr.svi = err_mfr_temp.svi &
+                                          (get_err_mfr_svi_window_num(iopmp) - 1);
         }
         break;
 
