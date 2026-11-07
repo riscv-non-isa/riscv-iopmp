@@ -32,7 +32,6 @@
 :sectnums:
 :toc: left
 :toclevels: 4
-:sectnumlevels: 4
 :source-highlighter: pygments
 ifdef::backend-pdf[]
 :source-highlighter: coderay
@@ -77,9 +76,8 @@ include::chapter3.adoc[]
 include::chapter4.adoc[]
 include::extensions.adoc[]
 
+include::application_note/application_note.adoc[]
+
 //the index must precede the bibliography
 //include::index.adoc[]
 include::bibliography.adoc[]
-
-
-include::application_note/application_note.adoc[]
