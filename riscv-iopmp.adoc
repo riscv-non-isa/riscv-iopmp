@@ -1,9 +1,17 @@
 [[header]]
 :description: RISC-V IOPMP Architecture Specification
 :company: RISC-V.org
-:revdate: October, 2026
-:revnumber: 0.8.4
-:revremark: This document is in development. Assume everything can change. See http://riscv.org/spec-state for details.
+// Version and phase come from the build (the Makefile passes them from
+// scripts/release-info.sh); these fallbacks only apply to a manual asciidoctor
+// invocation.
+ifndef::revnumber[:revnumber: v0.0]
+ifndef::revdate[:revdate: 1/2023]
+ifndef::phase[:phase: draft-and-development]
+ifndef::phase_display[:phase_display: {phase}]
+ifndef::phase_notice[:phase_notice: Assume everything is subject to change. At this stage, ideas, structures, and content are still evolving. Feedback and iteration are encouraged as nothing is final, and adjustments may be frequent.]
+ifndef::revremark[:revremark: This document is under development. Expect potential changes. Visit http://riscv.org/spec-state for further details.]
+ifndef::milestone_id[:milestone_id: {phase}]
+ifndef::spec_short[:spec_short: riscv-iopmp]
 :url-riscv: http://riscv.org
 :doctype: book
 :preface-title: Preamble
@@ -30,8 +38,9 @@
 :listing-caption: Listing
 :figure-caption: Figure
 :sectnums:
-:toc: left
+:toc: macro
 :toclevels: 4
+:toc-title: Table of Contents
 :sectnumlevels: 4
 :source-highlighter: pygments
 ifdef::backend-pdf[]
@@ -51,13 +60,13 @@ endif::[]
 RISC-V IOPMP Task Group
 
 // Preamble
-[WARNING]
-.This document is in the link:http://riscv.org/spec-state[Development state]
-====
-Assume everything can change. This draft specification will change before
-being accepted as standard, so implementations made to this draft
-specification will likely not conform to the future standard.
-====
+// "Document State" is page 2 of the PDF; the TOC follows it (page 3) via the
+// toc::[] macro. See ARC_SUBMISSION.md section 3.3.
+[preface]
+== Document State
+*Note:* {phase_notice}
+
+toc::[]
 
 [preface]
 == Copyright and license information

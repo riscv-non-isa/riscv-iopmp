@@ -13,19 +13,57 @@
 # the Doc Template for RISC-V Extensions.
 
 DOCS := \
-	iopmp.adoc
+	riscv-iopmp.adoc
 
-SPECNAME := riscv-iopmp
+# Spec short name used in ARC-compliant PDF filenames.
+# Override in derived repos: e.g. SPEC_SHORT := Zifoo
+SPEC_SHORT ?= $(basename $(firstword $(DOCS)))
 
-# Build the version into the file names, taken from :revnumber: in the document
-# itself so that the name and the document can never disagree.
-REVNUMBER := $(shell sed -n 's/^:revnumber:[[:space:]]*//p' $(firstword $(DOCS)))
-DOCNAME := $(SPECNAME)-v$(REVNUMBER)
+DATE ?= $(shell date +%Y-%m-%d)
+DATE_STAMP := $(subst -,,$(DATE))
+VERSION ?= $(shell ./scripts/release-info.sh version)
+VERSION_NUM := $(patsubst v%,%,$(VERSION))
 
+# .docmode ("spec" default | "doc") -- see scripts/release-info.sh. "doc" is
+# for non-ratified documentation repos (e.g. docs-dev-guide): it keeps the PDF
+# and HTML targets but strips the ratification/phase surface below.
+DOC_MODE ?= $(shell ./scripts/release-info.sh mode)
+
+PHASE ?= $(shell ./scripts/release-info.sh phase "$(VERSION)")
+PHASE_DISPLAY ?= $(shell ./scripts/release-info.sh display "$(VERSION)")
+PHASE_NOTICE ?= $(shell ./scripts/release-info.sh notice "$(VERSION)")
+REVMARK ?= $(shell ./scripts/release-info.sh revremark "$(VERSION)")
+MILESTONE_ID ?= $(PHASE)
+
+# In spec mode, pass the phase/milestone attributes through to asciidoctor so
+# the Document State preface and the title-page revremark render. In doc mode
+# those are empty (see release-info.sh's neutralization), so instead pass a
+# single doc-mode marker attribute whose PRESENCE the document keys off.
+ifeq ($(DOC_MODE),doc)
+	PHASE_OPTS := -a doc-mode='doc'
+else
+	PHASE_OPTS := -a phase='${PHASE}' \
+	              -a phase_display='${PHASE_DISPLAY}' \
+	              -a phase_notice='${PHASE_NOTICE}' \
+	              -a milestone_id='${MILESTONE_ID}' \
+	              -a revremark='${REVMARK}'
+endif
+
+DOCKER_IMG := riscvintl/riscv-docs-base-container-image:latest
+DOCKER_BIN ?= docker
 ifneq ($(SKIP_DOCKER),true)
-	DOCKER_CMD := docker run --rm -v ${PWD}:/build -w /build \
-	ghcr.io/riscv/riscv-docs-base-container-image:latest \
-	/bin/sh -c
+	DOCKER_IS_PODMAN = \
+		$(shell ! ${DOCKER_BIN} -v 2>&1 | grep podman >/dev/null ; echo $$?)
+	ifeq "$(DOCKER_IS_PODMAN)" "1"
+		DOCKER_VOL_SUFFIX = :z
+	endif
+
+	DOCKER_CMD := \
+		${DOCKER_BIN} run --rm \
+			-v ${PWD}:/build${DOCKER_VOL_SUFFIX} \
+			-w /build \
+			${DOCKER_IMG} \
+			/bin/sh -c
 	DOCKER_QUOTE := "
 endif
 
@@ -41,6 +79,10 @@ ASCIIDOCTOR_HTML := asciidoctor
 OPTIONS := --trace \
            -a compress \
            -a mathematical-format=svg \
+           -a revnumber=${VERSION} \
+           -a revdate=${DATE} \
+           $(PHASE_OPTS) \
+           -a spec_short='${SPEC_SHORT}' \
            -a pdf-fontsdir=docs-resources/fonts \
            -a pdf-theme=docs-resources/themes/riscv-pdf.yml \
            $(XTRA_ADOC_OPTS) \
@@ -56,17 +98,41 @@ all: build
 
 build-docs: $(DOCS_PDF) $(DOCS_HTML)
 
+# ARC-compliant PDF name: <basename>-v<version>-<YYYYMMDD>.pdf, so every build
+# (local or CI) emits a uniquely identifiable artifact.
+ARC_PDF = $(1)-v$(VERSION_NUM)-$(DATE_STAMP).pdf
+
+# ...but only a build off a clean vX.YY -- a tag, or an explicit VERSION= as CI
+# passes -- is actually SUBMITTABLE. An untagged build resolves VERSION to
+# <latest>-<sha> (release-info.sh), so its filename carries the sha and is a dev
+# artifact. Report that honestly rather than asserting compliance it lacks.
+ARC_EXACT := $(if $(findstring -,$(VERSION)),,yes)
+
 vpath %.adoc $(SRC_DIR)
 
+# AsciiDoctor writes the ARC name itself (-o is resolved relative to -D), rather
+# than the build renaming build/<basename>.pdf afterwards. Inside the container
+# build/ is created by root, so a host-side `mv` into it fails with EPERM on
+# rootful Docker. Naming it at the source removes the failure mode.
 %.pdf: %.adoc
-	$(DOCKER_CMD) $(DOCKER_QUOTE) $(ASCIIDOCTOR_PDF) $(OPTIONS) $(REQUIRES) -o $(DOCNAME).pdf $< $(DOCKER_QUOTE)
+	$(DOCKER_CMD) $(DOCKER_QUOTE) $(ASCIIDOCTOR_PDF) $(OPTIONS) $(REQUIRES) -o $(call ARC_PDF,$*) $< $(DOCKER_QUOTE)
+	@test -f build/$(call ARC_PDF,$*) || { echo "ERROR: build/$(call ARC_PDF,$*) was not produced" >&2; exit 1; }
+	@if [ "$(DOC_MODE)" = "doc" ]; then \
+		echo "PDF: build/$(call ARC_PDF,$*)"; \
+	elif [ -n "$(ARC_EXACT)" ]; then \
+		echo "ARC submission PDF: build/$(call ARC_PDF,$*)"; \
+	else \
+		echo "Development PDF: build/$(call ARC_PDF,$*)"; \
+		echo "  Built from an untagged commit ($(VERSION)) -- NOT an ARC submission artifact."; \
+		echo "  Build from a v* tag, or run 'make VERSION=vX.YY', to produce one."; \
+	fi
 
 %.html: %.adoc
-	$(DOCKER_CMD) $(DOCKER_QUOTE) $(ASCIIDOCTOR_HTML) $(OPTIONS) $(REQUIRES) -o $(DOCNAME).html $< $(DOCKER_QUOTE)
+	$(DOCKER_CMD) $(DOCKER_QUOTE) $(ASCIIDOCTOR_HTML) $(OPTIONS) $(REQUIRES) $< $(DOCKER_QUOTE)
 
 build:
 	@echo "Checking if Docker is available..."
-	@if command -v docker >/dev/null 2>&1 ; then \
+	@if command -v ${DOCKER_BIN} >/dev/null 2>&1 ; then \
 		echo "Docker is available, building inside Docker container..."; \
 		$(MAKE) build-container; \
 	else \
