@@ -83,6 +83,12 @@ operate your IOPMP:
 #include "libiopmp.h"
 ```
 
+For an IOPMP with the MDCFG table (`MDCFG_FMT` = 0), `iopmp_init()` caches the
+table in `IOPMP_t`, so MDCFG updates and lookups do not read the MDCFG
+registers. Nothing but that `IOPMP_t` instance may then write the MDCFG table.
+If something else does, for example firmware before it hands the IOPMP over,
+call `iopmp_init()` again.
+
 ## Documentation
 
 Please check the `libiopmp.pdf` under `docs` folder.
