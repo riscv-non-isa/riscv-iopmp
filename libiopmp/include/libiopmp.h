@@ -21,6 +21,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/** The highest number of MDs that an IOPMP instance can implement */
+#define IOPMP_MD_NUM_MAX            63U
+
 /******************************************************************************/
 /* libiopmp data structure.                                                   */
 /******************************************************************************/
@@ -168,6 +171,11 @@ struct iopmp_instance {
         /** Flag to indicate if IOPMP is stalling some transactions */
         unsigned int is_stalling : 1;
     };
+
+    /**
+     * Cache of MDCFG(0).t ~ MDCFG(md_num - 1).t, used only when mdcfg_fmt=0
+     */
+    uint16_t mdcfg_t[IOPMP_MD_NUM_MAX];
 };
 
 /**
