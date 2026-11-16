@@ -77,8 +77,11 @@ static bool is_k_model(IOPMP_t *iopmp)
            iopmp->mdcfg_fmt == IOPMP_MDCFG_FMT_2;
 }
 
-enum iopmp_error iopmp_init(IOPMP_t *iopmp, uintptr_t addr, uint8_t srcmd_fmt,
-                            uint8_t mdcfg_fmt, uint32_t impid)
+static void cache_mdcfg_table(IOPMP_t *iopmp);
+
+static enum iopmp_error init_instance(IOPMP_t *iopmp, uintptr_t addr,
+                                      uint8_t srcmd_fmt, uint8_t mdcfg_fmt,
+                                      uint32_t impid)
 {
     const struct iopmp_driver *drv;
 
@@ -105,6 +108,19 @@ enum iopmp_error iopmp_init(IOPMP_t *iopmp, uintptr_t addr, uint8_t srcmd_fmt,
     (void)memset(iopmp, 0, sizeof(*iopmp));
 
     return iopmp_drv_init_common(iopmp, addr, srcmd_fmt, mdcfg_fmt, NULL);
+}
+
+enum iopmp_error iopmp_init(IOPMP_t *iopmp, uintptr_t addr, uint8_t srcmd_fmt,
+                            uint8_t mdcfg_fmt, uint32_t impid)
+{
+    enum iopmp_error ret;
+
+    ret = init_instance(iopmp, addr, srcmd_fmt, mdcfg_fmt, impid);
+    if (ret == IOPMP_OK) {
+        cache_mdcfg_table(iopmp);
+    }
+
+    return ret;
 }
 
 enum iopmp_error iopmp_get_vendor_id(IOPMP_t *iopmp, uint32_t *vendor)
@@ -1747,8 +1763,8 @@ enum iopmp_error iopmp_sps_get_rrid_md_rwx(IOPMP_t *iopmp, uint32_t rrid,
 
 /* The only operation with more than one implementation, and the only one
  * called for every MD in a loop, so the choice is resolved here once */
-static void get_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
-                             uint32_t *entry_top)
+static void read_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
+                              uint32_t *entry_top)
 {
     if ((iopmp->ops_override != NULL) &&
         (iopmp->ops_override->get_md_entry_top != NULL)) {
@@ -1758,6 +1774,31 @@ static void get_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
     } else {
         mdcfg_fmt_1_2_get_md_entry_top(iopmp, mdidx, entry_top);
     }
+}
+
+/* Fill the MDCFG cache from the IOPMP, through the override if any */
+static void cache_mdcfg_table(IOPMP_t *iopmp)
+{
+    uint32_t entry_top;
+
+    if (iopmp->mdcfg_fmt != IOPMP_MDCFG_FMT_0) {
+        return;
+    }
+
+    for (uint32_t m = 0; m < iopmp->md_num; m++) {
+        read_md_entry_top(iopmp, m, &entry_top);
+        iopmp->mdcfg_t[m] = (uint16_t)entry_top;
+    }
+}
+
+static void get_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
+                             uint32_t *entry_top)
+{
+    if (iopmp->mdcfg_fmt == IOPMP_MDCFG_FMT_0) {
+        *entry_top = iopmp->mdcfg_t[mdidx];
+        return;
+    }
+    read_md_entry_top(iopmp, mdidx, entry_top);
 }
 
 static inline void get_md_entry_association_nocheck(IOPMP_t *iopmp,
@@ -1863,6 +1904,8 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
             ret = mdcfg_fmt_0_set_md_entry_top(iopmp, mdidx_start + m,
                                                &this_top);
         }
+        /* MDCFG.t is WARL, so cache what the IOPMP holds */
+        iopmp->mdcfg_t[mdidx_start + m] = (uint16_t)this_top;
         /* Return actual number of entries */
         num_entries[m] = this_top - prev_top;
         if (ret != IOPMP_OK) {
