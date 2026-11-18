@@ -192,3 +192,67 @@ jobs:
             echo "- Downloading requires being signed in to GitHub (an Actions limitation)."
             echo "- Cross-component references into other specs still resolve only on the central site."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # The docs-resources submodule may move forward, never back. A commit that
+  # edits spec text can carry a downgrade of the pointer when the author's local
+  # checkout is stale (`git commit -a` stages it), and the playbook then requires
+  # files the older pin lacks. `validate` fails on that with only
+  # `Cannot find module .../docs-resources/antora-extensions/...`, which does not
+  # say the pointer moved; this job names the cause. Dependabot and template-sync
+  # bumps move the pin forward and pass.
+  docs-resources-pointer:
+    runs-on: ubuntu-latest
+    steps:
+      # Full history: the previous pin is read from the base commit's tree. The
+      # submodule itself is not cloned -- the comparison is asked of GitHub.
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check the docs-resources pointer did not move backwards
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT" = "pull_request" ]; then
+            base_ref="$PR_BASE"
+          else
+            base_ref="$PUSH_BEFORE"
+          fi
+
+          # Manual run, new branch (all-zero "before"), or a base that is not in
+          # the clone, as after a force-push: nothing to compare against.
+          if [ -z "$base_ref" ] || [ "${base_ref//0/}" = "" ] \
+              || ! git cat-file -e "$base_ref^{commit}" 2>/dev/null; then
+            echo "No base commit to compare against; skipping."
+            exit 0
+          fi
+
+          pointer() {
+            git ls-tree "$1" docs-resources | awk '$2 == "commit" {print $3}'
+          }
+          old="$(pointer "$base_ref")"
+          new="$(pointer HEAD)"
+
+          if [ -z "$old" ] || [ -z "$new" ] || [ "$old" = "$new" ]; then
+            echo "docs-resources pointer unchanged (${new:-absent})."
+            exit 0
+          fi
+
+          status="$(gh api "repos/riscv/docs-resources/compare/${old}...${new}" \
+            --jq .status)"
+          echo "docs-resources ${old:0:7} -> ${new:0:7}: new pin is ${status}"
+
+          case "$status" in
+            ahead|identical)
+              ;;
+            *)
+              echo "::error file=docs-resources::docs-resources moved from ${old:0:7} to ${new:0:7}, which is ${status} of the previous pin. Run 'git submodule update' and recommit without the submodule change."
+              exit 1
+              ;;
+          esac
