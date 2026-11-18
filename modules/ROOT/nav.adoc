@@ -18,5 +18,5 @@
 ** xref:configuration_protection.adoc[Configuration Protection]
 ** xref:registers.adoc[Registers]
 ** xref:extensions.adoc[Extensions]
-** xref:bibliography.adoc[Bibliography]
 ** xref:application_note.adoc[Application Note]
+** xref:bibliography.adoc[Bibliography]
