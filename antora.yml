@@ -29,7 +29,7 @@ nav:
 
 asciidoc:
   attributes:
-    page-group: isa
+    page-group: hardware
     # Path (Antora resource ID) to this spec's BibTeX database, consumed by the
     # central playbook's ASAM bibliography extension to resolve `cite:` macros and
     # render `bibliography::[]`. Without it the extension no-ops and those appear
