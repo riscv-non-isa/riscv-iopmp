@@ -259,14 +259,14 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |===
 |Field     |Bits       |R/W    |Default    |Description
 |`rsv`     |0:0        |ZERO   |0          |Must be zero on write, reserved for future.
-|`md`      |31:1       |WARL   |DC         |`md[_m_]` = 1 indicates RRID _s_ has read access and instruction fetch permission to the corresponding MD _m_.
+|`md`      |31:1       |WARL   |DC         |`md[_m_]` = 1 indicates RRID _s_ has read permission to the corresponding MD _m_.
 |===
 
 `SRCMD_RH(_s_)` is the read permission register of RRID _s_ for higher MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field     |Bits       |R/W    |Default    |Description
-|`mdh`     |31:0       |WARL   |DC         |`mdh[_m_]` = 1 indicates RRID _s_ has read access and instruction fetch permission to MD (_m_+31).
+|`mdh`     |31:0       |WARL   |DC         |`mdh[_m_]` = 1 indicates RRID _s_ has read permission to MD (_m_+31).
 |===
 
 [#REG_EXT_SRCMD_W]
