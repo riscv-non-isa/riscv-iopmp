@@ -1,0 +1,23 @@
+= Contributors
+
+This RISC-V specification has been contributed to directly or indirectly by (in alphabetical order):
+
+[%hardbreaks]
+
+Allen Baum,
+Alvin Che-Chia Chang,
+Andrew Dellow,
+Channing Tang,
+Dean Liberty,
+Erhu Feng,
+Geoffrey Thorpe,
+Joe Xie,
+Luis Cunha,
+Nicholas Wood,
+Nick Kossifidis,
+Oscar Jupp,
+Paul Shan-Chyun Ku,
+Perrine Peresse,
+Siqi Zhao,
+TY Ting-Yu Shyu,
+Vincenzo Izzo,

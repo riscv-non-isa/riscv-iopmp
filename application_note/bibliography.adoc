@@ -1,4 +1,0 @@
-[bibliography]
-=== Bibliography
-
-* [[[APPNOTE_IOPMP, 1]]] “RISC-V IOPMP Architecture Specification.” [Online]. Available: https://github.com/riscv-non-isa/iopmp-spec[github.com/riscv-non-isa/iopmp-spec].

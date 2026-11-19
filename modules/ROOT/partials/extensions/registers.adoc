@@ -1,0 +1,340 @@
+[#EXT_REGS]
+== Registers
+
+<<EXT_REGS_SUMMARY>>, <<EXT_SUMMARY_SRCMD>>, and <<EXT_SUMMARY_ENTRY>> provide summaries of registers, fields, and their corresponding sections.
+
+This chapter also introduces an additional error type (`ERR_INFO.etype`).
+<<EXT_ETYPE>> lists all error types defined in both the baseline specification and the extensions.
+
+:xrefstyle_bak: {xrefstyle}
+:xrefstyle: full
+
+[#EXT_REGS_SUMMARY]
+.Register and field summary of extensions between offset 0x0000 and 0x07FF.
+[%autowidth, options="header"]
+|===
+   |Offset    |Register    |Field            |Bits     |Related section(s)
+.10+|0x0010 .10+|`HWCFG2`  |`prio_entry`     |15:0  .3+|<<NON_PRIORITY_ENTRIES>>
+                           |`prio_ent_prog`  |16:16
+                           |`non_prio_en`    |17:17
+                           |`rsv`            |25:18    |(Must be zero on write, reserved for future)
+                           |`msi_en`         |26:26    |<<MSI>>
+                           |`peis`           |27:27 .2+|<<PEIS_PEES>>
+                           |`pees`           |28:28
+                           |`sps_en`         |29:29    |<<SPS_EXT>>
+                           |`stall_en`       |30:30    |<<Program_IOPMPs>>
+                           |`mfr_en`         |31:31    |<<MFR>>
+   |0x0030    |`MDSTALL`   2+|All                   .3+|<<Program_IOPMPs>>
+   |0x0034    |`MDSTALLH`  2+|All
+   |0x0038    |`RRIDSCP`   2+|All
+.3+|0x0060 .3+|`ERR_CFG`   |`msi_sel`         |3:3      |<<MSI>>
+                           |`stall_violation_en` |4:4      |<<Program_IOPMPs>>
+                           |`msidata`        |18:8     |<<MSI>>
+.3+|0x0064 .3+|`ERR_INFO`  |`msi_werr`       |3:3      |<<MSI>>
+                           |`etype`          |7:4      |<<Program_IOPMPs>>
+                           |`svc`            |8:8      |<<MFR>>
+   |0x0074 |`ERR_MFR`       2+|All                      |<<MFR>>
+   |0x0078 |`ERR_MSIADDR`   2+|All                   .2+|<<MSI>>
+   |0x007C |`ERR_MSIADDRH`  2+|All
+|===
+
+[#EXT_SUMMARY_SRCMD]
+.Register summary of extensions in the SRCMD table.
+[%autowidth, options="header"]
+|===
+3+h|SRCMD table, _s_ = 0...`HWCFG1.rrid_num`-1
+  h|Offset             h|Register          h|Related section(s)
+   |0x1008 + (_s_) × 32 |`SRCMD_R(_s_)`  .6+|<<SPS_EXT>>
+   |0x100C + (_s_) × 32 |`SRCMD_RH(_s_)`
+   |0x1010 + (_s_) × 32 |`SRCMD_W(_s_)`
+   |0x1014 + (_s_) × 32 |`SRCMD_WH(_s_)`
+   |0x1018 + (_s_) × 32 |`SRCMD_X(_s_)`
+   |0x101C + (_s_) × 32 |`SRCMD_XH(_s_)`
+|===
+
+[#EXT_SUMMARY_ENTRY]
+.Register and field summary of extensions in entry array.
+[%autowidth, options="header"]
+|===
+5+h|Entry array, _i_ = 0...`HWCFG1.entry_num`-1
+  h|Offset                h|Register           h|Field  h|Bits  h|Related section(s)
+.6+|`ENTRYOFFSET` +
+    + 0x8 + (_i_) × 16  .6+| `ENTRY_CFG(_i_)`   |`sire`  |5:5 .6+|<<PEIS_PEES>>
+                                                |`siwe`  |6:6
+                                                |`sixe`  |7:7
+                                                |`sere`  |8:8
+                                                |`sewe`  |9:9
+                                                |`sexe`  |10:10
+|===
+
+[#EXT_ETYPE]
+.All error types of the baseline specification and extension.
+[%autowidth, cols="<1,<5,<6", options="header"]
+|===
+ 2+| Error type                                        |Related section(s)
+   |0x00        | No error                          .7+|(baseline specification)
+   |0x01        | Illegal read access
+   |0x02        | Illegal write access/AMO
+   |0x03        | Illegal instruction fetch
+   |0x04        | Partial hit on a priority rule
+   |0x05        | Not hit any rule
+   |0x06        | Unknown RRID
+   |0x07        | Error due to a stalled transaction   |<<Program_IOPMPs>>
+   |0x08 ~ 0x0D | Reserved                          .2+|(baseline specification)
+   |0x0E ~ 0x0F | User-defined error
+|===
+
+:xrefstyle: {xrefstyle_bak}
+:xrefstyle_bak!:
+
+[#REG_EXT_HWCFG2]
+=== Hardware Configuration 2 (`HWCFG2`) Register
+
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field            |Bits   |R/W  |Default |Description
+|`prio_entry`     |15:0   |WARL |IMP     |Indicate the number of entries matched with priority. These rules should be placed in the lowest order. Within these rules, the lower order has a higher priority.
+If `HWCFG2.non_prio_en` is 0, the default value of `prio_entry` is DC.
+|`prio_ent_prog`  |16:16  |W1CS |IMP     |A write-1-clear bit is sticky to 0 and indicates if `HWCFG2.prio_entry` is programmable. Reset to 1 if the implementation supports programmable `prio_entry`, otherwise, hardwired to 0.
+If `HWCFG2.non_prio_en` is 0, the default value of `prio_ent_prog` is DC.
+|`non_prio_en`    |17:17  |R    |IMP     |Indicates whether the IOPMP supports non-priority entries.
+|`rsv`            |25:18  |ZERO |IMP     |Must be zero on write, reserved for future.
+|`msi_en`         |26:26  |R    |IMP     |Indicates whether the IOPMP supports MSI extension.
+|`peis`           |27:27  |R    |IMP     |Indicate if the IOPMP implements interrupt suppression per entry, including fields `sire` and `siwe` in `ENTRY_CFG(_i_)`, _i_ = 0...`HWCFG1.entry_num`-1.
+|`pees`           |28:28  |R    |IMP     |Indicate if the IOPMP implements the error suppression per entry, including fields `sere` and `sewe` in `ENTRY_CFG(_i_)`, _i_ = 0...`HWCFG1.entry_num`-1.
+|`sps_en`         |29:29  |R    |IMP     |Indicates secondary permission settings are supported; which are `SRCMD_R/RH(_s_)`, `SRCMD_W/WH(_s_)`, and `SRCMD_X/XH(_s_)` registers, _s_ = 0 ... `HWCFG1.rrid_num` - 1.
+|`stall_en`       |30:30  |R    |IMP     |Indicate if the IOPMP implements stall-related features, which are `MDSTALL`, `MDSTALLH`, `RRIDSCP`, and `ERR_CFG.stall_violation_en`.
+|`mfr_en`         |31:31  |R    |IMP     |Indicate if the IOPMP implements Multi Faults Record, that is `ERR_MFR` and `ERR_INFO.svc`.
+|===
+
+[#REG_EXT_MDSTALL]
+=== MD-Based Stall Control (`MDSTALL` and `MDSTALLH`) Registers
+`MDSTALL` is optional and used to support atomicity issue while programming the IOPMP, as the IOPMP rule may not be updated in a single transaction.
+
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field       |Bits   |R/W    |Default    |Description
+|`exempt`    |0:0    |W      |N/A       a|
+Stall transactions from selected RRIDs:
+
+* 0: the RRIDs are associated with a selected MD
+* 1: the RRIDs are not associated with any selected MD
+
+Please refer <<#STALL_TRANSACTIONS, Stall transactions>> for detailed operations.
+|`is_busy`   |0:0    |R      |0         a|Indicates the status of previous writing `MDSTALL` and `RRIDSCP`:
+
+* 0: the write has taken effect or no previous write
+* 1: the write has not taken effect
+|`md`        |31:1   |WARL   |0          |Writing `md[__m__]`=1 selects MD _m_; reading `md[__m__]` = 1 means MD __m__ selected.
+|===
+
+`MDSTALLH` is optional and is a higher MD part of `MDSTALL`.
+
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field       |Bits   |R/W    |Default    |Description
+|`mdh`       |31:0   |WARL   |0          |Writing `mdh[__m__]`=1 selects MD (__m__+31); reading `mdh[__m__]` = 1 means MD (__m__+31) selected.
+|===
+
+[#REG_EXT_RRIDSCP]
+=== RRID Cherry Pick Stall Control (`RRIDSCP`) Register
+`RRIDSCP` is optional and used to support fine-grained control for <<#REG_EXT_MDSTALL,MD-Based Stall Control>>.
+
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field       |Bits   |R/W    |Default    |Description
+|`rrid`      |15:0   |WARL   |DC         |RRID to select.
+|`rsv`       |29:16  |ZERO   |0          |Must be zero on write, reserved for future.
+|`op`        |31:30  |W      |N/A       a|
+* 0: query
+* 1: stall transactions associated with selected RRID
+* 2: don't stall transactions associated with selected RRID
+* 3: reserved
+|`stat`      |31:30  |R      |0         a|
+* 0: `RRIDSCP` is not implemented
+* 1: transactions associated with selected RRID are stalled
+* 2: transactions associated with selected RRID are not stalled
+* 3: unimplemented or unselectable RRID
+|===
+
+[#REG_EXT_ERR_CFG]
+=== Error Configuration (`ERR_CFG`) Register with All Extensions
+`ERR_CFG` is a read/write WARL register used to configure the global error reporting behavior on an IOPMP violation.
+
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field                |Bits   |R/W    |Default    |Description
+|`l`                  |0:0    |W1SS   |IMP        |`ERR_CFG.l` lock bit for the `ERR_CFG` register.
+|`ie`                 |1:1    |WARL   |IMP        |Enable the interrupt of the IOPMP rule violation.
+|`rs`                 |2:2    |WARL   |IMP       a|
+
+To suppress an error response on an IOPMP rule violation.
+
+* 0x0: respond an implementation-defined error, such as a bus error
+* 0x1: respond a success with an implementation-defined value to the requester instead of an error
+|`msi_sel`            |3:3    |WARL   |IMP       a|Indicates whether the IOPMP triggers interrupt by MSI or wired interrupt:
+
+* 0x0: the IOPMP triggers interrupt by wired interrupt
+* 0x1: the IOPMP triggers interrupt by MSI
+|`stall_violation_en` |4:4    |WARL   |IMP        |Indicates whether the IOPMP faults stalled transactions. When the bit is set, the IOPMP faults the transactions if the corresponding RRID is not exempt from stall and the IOPMP cannot accommodate more stall transactions.
+|`rsv1`               |7:5    |ZERO   |0          |Must be zero on write, reserved for future.
+|`msidata`            |18:8   |WARL   |IMP        |The data to trigger MSI.
+|`rsv2`               |31:19  |ZERO   |0          |Must be zero on write, reserved for future.
+|===
+
+[#REG_EXT_ERR_INFO]
+=== Error Information (`ERR_INFO`) Register with All Extensions
+`ERR_INFO` captures more detailed error information.
+Error status bits that are cleared by software use the RW1C convention unless otherwise specified.
+RW1C allows software to acknowledge a pending status bit by writing 1 to the selected bit, while writing 0 to a bit leaves that bit unchanged.
+This convention helps avoid accidentally clearing adjacent status bits during read-modify-write sequences and prevents software from writing arbitrary values into hardware-generated status fields.
+
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field      |Bits   |R/W   |Default |Description
+|`v`        |0:0    |RW1C  |0       | Indicates whether the illegal capture recorder (`ERR_REQID`, `ERR_REQADDR`, `ERR_REQADDRH`, `ERR_INFO.ttype`, and `ERR_INFO.etype`) contains valid information. When a violation is captured, `v` is set and remains set until software acknowledges the captured violation. The associated captured error fields are hardware-generated and read-only, so software cannot forge the captured fault context through these registers. An interrupt will be triggered if a violation is detected and related interrupt enable/suppression configure bits are not disabled, and the interrupt will remain asserted until `v` is cleared. +
+Writing 1 to `ERR_INFO.v` acknowledges the captured violation, clears `v`, reactivates the illegal recorder, and deasserts the interrupt if no other interrupt condition remains pending. Writing 0 causes no effect on the bit.
+|`ttype`    |2:1    |R     |0      a|Indicates the transaction type of the first captured violation:
+
+- 0x00 = reserved
+- 0x01 = read access
+- 0x02 = write access/AMO
+- 0x03 = instruction fetch
+|`msi_werr` |3:3    |RW1C   |0          |It's asserted when the write access to trigger an IOPMP originated MSI has failed. If `HWCFG2.msi_en` = 0, it is not implemented and must be hardwired to zero. +
+Write 1 clears the bit. Write 0 causes no effect on the bit.
+|`etype`    |7:4    |R     |0      a| Indicates the type of violation, also referred to as the error type.
+
+- 0x00 = no error
+- 0x01 = illegal read access
+- 0x02 = illegal write access/AMO
+- 0x03 = illegal instruction fetch
+- 0x04 = partial hit on a priority rule
+- 0x05 = not hit any rule
+- 0x06 = unknown RRID
+- 0x07 = error due to a stalled transaction. It should not happen when `ERR_CFG.stall_violation_en` is 0.
+- 0x08 ~ 0x0D = N/A, reserved for future
+- 0x0E ~ 0x0F = user-defined error
+
+|`svc`      |8:8    |R      |0      |Indicate there is a subsequent violation caught in `ERR_MFR`.
+Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
+| `rsv`     |31:9   |ZERO   |0      |Must be zero on write, reserved for future.
+|===
+
+[#REG_EXT_ERR_MFR]
+=== Multi-Faults Record (`ERR_MFR`) Register
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field  |Bits     |R/W    |Default    |Description
+|`svw`  |15:0     |R      |DC         | Subsequent violations in the window indexed by `svi`. `svw[_j_]`=1 for the at least one subsequent violation issued from RRID= `svi` * 16 + _j_.
+|`svi`  |27:16    |WARL   |0          | Window's index to search subsequent violations. When read, IOPMP sequentially scans all windows from `svi` until one subsequent violation is found. Once the last implemented window is scanned, the next window to be scanned is the first record window (index is 0). `svi` indexes the found subsequent violation or `svi` has been rounded back to the same value. After read, the window's content, `svw`, should be clean.
+|`rsv`   |30:28    |ZERO   |0         |Must be zero on write, reserved for future.
+|`svs`   |31:31    |R      |0        a|The status of this window's content:
+
+* 0x0 : no subsequent violation found
+* 0x1 : subsequent violation found
+|===
+
+[#REG_EXT_ERR_MSIADDR]
+=== MSI Message Address (`ERR_MSIADDR` and `ERR_MSIADDRH`) Registers
+
+`ERR_MSIADDR` indicates the lower MSI message address for error reporting.
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field         |Bits       |R/W    |Default    |Description
+|`msiaddr`     |31:0       |WARL   |IMP        |The address to trigger MSI. For `HWCFG0.addrh_en`=0, it contains bits 33 to 2 of the address; otherwise, it contains bits 31 to 0. Implemented only if `HWCFG2.msi_en`=1.
+|===
+
+`ERR_MSIADDRH` indicates the higher MSI message address for error reporting.
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field         |Bits       |R/W    |Default    |Description
+|`msiaddrh`    |31:0       |WARL   |IMP        |The higher 32 bits of the address to trigger MSI. Implemented only if `HWCFG0.addrh_en`=1 and `HWCFG2.msi_en`=1.
+|===
+
+[#REG_EXT_SRCMD_R]
+=== RRID _s_ Read Permission (`SRCMD_R(_s_)` and `SRCMD_RH(_s_)`) Registers
+
+`SRCMD_R(_s_)` is the read permission register of RRID _s_ for lower MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field     |Bits       |R/W    |Default    |Description
+|`rsv`     |0:0        |ZERO   |0          |Must be zero on write, reserved for future.
+|`md`      |31:1       |WARL   |DC         |`md[_m_]` = 1 indicates RRID _s_ has read access and instruction fetch permission to the corresponding MD _m_.
+|===
+
+`SRCMD_RH(_s_)` is the read permission register of RRID _s_ for higher MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field     |Bits       |R/W    |Default    |Description
+|`mdh`     |31:0       |WARL   |DC         |`mdh[_m_]` = 1 indicates RRID _s_ has read access and instruction fetch permission to MD (_m_+31).
+|===
+
+[#REG_EXT_SRCMD_W]
+=== RRID _s_ Write Permission (`SRCMD_W(_s_)` and `SRCMD_WH(_s_)`) Registers
+
+`SRCMD_W(_s_)` is the write permission register of RRID _s_ for lower MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field     |Bits       |R/W    |Default    |Description
+|`rsv`     |0:0        |ZERO   |0          |Must be zero on write, reserved for future.
+|`md`      |31:1       |WARL   |DC         |`md[_m_]` = 1 indicates RRID _s_ has write permission to the corresponding MD _m_.
+|===
+
+`SRCMD_WH(_s_)` is the write permission register of RRID _s_ for higher MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field     |Bits       |R/W    |Default    |Description
+|`mdh`     |31:0       |WARL   |DC         |`mdh[_m_]` = 1 indicates RRID _s_ has write permission to MD (_m_+31).
+|===
+
+[#REG_EXT_SRCMD_X]
+=== RRID _s_ Instruction Fetch Permission (`SRCMD_X(_s_)` and `SRCMD_XH(_s_)`) Registers
+
+`SRCMD_X(_s_)` is the instruction fetch permission register of RRID _s_ for lower MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field     |Bits       |R/W    |Default    |Description
+|`rsv`     |0:0        |ZERO   |0          |Must be zero on write, reserved for future.
+|`md`      |31:1       |WARL   |DC         |`md[_m_]` = 1 indicates RRID _s_ has instruction fetch permission to the corresponding MD _m_.
+|===
+
+`SRCMD_XH(_s_)` is the instruction fetch permission register of RRID _s_ for higher MDs, _s_ = 0...`HWCFG1.rrid_num`-1.
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field     |Bits       |R/W    |Default    |Description
+|`mdh`     |31:0       |WARL   |DC         |`mdh[_m_]` = 1 indicates RRID _s_ has instruction fetch permission to MD (_m_+31).
+|===
+
+[#REG_EXT_ENTRY_CFG]
+=== Entry _i_ Configuration (`ENTRY_CFG(_i_)`) Register with All Extensions
+
+[cols="<2,<1,<1,<1,<6",options="header"]
+|===
+|Field   |Bits       |R/W    |Default    |Description
+|`r`     |0:0        |WARL   |DC         |The read permission to protected memory region.
+|`w`     |1:1        |WARL   |DC         |The write permission to the protected memory region.
+|`x`     |2:2        |WARL   |DC         |The instruction fetch permission to the protected memory region.
+|`a`     |4:3        |WARL   |DC         a|The address-matching mode of the IOPMP entry. See <<terminology_and_concepts.adoc#ADDRESS_MATCHING_MODES, Address Matching Modes>>.
+
+* 0x0: OFF
+* 0x1: TOR
+* 0x2: NA4
+* 0x3: NAPOT
+|`sire`  |5:5        |WARL      |IMP        |Suppress interrupt for an illegal read access caught by the entry.
+|`siwe`  |6:6        |WARL      |IMP        |Suppress interrupt for an illegal write access/AMO caught by the entry.
+|`sixe`  |7:7        |WARL      |IMP        |Suppress interrupt on an illegal instruction fetch caught by the entry.
+|`sere`  |8:8        |WARL      |IMP       a|Suppress the (bus) error on an illegal read access caught by the entry:
+
+* 0x0: respond an error if `ERR_CFG.rs` is 0x0.
+* 0x1: do not respond an error. User to define the behavior, e.g., respond a success with an implementation-defined value to the requester.
+
+|`sewe`  |9:9        |WARL      |IMP       a|Suppress the (bus) error on an illegal write access/AMO caught by the entry:
+
+* 0x0: respond an error if `ERR_CFG.rs` is 0x0.
+* 0x1: do not respond an error. User to define the behavior, e.g., respond a success if response is needed.
+|`sexe`  |10:10      |WARL      |IMP       a|Suppress the (bus) error on an illegal instruction fetch caught by the entry:
+
+* 0x0: respond an error if `ERR_CFG.rs` is 0x0.
+* 0x1: do not respond an error. User to define the behavior, e.g., respond a success with an implementation-defined value to the requester.
+|`rsv`   |31:11      |ZERO   |0          |Must be zero on write, reserved for future.
+|===
