@@ -40,3 +40,7 @@ _images/
 
 # asciidoctor-diagram checksum cache, regenerated on every build
 /.asciidoctor/
+
+# Vale style packages, downloaded into StylesPath by `vale sync` at lint time
+# (see .vale.ini). Fetched on every run, never committed.
+/.github/styles/
