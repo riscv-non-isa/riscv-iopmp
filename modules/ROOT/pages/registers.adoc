@@ -96,10 +96,20 @@ INFO registers are used to indicate the IOPMP instance configuration info.
 |===
 
 === Hardware Configuration 2 (`HWCFG2`) Register
+ifdef::env-site[]
+See xref:extensions.adoc#IOPMP_EXTENSIONS[].
+endif::[]
+ifndef::env-site[]
 See xref:extensions.adoc#IOPMP_EXTENSIONS[xrefstyle=full].
+endif::[]
 
 === Hardware Configuration 3 (`HWCFG3`) Register
+ifdef::env-site[]
+See xref:application_note.adoc#APPLICATION_NOTE[].
+endif::[]
+ifndef::env-site[]
 See xref:application_note.adoc#APPLICATION_NOTE[xrefstyle=full].
+endif::[]
 
 
 === User-defined Hardware Configuration (`HWCFG_USER`) Register

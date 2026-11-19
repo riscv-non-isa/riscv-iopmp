@@ -17,3 +17,19 @@
 iopmp_ref_model/bin/
 iopmp_ref_model/lib/
 libiopmp/build/
+
+# Build output
+/build/*
+
+# Local Antora preview tooling (see package.json / ANTORA.md Phase 5)
+/node_modules/
+/.cache/
+# Generated diagram/math artifacts (kroki fetch + asciidoctor-mathematical);
+# regenerated every build, never committed.
+_images/
+/src/images/
+# GitHub Pages build artifacts (scripts/build-pages-site.sh): the playbook it
+# derives from antora-playbook.yml, and the cover logo it stages out of the
+# docs-resources submodule. Both are regenerated on every build.
+/antora-pages-playbook.yml
+/modules/ROOT/images/risc-v_logo.svg
