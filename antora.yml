@@ -29,7 +29,10 @@ nav:
 
 asciidoc:
   attributes:
-    page-group: hardware
+    # page-group only applies to ratified specifications. This one is still under
+    # development, so it is listed in the playbook's development-specs.yml
+    # (Under Development) instead. Set the group when the spec is ratified.
+    #page-group: hardware
     # Path (Antora resource ID) to this spec's BibTeX database, consumed by the
     # central playbook's ASAM bibliography extension to resolve `cite:` macros and
     # render `bibliography::[]`. Without it the extension no-ops and those appear
