@@ -85,7 +85,7 @@ operate your IOPMP:
 
 ## Documentation
 
-Please check the `libiopmp.pdf` under `docs` folder. 
+Please check the `libiopmp.pdf` under `docs` folder.
 
 ## Vendor drivers
 
