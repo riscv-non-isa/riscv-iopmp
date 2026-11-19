@@ -36,9 +36,12 @@ REVMARK ?= $(shell ./scripts/release-info.sh revremark "$(VERSION)")
 MILESTONE_ID ?= $(PHASE)
 
 # In spec mode, pass the phase/milestone attributes through to asciidoctor so
-# the Document State preface and the title-page revremark render. In doc mode
-# those are empty (see release-info.sh's neutralization), so instead pass a
-# single doc-mode marker attribute whose PRESENCE the document keys off.
+# spec-sample.adoc's Document State preface and the title-page revremark
+# render. In doc mode those are empty (see release-info.sh's neutralization),
+# so instead pass a single doc-mode marker attribute: spec-sample.adoc and
+# index.adoc key their ifdef::doc-mode[]/ifndef::doc-mode[] guards off its
+# PRESENCE, not a blank value, which is what lets them drop those sections
+# entirely rather than rendering them empty.
 ifeq ($(DOC_MODE),doc)
 	PHASE_OPTS := -a doc-mode='doc'
 else
@@ -48,7 +51,6 @@ else
 	              -a milestone_id='${MILESTONE_ID}' \
 	              -a revremark='${REVMARK}'
 endif
-
 DOCKER_IMG := riscvintl/riscv-docs-base-container-image:latest
 DOCKER_BIN ?= docker
 ifneq ($(SKIP_DOCKER),true)
@@ -90,14 +92,41 @@ OPTIONS := --trace \
            --failure-level=ERROR
 REQUIRES := --require=asciidoctor-bibtex \
             --require=asciidoctor-diagram \
+			--require=asciidoctor-lists \
             --require=asciidoctor-mathematical \
             --require=./scripts/cross-page-xrefs.rb
 
-.PHONY: all build clean build-container build-no-container build-docs
+DOCS_RESOURCES_CONFIG := docs-resources/global-config.adoc
+
+.PHONY: all build clean build-container build-no-container build-docs stamp-antora check-docs-resources
 
 all: build
 
-build-docs: $(DOCS_PDF) $(DOCS_HTML)
+check-docs-resources:
+	@if [ ! -f "$(DOCS_RESOURCES_CONFIG)" ]; then \
+		echo "Notice: docs-resources submodule is missing or uninitialized."; \
+		if command -v git >/dev/null 2>&1 && [ -d .git ]; then \
+			echo "Automatically initializing git submodules..."; \
+			git submodule update --init --recursive || { \
+				echo "ERROR: Failed to update git submodules automatically."; \
+				echo "Please run manually: git submodule update --init --recursive"; \
+				exit 1; \
+			}; \
+		else \
+			echo "ERROR: Missing docs-resources directory and git is unavailable."; \
+			echo "Please clone submodules or run: git submodule update --init --recursive"; \
+			exit 1; \
+		fi; \
+	fi
+
+# Stamp antora.yml with the current VERSION/DATE so the Antora HTML site version
+# stays in EXACT lockstep with the ARC PDF (both derive from release-info.sh /
+# the git tag). Run at release time -- e.g. `make stamp-antora VERSION=v0.8`.
+# No Docker needed; edits antora.yml in place and must be committed.
+stamp-antora:
+	./scripts/stamp-antora-version.sh "$(VERSION)" "$(DATE)"
+
+build-docs: check-docs-resources $(DOCS_PDF) $(DOCS_HTML)
 
 # ARC-compliant PDF name: <basename>-v<version>-<YYYYMMDD>.pdf, so every build
 # (local or CI) emits a uniquely identifiable artifact.
@@ -114,7 +143,9 @@ vpath %.adoc $(SRC_DIR)
 # AsciiDoctor writes the ARC name itself (-o is resolved relative to -D), rather
 # than the build renaming build/<basename>.pdf afterwards. Inside the container
 # build/ is created by root, so a host-side `mv` into it fails with EPERM on
-# rootful Docker. Naming it at the source removes the failure mode.
+# rootful Docker -- which is exactly how v0.61 shipped a non-compliant
+# build/spec-sample.pdf while the log claimed the ARC name. Naming it at the
+# source removes the failure mode instead of reporting it.
 %.pdf: %.adoc
 	$(DOCKER_CMD) $(DOCKER_QUOTE) $(ASCIIDOCTOR_PDF) $(OPTIONS) $(REQUIRES) -o $(call ARC_PDF,$*) $< $(DOCKER_QUOTE)
 	@test -f build/$(call ARC_PDF,$*) || { echo "ERROR: build/$(call ARC_PDF,$*) was not produced" >&2; exit 1; }
@@ -150,6 +181,10 @@ build-no-container:
 	@echo "Starting build..."
 	$(MAKE) SKIP_DOCKER=true build-docs
 	@echo "Build completed successfully."
+
+# Update docker image to latest
+docker-pull-latest:
+	${DOCKER_BIN} pull ${DOCKER_IMG}
 
 clean:
 	@echo "Cleaning up generated files..."
