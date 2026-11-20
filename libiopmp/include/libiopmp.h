@@ -774,12 +774,12 @@ static inline bool iopmp_get_support_chk_x(IOPMP_t *iopmp)
  *
  * \param[in] iopmp             The IOPMP instance to be checked
  *
- * \retval 1 if HWCFG3.no_x = 1
- * \retval 0 if HWCFG3.no_x = 0
+ * \retval 1 if HWCFG3.xinr = 0 and HWCFG3.no_x = 1
+ * \retval 0 otherwise
  */
 static inline bool iopmp_get_no_x(IOPMP_t *iopmp)
 {
-    return (iopmp->no_x == 1U);
+    return (iopmp->xinr == 0U) && (iopmp->no_x == 1U);
 }
 
 /**

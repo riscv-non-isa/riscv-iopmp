@@ -2289,6 +2289,18 @@ int main(void)
     /**********************************************************************/
     /* Instance getters that report the reset state                       */
     /**********************************************************************/
+    START_TEST("Check no_x is reported only when xinr is 0");
+    cfg.no_x = true;
+    FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
+    FAIL_IF(iopmp_get_no_x(&iopmp) != true);
+    /* no_x has no effect when xinr is 1 */
+    cfg.xinr = true;
+    FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
+    FAIL_IF(iopmp_get_no_x(&iopmp) != false);
+    cfg.xinr = false;
+    cfg.no_x = false;
+    END_TEST();
+
     START_TEST("Get granularity detected at initialization");
     FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
     FAIL_IF(iopmp_get_granularity(&iopmp) != iopmp_dev.granularity);
