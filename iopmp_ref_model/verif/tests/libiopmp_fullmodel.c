@@ -2533,6 +2533,19 @@ int main(void)
     FAIL_IF(ret != IOPMP_OK || val_u32 != 24 || val_u32_2 != ENTRY_PER_MD);
     END_TEST();
 
+    START_TEST("An MD starts at the highest top of the lower MDs");
+    FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
+    {
+        uint32_t tops[3] = {30, 10, 40};
+        FAIL_IF(libiopmp_setup_preinit_mdcfg(&iopmp, tops, 3) != IOPMP_OK);
+    }
+    /* Entry 10 ~ 29 belong to MD(0), so MD(2) owns entry 30 ~ 39 only */
+    ret = iopmp_get_md_entry_association(&iopmp, 1, &val_u32, &val_u32_2);
+    FAIL_IF(ret != IOPMP_OK || val_u32 != 30 || val_u32_2 != 0);
+    ret = iopmp_get_md_entry_association(&iopmp, 2, &val_u32, &val_u32_2);
+    FAIL_IF(ret != IOPMP_OK || val_u32 != 30 || val_u32_2 != 10);
+    END_TEST();
+
     START_TEST("Lock MDCFG and reject a later change");
     FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
     FAIL_IF(program_full_mdcfg_table(&iopmp) != 0);

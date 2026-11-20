@@ -1801,25 +1801,35 @@ static void get_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
     read_md_entry_top(iopmp, mdidx, entry_top);
 }
 
+/* The highest top of MD(0) ~ MD(mdidx - 1), where MD(mdidx) starts */
+static uint32_t get_md_entry_base(IOPMP_t *iopmp, uint32_t mdidx)
+{
+    uint32_t base = 0, top;
+
+    for (uint32_t m = 0; m < mdidx; m++) {
+        get_md_entry_top(iopmp, m, &top);
+        if (top > base) {
+            base = top;
+        }
+    }
+
+    return base;
+}
+
 static inline void get_md_entry_association_nocheck(IOPMP_t *iopmp,
                                                     uint32_t mdidx,
                                                     uint32_t *entry_idx_start,
                                                     uint32_t *num_entry)
 {
-    uint32_t md_entry_top_prev, md_entry_top;
+    uint32_t md_entry_base, md_entry_top;
 
-    if (mdidx != 0U) {
-        get_md_entry_top(iopmp, mdidx - 1U, &md_entry_top_prev);
-    } else {
-        md_entry_top_prev = 0;
-    }
+    md_entry_base = get_md_entry_base(iopmp, mdidx);
     get_md_entry_top(iopmp, mdidx, &md_entry_top);
 
-    *entry_idx_start = md_entry_top_prev;
-    /* MDCFG(m).t can be below MDCFG(m-1).t, which gives MD m an empty range.
-     * Report no entry for such an MD rather than underflowing the subtraction */
-    *num_entry = (md_entry_top > md_entry_top_prev) ?
-                 (md_entry_top - md_entry_top_prev) : 0;
+    *entry_idx_start = md_entry_base;
+    /* A top at or below the base leaves MD(mdidx) empty */
+    *num_entry = (md_entry_top > md_entry_base) ?
+                 (md_entry_top - md_entry_base) : 0U;
 }
 
 enum iopmp_error iopmp_get_md_entry_association(IOPMP_t *iopmp, uint32_t mdidx,
