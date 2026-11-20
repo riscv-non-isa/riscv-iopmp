@@ -2842,6 +2842,18 @@ int main(void)
     FAIL_IF(val_u64 != 0x3);
     END_TEST();
 
+    START_TEST("An entry in overlapping MD ranges belongs to the lower MD");
+    FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
+    {
+        uint32_t tops[3] = {30, 10, 40};
+        FAIL_IF(libiopmp_setup_preinit_mdcfg(&iopmp, tops, 3) != IOPMP_OK);
+    }
+    ret = iopmp_entries_get_belong_md(&iopmp, 15, 1, &val_u64);
+    FAIL_IF(ret != IOPMP_OK || val_u64 != 0x1);
+    ret = iopmp_entries_get_belong_md(&iopmp, 10, 30, &val_u64);
+    FAIL_IF(ret != IOPMP_OK || val_u64 != 0x5);
+    END_TEST();
+
     START_TEST("Report belonging MDs with invalid arguments");
     FAIL_IF(iopmp_entries_get_belong_md(&iopmp, CFG_ENTRY_NUM, 1, &val_u64) != IOPMP_ERR_OUT_OF_BOUNDS);
     FAIL_IF(iopmp_entries_get_belong_md(&iopmp, CFG_ENTRY_NUM - 1, 2, &val_u64) != IOPMP_ERR_OUT_OF_BOUNDS);
