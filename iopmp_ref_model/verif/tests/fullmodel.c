@@ -614,6 +614,26 @@ int main()
     cfg.xinr = false;
     END_TEST();
 
+    START_TEST("Test NAPOT - 8 Byte Instruction access when xinr=1 and no_x=1");
+    cfg_saved = cfg;
+    cfg.xinr = true;
+    cfg.no_x = true;
+    // no_x has no effect when xinr=1
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    configure_srcmd_n(&iopmp, SRCMD_EN, 32, 0x10, 4);
+    configure_srcmd_n(&iopmp, SRCMD_R, 32, 0x10, 4);
+    configure_mdcfg_n(&iopmp, 3, 2, 4);
+    configure_entry_n(&iopmp, ENTRY_ADDR, 1, 90, 4); // (364 >> 2) and keeping lsb 0
+    configure_entry_n(&iopmp, ENTRY_CFG, 1, (NAPOT | R), 4);
+    set_hwcfg0_enable(&iopmp);
+    receiver_port(32, 360, 0, 3, INSTR_FETCH, 0, &iopmp_trans_req);
+    // requestor Port Signals
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_SUCCESS, ENTRY_MATCH);
+    write_register(&iopmp, ERR_INFO_OFFSET, 0, 4);
+    cfg = cfg_saved;
+    END_TEST();
+
     START_TEST_IF(iopmp.imp_mdlck, "Test MDLCK, updating locked srcmd_en field",
     reset_iopmp(&iopmp, &cfg);
     write_register(&iopmp, MDLCK_OFFSET, 0x10, 4);

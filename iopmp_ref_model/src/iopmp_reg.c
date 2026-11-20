@@ -82,9 +82,6 @@ int reset_iopmp(iopmp_dev_t *iopmp, iopmp_cfg_t *cfg)
     // ERR_REQID depends on error capture feature
     if (cfg->imp_err_reqid_eid && cfg->no_err_rec)
         return -1;
-    // The no_x feature depends on xinr feature not implemented
-    if (cfg->no_x && cfg->xinr)
-        return -1;
     // When MDCFG table format is 0, the md_entry_num must be zero
     if ((cfg->mdcfg_fmt == 0) && (cfg->md_entry_num != 0))
         return -1;

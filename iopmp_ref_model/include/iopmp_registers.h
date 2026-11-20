@@ -174,12 +174,14 @@ typedef union {
                                             //    (md_entry_num + 1) entries
                                             // md_entry_num is locked if HWCFG0.enable is 1.
         uint32_t xinr             : 1;      // Indicates whether the IOPMP treats the instruction fetch accesses as data
-                                            // read accesses. All fields related to instruction fetch can be fixed to 0,
-                                            // or unavailable.
-        uint32_t no_x             : 1;      // For HWCFG2.xinr=0, when no_x=1, the IOPMP denies all instruction fetch
-                                            // transactions; otherwise, it depends on the x-bit in ENTRY_CFG(i). For
-                                            // xinr=1, no_x has no effect.
+                                            // read accesses. If xinr=1, all fields related to instruction fetch can be
+                                            // hardwired to 0, or not implemented.
+        uint32_t no_x             : 1;      // When xinr=0 and no_x=1, the IOPMP denies all instruction fetch
+                                            // transactions. In this case, all fields related to instruction fetch can
+                                            // be hardwired to 0, or not implemented. If xinr=1, no_x has no effect.
         uint32_t no_w             : 1;      // Indicate if the IOPMP always denies write accesses as if no rule matched.
+                                            // If no_w=1, all fields related to write access can be hardwired to 0, or
+                                            // not implemented.
         uint32_t rrid_transl_en   : 1;      // Indicate the if tagging a new RRID on the initiator port is supported
         uint32_t rrid_transl_prog : 1;      // A write-1-clear bit that is sticky to 0. Indicates if the rrid_transl
                                             // field is programmable. Supported only for rrid_transl_en=1, otherwise,
