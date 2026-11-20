@@ -541,6 +541,12 @@ void write_register(iopmp_dev_t *iopmp, uint64_t offset, reg_intf_dw data, uint8
 
     uint32_t md_num = iopmp->reg_file.hwcfg0.md_num;
 
+    // The fields related to write access have no effect when no_w is 1, and
+    // those related to instruction fetch when xinr or no_x is 1. The model
+    // hardwires them to zero then.
+    bool hardwired_zero_w_fields = iopmp->reg_file.hwcfg3.no_w;
+    bool hardwired_zero_x_fields = iopmp->reg_file.hwcfg3.xinr || iopmp->reg_file.hwcfg3.no_x;
+
 // SRCMD format handling
     srcmd_en_t  srcmd_en_temp  = { .raw = lwr_data4 & ((md_num >= 31) ? UINT32_MAX : GENMASK_32(md_num, 0)) };
     srcmd_enh_t srcmd_enh_temp = { .raw = (md_num < 32) ? 0 : upr_data4 & GENMASK_32(md_num - 32, 0) };
@@ -818,6 +824,10 @@ void write_register(iopmp_dev_t *iopmp, uint64_t offset, reg_intf_dw data, uint8
             if ((srcmd_reg >= 2) && !iopmp->reg_file.hwcfg2.sps_en) {
                 return;
             }
+            if ((hardwired_zero_w_fields && ((srcmd_reg == 4) || (srcmd_reg == 5))) ||
+                (hardwired_zero_x_fields && ((srcmd_reg == 6) || (srcmd_reg == 7)))) {
+                return;
+            }
 
             switch (srcmd_reg) {
             // SRCMD_EN Register
@@ -904,16 +914,18 @@ void write_register(iopmp_dev_t *iopmp, uint64_t offset, reg_intf_dw data, uint8
         if (srcmd_tbl_access && !is_srcmd_locked) {
             uint32_t srcmd_reg = SRCMD_REG_INDEX(offset);
             uint32_t srcmd_idx = SRCMD_TABLE_INDEX(offset);
+            // Bit 2*s+1 holds the write permission of RRID s
+            uint32_t perm_mask = hardwired_zero_w_fields ? 0x55555555 : UINT32_MAX;
 
             switch (srcmd_reg) {
             // SRCMD_PERM Register
             case 0:
-                iopmp->reg_file.srcmd_table[srcmd_idx].srcmd_perm.perm = srcmd_perm_temp.perm;
+                iopmp->reg_file.srcmd_table[srcmd_idx].srcmd_perm.perm = srcmd_perm_temp.perm & perm_mask;
                 if (num_bytes == 4) break;
 
             // SRCMD_PERMH Register
             case 1:
-                iopmp->reg_file.srcmd_table[srcmd_idx].srcmd_permh.permh = srcmd_permh_temp.permh;
+                iopmp->reg_file.srcmd_table[srcmd_idx].srcmd_permh.permh = srcmd_permh_temp.permh & perm_mask;
                 break;
 
             default:
@@ -944,8 +956,8 @@ void write_register(iopmp_dev_t *iopmp, uint64_t offset, reg_intf_dw data, uint8
                 // Entry Cfg Register
                 case 2:
                     iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.r = entry_cfg_temp.r;
-                    iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.w = entry_cfg_temp.w;
-                    iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.x = entry_cfg_temp.x;
+                    iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.w = hardwired_zero_w_fields ? 0 : entry_cfg_temp.w;
+                    iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.x = hardwired_zero_x_fields ? 0 : entry_cfg_temp.x;
                     if (entry_cfg_temp.a == IOPMP_TOR) {
                         // ENTRY_CFG.A is WARL, check tor_en before writing.
                         if (iopmp->reg_file.hwcfg0.tor_en) {
@@ -964,15 +976,15 @@ void write_register(iopmp_dev_t *iopmp, uint64_t offset, reg_intf_dw data, uint8
                     // Interrupt suppression bits are writeable, only if interrupt suppression is supported
                     if (iopmp->reg_file.hwcfg2.peis){
                         iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.sire = entry_cfg_temp.sire;
-                        iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.siwe = entry_cfg_temp.siwe;
-                        iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.sixe = entry_cfg_temp.sixe;
+                        iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.siwe = hardwired_zero_w_fields ? 0 : entry_cfg_temp.siwe;
+                        iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.sixe = hardwired_zero_x_fields ? 0 : entry_cfg_temp.sixe;
                     }
 
                     // Error suppression bits are writeable, only if error suppression is supported
                     if (iopmp->reg_file.hwcfg2.pees) {
                         iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.sere = entry_cfg_temp.sere;
-                        iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.sewe = entry_cfg_temp.sewe;
-                        iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.sexe = entry_cfg_temp.sexe;
+                        iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.sewe = hardwired_zero_w_fields ? 0 : entry_cfg_temp.sewe;
+                        iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.sexe = hardwired_zero_x_fields ? 0 : entry_cfg_temp.sexe;
                     }
                     iopmp->iopmp_entries.entry_table[entry_idx].entry_cfg.rsv = 0;
                     break;
