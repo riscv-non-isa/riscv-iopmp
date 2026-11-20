@@ -4,9 +4,9 @@ The `no_x` bit in the `HWCFG3` register (<<#REG_EXT_HWCFG3,Hardware Configuratio
 
 The global instruction fetch behavior is controlled by the `xinr` and `no_x` bits in the `HWCFG3` register:
 
-* `xinr = 1`: The IOPMP checks instruction fetch accesses as data read accesses (<<Data Only Devices and Buses>>), and `no_x` has no effect
-* `xinr = 0`, `no_x = 0`: The IOPMP performs instruction fetch permission checking based on entry-level rules
-* `xinr = 0`, `no_x = 1`: The IOPMP denies all instruction fetch transactions and reports them with error type "not hit any rule" (0x05)
+* `xinr`=1: The IOPMP checks instruction fetch accesses as data read accesses (<<Data Only Devices and Buses>>), and `no_x` has no effect
+* `xinr`=0, `no_x`=0: The IOPMP performs instruction fetch permission checking based on entry-level rules
+* `xinr`=0, `no_x`=1: The IOPMP denies all instruction fetch transactions and reports them with error type "not hit any rule" (0x05)
 
-When `no_x` = 1, the fields related to instruction fetch have no effect, so all of them can be hardwired to 0, or not implemented.
+When `no_x`=1, the fields related to instruction fetch have no effect, so all of them can be hardwired to 0, or not implemented.
 This can apply to `x` in `ENTRY_CFG`, `sixe`/`sexe` of <<extensions.adoc#PEIS_PEES,Per-entry Interrupt/Bus Error Suppression>> in `ENTRY_CFG`, and `SRCMD_X`/`SRCMD_XH` of <<extensions.adoc#SPS_EXT,SPS extension>>.
