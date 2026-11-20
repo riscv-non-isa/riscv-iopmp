@@ -2645,16 +2645,15 @@ enum iopmp_error iopmp_entries_get_belong_md(IOPMP_t *iopmp, uint32_t idx_start,
     idx_end = idx_start + num_entry;
     md_base = 0;
     mds_req = 0;
-    /* The tops are monotonically increasing, so the top of MD(m-1) is the base
-     * of MD(m) and a single walk reads each top exactly once */
+    /* MD(m) owns [md_base, md_top), where md_base is the highest lower top */
     for (uint32_t m = 0; m < iopmp->md_num; m++) {
         get_md_entry_top(iopmp, m, &md_top);
-        /* [md_base, md_top) overlaps [idx_start, idx_end). An MD owning no
-         * entry can not be hit */
-        if (md_base < md_top && md_base < idx_end && idx_start < md_top) {
-            mds_req |= (uint64_t)1 << m;
+        if (md_top > md_base) {
+            if ((md_base < idx_end) && (idx_start < md_top)) {
+                mds_req |= (uint64_t)1 << m;
+            }
+            md_base = md_top;
         }
-        md_base = md_top;
     }
 
     *mds = mds_req;
