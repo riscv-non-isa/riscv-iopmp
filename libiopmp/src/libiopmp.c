@@ -1960,7 +1960,7 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
                                                       uint32_t md_num)
 {
     enum iopmp_error ret;
-    uint32_t prev_top, this_top;
+    uint32_t base, this_top;
     uint16_t tops[IOPMP_MD_NUM_MAX];
     uint16_t next_tops[IOPMP_MD_NUM_MAX];
 
@@ -1993,7 +1993,7 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
         return ret;
     }
 
-    prev_top = (mdidx_start != 0U) ? tops[mdidx_start - 1U] : 0U;
+    base = get_md_entry_base(iopmp, mdidx_start);
     for (uint32_t m = 0; m < md_num; m++) {
         this_top = next_tops[mdidx_start + m];
         /* This operation is mandatory for MDCFG_FMT_0 */
@@ -2009,13 +2009,14 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
         /* MDCFG.t is WARL, so cache what the IOPMP holds */
         iopmp->mdcfg_t[mdidx_start + m] = (uint16_t)this_top;
         /* Return actual number of entries */
-        num_entries[m] = this_top - prev_top;
+        num_entries[m] = (this_top > base) ? (this_top - base) : 0U;
         if (ret != IOPMP_OK) {
             return ret;
         }
 
-        /* Update previous top */
-        prev_top = this_top;
+        if (this_top > base) {
+            base = this_top;
+        }
     }
 
     return ret;
