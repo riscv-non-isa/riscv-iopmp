@@ -77,8 +77,11 @@ static bool is_k_model(IOPMP_t *iopmp)
            iopmp->mdcfg_fmt == IOPMP_MDCFG_FMT_2;
 }
 
-enum iopmp_error iopmp_init(IOPMP_t *iopmp, uintptr_t addr, uint8_t srcmd_fmt,
-                            uint8_t mdcfg_fmt, uint32_t impid)
+static void cache_mdcfg_table(IOPMP_t *iopmp);
+
+static enum iopmp_error init_instance(IOPMP_t *iopmp, uintptr_t addr,
+                                      uint8_t srcmd_fmt, uint8_t mdcfg_fmt,
+                                      uint32_t impid)
 {
     const struct iopmp_driver *drv;
 
@@ -105,6 +108,19 @@ enum iopmp_error iopmp_init(IOPMP_t *iopmp, uintptr_t addr, uint8_t srcmd_fmt,
     (void)memset(iopmp, 0, sizeof(*iopmp));
 
     return iopmp_drv_init_common(iopmp, addr, srcmd_fmt, mdcfg_fmt, NULL);
+}
+
+enum iopmp_error iopmp_init(IOPMP_t *iopmp, uintptr_t addr, uint8_t srcmd_fmt,
+                            uint8_t mdcfg_fmt, uint32_t impid)
+{
+    enum iopmp_error ret;
+
+    ret = init_instance(iopmp, addr, srcmd_fmt, mdcfg_fmt, impid);
+    if (ret == IOPMP_OK) {
+        cache_mdcfg_table(iopmp);
+    }
+
+    return ret;
 }
 
 enum iopmp_error iopmp_get_vendor_id(IOPMP_t *iopmp, uint32_t *vendor)
@@ -1747,8 +1763,8 @@ enum iopmp_error iopmp_sps_get_rrid_md_rwx(IOPMP_t *iopmp, uint32_t rrid,
 
 /* The only operation with more than one implementation, and the only one
  * called for every MD in a loop, so the choice is resolved here once */
-static void get_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
-                             uint32_t *entry_top)
+static void read_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
+                              uint32_t *entry_top)
 {
     if ((iopmp->ops_override != NULL) &&
         (iopmp->ops_override->get_md_entry_top != NULL)) {
@@ -1758,6 +1774,31 @@ static void get_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
     } else {
         mdcfg_fmt_1_2_get_md_entry_top(iopmp, mdidx, entry_top);
     }
+}
+
+/* Fill the MDCFG cache from the IOPMP, through the override if any */
+static void cache_mdcfg_table(IOPMP_t *iopmp)
+{
+    uint32_t entry_top;
+
+    if (iopmp->mdcfg_fmt != IOPMP_MDCFG_FMT_0) {
+        return;
+    }
+
+    for (uint32_t m = 0; m < iopmp->md_num; m++) {
+        read_md_entry_top(iopmp, m, &entry_top);
+        iopmp->mdcfg_t[m] = (uint16_t)entry_top;
+    }
+}
+
+static void get_md_entry_top(IOPMP_t *iopmp, uint32_t mdidx,
+                             uint32_t *entry_top)
+{
+    if (iopmp->mdcfg_fmt == IOPMP_MDCFG_FMT_0) {
+        *entry_top = iopmp->mdcfg_t[mdidx];
+        return;
+    }
+    read_md_entry_top(iopmp, mdidx, entry_top);
 }
 
 static inline void get_md_entry_association_nocheck(IOPMP_t *iopmp,
@@ -1815,13 +1856,103 @@ static bool check_md_idx_range(IOPMP_t *iopmp, uint32_t mdidx_start,
            md_num <= (iopmp->md_num - mdidx_start);
 }
 
+/**
+ * \brief Check if the range of any MD overlaps the range of a lower MD
+ *
+ * The range of MD(m) is [tops[m - 1], tops[m]), where tops[-1] is 0. It
+ * overlaps the range of a lower MD exactly when it is not empty and begins
+ * below the highest top of the lower MDs.
+ *
+ * \param[in] tops              MDCFG(0).t ~ MDCFG(md_num - 1).t
+ * \param[in] md_num            The number of MDs
+ *
+ * \retval true if the ranges of two MDs overlap
+ * \retval false if no ranges overlap
+ */
+static bool md_ranges_overlap(const uint16_t *tops, uint32_t md_num)
+{
+    uint32_t base = 0, highest = 0;
+
+    for (uint32_t m = 0; m < md_num; m++) {
+        if ((tops[m] > base) && (base < highest)) {
+            return true;
+        }
+        if (tops[m] > highest) {
+            highest = tops[m];
+        }
+        base = tops[m];
+    }
+
+    return false;
+}
+
+/**
+ * \brief Prepare an update of MDCFG(mdidx_start) ~ MDCFG(mdidx_start + md_num - 1)
+ *
+ * Read the MDCFG table into \p tops, and put the table after the update into
+ * \p next_tops. The new tops of the given MDs follow from \p num_entries, and
+ * the other MDs keep their tops.
+ *
+ * \param[in] iopmp             The IOPMP instance
+ * \param[in] mdidx_start       The start index of target MDs
+ * \param[in] num_entries       The number of entries of each target MD
+ * \param[in] md_num            The number of target MDs
+ * \param[out] tops             The current MDCFG(0).t ~ MDCFG(md_num - 1).t
+ * \param[out] next_tops        The MDCFG(0).t ~ MDCFG(md_num - 1).t to write
+ *
+ * \retval IOPMP_OK if the update can be written
+ * \retval IOPMP_ERR_OUT_OF_BOUNDS if a new top exceeds the number of entries
+ * \retval IOPMP_ERR_NOT_ALLOWED if the ranges of two MDs overlap after the
+ *         update
+ */
+static enum iopmp_error prepare_md_entry_tops(IOPMP_t *iopmp,
+                                              uint32_t mdidx_start,
+                                              const uint32_t *num_entries,
+                                              uint32_t md_num, uint16_t *tops,
+                                              uint16_t *next_tops)
+{
+    uint32_t top;
+
+    for (uint32_t m = 0; m < iopmp->md_num; m++) {
+        get_md_entry_top(iopmp, m, &top);
+        tops[m] = (uint16_t)top;
+        next_tops[m] = tops[m];
+    }
+
+    /*
+     * Check every top before writing any, so that an error leaves the MDCFG
+     * table untouched. Compare against the room left to avoid wrapping
+     */
+    top = (mdidx_start != 0U) ? tops[mdidx_start - 1U] : 0U;
+    for (uint32_t m = 0; m < md_num; m++) {
+        if ((top > iopmp->entry_num) ||
+            (num_entries[m] > (iopmp->entry_num - top))) {
+            return IOPMP_ERR_OUT_OF_BOUNDS;
+        }
+        top += num_entries[m];
+        next_tops[mdidx_start + m] = (uint16_t)top;
+    }
+
+    /*
+     * An entry in an overlap belongs to the lower-indexed MD only, so it does
+     * not apply through the other MD as software probably intended
+     */
+    if (md_ranges_overlap(next_tops, iopmp->md_num)) {
+        return IOPMP_ERR_NOT_ALLOWED;
+    }
+
+    return IOPMP_OK;
+}
+
 enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
                                                       uint32_t mdidx_start,
                                                       uint32_t *num_entries,
                                                       uint32_t md_num)
 {
-    enum iopmp_error ret = IOPMP_OK;    /* md_num=0 skips the loop below */
+    enum iopmp_error ret;
     uint32_t prev_top, this_top;
+    uint16_t tops[IOPMP_MD_NUM_MAX];
+    uint16_t next_tops[IOPMP_MD_NUM_MAX];
 
     iopmp_assert(iopmp_is_initialized(iopmp));
 
@@ -1842,17 +1973,19 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
         return IOPMP_ERR_REG_IS_LOCKED;
     }
 
-    if (mdidx_start != 0U) {
-        get_md_entry_top(iopmp, mdidx_start - 1U, &prev_top);
-    } else {
-        prev_top = 0;
+    if (md_num == 0U) {
+        return IOPMP_OK;
     }
 
+    ret = prepare_md_entry_tops(iopmp, mdidx_start, num_entries, md_num, tops,
+                                next_tops);
+    if (ret != IOPMP_OK) {
+        return ret;
+    }
+
+    prev_top = (mdidx_start != 0U) ? tops[mdidx_start - 1U] : 0U;
     for (uint32_t m = 0; m < md_num; m++) {
-        this_top = prev_top + num_entries[m];
-        if (this_top > iopmp->entry_num) {
-            return IOPMP_ERR_OUT_OF_BOUNDS;
-        }
+        this_top = next_tops[mdidx_start + m];
         /* This operation is mandatory for MDCFG_FMT_0 */
         if ((iopmp->ops_override != NULL) &&
             (iopmp->ops_override->set_md_entry_top != NULL)) {
@@ -1863,6 +1996,8 @@ enum iopmp_error iopmp_set_md_entry_association_multi(IOPMP_t *iopmp,
             ret = mdcfg_fmt_0_set_md_entry_top(iopmp, mdidx_start + m,
                                                &this_top);
         }
+        /* MDCFG.t is WARL, so cache what the IOPMP holds */
+        iopmp->mdcfg_t[mdidx_start + m] = (uint16_t)this_top;
         /* Return actual number of entries */
         num_entries[m] = this_top - prev_top;
         if (ret != IOPMP_OK) {

@@ -92,6 +92,18 @@ static int program_full_mdcfg_table(IOPMP_t *iopmp)
     return 0;
 }
 
+static enum iopmp_error libiopmp_setup_preinit_mdcfg(IOPMP_t *iopmp,
+                                                     const uint32_t *tops,
+                                                     uint32_t n)
+{
+    for (uint32_t m = 0; m < n; m++)
+        write_register(&iopmp_dev, MDCFG_TABLE_BASE_OFFSET + (m * 4), tops[m], 4);
+
+    memset(iopmp, 0, sizeof(*iopmp));
+    return iopmp_init(iopmp, 0, cfg.srcmd_fmt, cfg.mdcfg_fmt,
+                      IOPMP_IMPID_NOT_SPECIFIED);
+}
+
 int main(void)
 {
     IOPMP_t iopmp = {0};
@@ -2466,6 +2478,59 @@ int main(void)
 
     START_TEST("Set MD/entry association of zero MD is a no-op");
     FAIL_IF(iopmp_set_md_entry_association_multi(&iopmp, 0, &val_u32, 0) != IOPMP_OK);
+    END_TEST();
+
+    START_TEST("Set MD/entry association checks every MD before writing any");
+    FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
+    FAIL_IF(program_full_mdcfg_table(&iopmp) != 0);
+    {
+        /* MD(1) is out of bounds, so MD(0) is not written either */
+        uint32_t num_entries[2] = {ENTRY_PER_MD / 2, CFG_ENTRY_NUM};
+        FAIL_IF(iopmp_set_md_entry_association_multi(&iopmp, 0, num_entries, 2) != IOPMP_ERR_OUT_OF_BOUNDS);
+        /* A count that wraps the top around is out of bounds as well */
+        num_entries[1] = UINT32_MAX;
+        FAIL_IF(iopmp_set_md_entry_association_multi(&iopmp, 0, num_entries, 2) != IOPMP_ERR_OUT_OF_BOUNDS);
+    }
+    for (uint32_t m = 0; m < 2; m++) {
+        ret = iopmp_get_md_entry_association(&iopmp, m, &val_u32, &val_u32_2);
+        FAIL_IF(ret != IOPMP_OK);
+        FAIL_IF(val_u32 != m * ENTRY_PER_MD);
+        FAIL_IF(val_u32_2 != ENTRY_PER_MD);
+    }
+    END_TEST();
+
+    START_TEST("Set MD/entry association refuses overlapping MD ranges");
+    FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
+    FAIL_IF(program_full_mdcfg_table(&iopmp) != 0);
+    /*
+     * MDCFG(0).t = 20 empties MD(1) and puts entries 16 ~ 19 in the ranges of
+     * MD(0) and MD(2)
+     */
+    val_u32 = 20;
+    FAIL_IF(iopmp_set_md_entry_association(&iopmp, 0, &val_u32) != IOPMP_ERR_NOT_ALLOWED);
+    ret = iopmp_get_md_entry_association(&iopmp, 0, &val_u32, &val_u32_2);
+    FAIL_IF(ret != IOPMP_OK || val_u32_2 != ENTRY_PER_MD);
+    /* Giving MD(1) no entry at the same time keeps the ranges apart */
+    {
+        uint32_t num_entries[2] = {20, 0};
+        FAIL_IF(iopmp_set_md_entry_association_multi(&iopmp, 0, num_entries, 2) != IOPMP_OK);
+    }
+    ret = iopmp_get_md_entry_association(&iopmp, 2, &val_u32, &val_u32_2);
+    FAIL_IF(ret != IOPMP_OK || val_u32 != 20 || val_u32_2 != 4);
+    /*
+     * An overlap between MD(3) and MD(1) refuses an update of other MDs, and
+     * only an update covering MD(3) fixes it
+     */
+    {
+        uint32_t tops[4] = {8, 16, 4, 24};
+        uint32_t num_entries[2] = {ENTRY_PER_MD, ENTRY_PER_MD};
+        FAIL_IF(libiopmp_setup_preinit_mdcfg(&iopmp, tops, 4) != IOPMP_OK);
+        val_u32 = 0;
+        FAIL_IF(iopmp_set_md_entry_association(&iopmp, 10, &val_u32) != IOPMP_ERR_NOT_ALLOWED);
+        FAIL_IF(iopmp_set_md_entry_association_multi(&iopmp, 2, num_entries, 2) != IOPMP_OK);
+    }
+    ret = iopmp_get_md_entry_association(&iopmp, 3, &val_u32, &val_u32_2);
+    FAIL_IF(ret != IOPMP_OK || val_u32 != 24 || val_u32_2 != ENTRY_PER_MD);
     END_TEST();
 
     START_TEST("Lock MDCFG and reject a later change");
