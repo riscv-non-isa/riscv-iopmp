@@ -57,7 +57,7 @@ This section summarizes the additional registers and fields required when implem
 `md_entry_num` is locked if `HWCFG0.enable` is 1.
 
 |`xinr`             |11:11 |R    |IMP       a|Indicates whether the IOPMP treats the instruction fetch accesses as data read accesses.
-All fields related to instruction fetch can be hardwired to 0, or not implemented.
+If `xinr`=1, all fields related to instruction fetch can be hardwired to 0, or not implemented.
 
 |`no_x`             |12:12 |R    |IMP        |When `xinr`=0 and `no_x`=1, the IOPMP denies all instruction fetch transactions.
 In this case, all fields related to instruction fetch can be hardwired to 0, or not implemented.
