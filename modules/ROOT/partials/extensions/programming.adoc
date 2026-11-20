@@ -134,4 +134,4 @@ It is unnecessary to allow every implemented RRID to be selectable by `RRIDSCP.r
 
 To handle reserved operation of `RRIDSCP.op` (0x3), IOPMP can ignore corresponding writes or update `RRIDSCP.rrid` only.
 
-`ERR_CFG.stall_violation_en` is a WARL field so it can be programmable or fixed.
+`ERR_CFG.stall_violation_en` is a WARL field so it can be programmable or hardwired.
