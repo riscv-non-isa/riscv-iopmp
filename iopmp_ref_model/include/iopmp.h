@@ -98,7 +98,7 @@ typedef struct iopmp_cfg_t {
     uint8_t srcmd_fmt;                  // SRCMD Table format
     uint8_t md_entry_num;               // For MDCFG format 1 and 2. Each memory domain has exactly (md_entry_num + 1) entries
     bool xinr;                          // IOPMP treats the instruction fetch accesses as data read accesses
-    bool no_x;                          // IOPMP denies all instruction fetch transactions
+    bool no_x;                          // IOPMP denies all instruction fetch transactions if xinr is 0
     bool no_w;                          // IOPMP denies all write accesses transactions
     bool rrid_transl_en;                // IOPMP supports tag a new RRID on the initiator port
     bool rrid_transl_prog;              // HWCFG3.rrid_transl field is programmable
