@@ -38,7 +38,7 @@ This section summarizes the additional registers and fields required when implem
 |`mdcfg_fmt`       |1:0   |R     |IMP      a|Indicate the MDCFG format:
 
 * 0x0: Format 0. The MDCFG table is implemented.
-* 0x1: Format 1. No MDCFG table. `HWCFG3.md_entry_num` is fixed.
+* 0x1: Format 1. No MDCFG table. `HWCFG3.md_entry_num` is hardwired.
 * 0x2: Format 2. No MDCFG table. `HWCFG3.md_entry_num` is programmable.
 * 0x3: reserved.
 
@@ -57,7 +57,7 @@ This section summarizes the additional registers and fields required when implem
 `md_entry_num` is locked if `HWCFG0.enable` is 1.
 
 |`xinr`             |11:11 |R    |IMP       a|Indicates whether the IOPMP treats the instruction fetch accesses as data read accesses.
-All fields related to instruction fetch can be fixed to 0, or not implemented.
+All fields related to instruction fetch can be hardwired to 0, or not implemented.
 
 |`no_x`             |12:12 |R    |IMP        |When `no_x`=1, the IOPMP denies all instruction fetch transactions; otherwise, it depends on the `x`-bit in `ENTRY_CFG(_i_)`.
 
