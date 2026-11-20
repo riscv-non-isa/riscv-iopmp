@@ -6,5 +6,5 @@ When `no_w` is set to 1, the IOPMP denies all write transactions regardless of e
 
 The `no_w` bit is a read-only implementation parameter that indicates whether the IOPMP instance supports this global write protection feature. System designers can leverage this configuration for applications where write access control is unnecessary, achieving both area savings and design simplification.
 
-When `no_w` = 1, the fields related to write access have no effect, so all of them can be hardwired to 0, or not implemented.
+When `no_w`=1, the fields related to write access have no effect, so all of them can be hardwired to 0, or not implemented.
 This can apply to `w` in `ENTRY_CFG`, `siwe`/`sewe` of <<extensions.adoc#PEIS_PEES,Per-entry Interrupt/Bus Error Suppression>> in `ENTRY_CFG`, `SRCMD_W`/`SRCMD_WH` of <<extensions.adoc#SPS_EXT,SPS extension>>, and the write permission bits of `SRCMD_PERM`/`SRCMD_PERMH` of <<SRCMD-MD-indexed,MD-indexed Format>>.
