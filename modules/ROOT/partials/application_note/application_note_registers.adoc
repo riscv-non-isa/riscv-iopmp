@@ -59,8 +59,9 @@ This section summarizes the additional registers and fields required when implem
 |`xinr`             |11:11 |R    |IMP       a|Indicates whether the IOPMP treats the instruction fetch accesses as data read accesses.
 All fields related to instruction fetch can be hardwired to 0, or not implemented.
 
-|`no_x`             |12:12 |R    |IMP        |When `no_x`=1, the IOPMP denies all instruction fetch transactions; otherwise, it depends on the `x`-bit in `ENTRY_CFG(_i_)`.
-If `no_x`=1, all fields related to instruction fetch can be hardwired to 0, or not implemented.
+|`no_x`             |12:12 |R    |IMP        |When `xinr`=0 and `no_x`=1, the IOPMP denies all instruction fetch transactions.
+In this case, all fields related to instruction fetch can be hardwired to 0, or not implemented.
+If `xinr`=1, `no_x` has no effect.
 
 |`no_w`             |13:13 |R    |IMP        |Indicate if the IOPMP always denies write accesses as if no rule matched.
 If `no_w`=1, all fields related to write access can be hardwired to 0, or not implemented.
