@@ -80,7 +80,7 @@ INFO registers are used to indicate the IOPMP instance configuration info.
 |`enable`       |0:0    |W1SS   |IMP       |Indicate if the IOPMP checks transactions by default. If it is programmable, it must be initialized to 0 and sticky to 1. If it is not programmable, it must be hardwired to 1.
 |`HWCFG2_en`    |1:1    |R      |IMP       |Indicate if `HWCFG2` is implemented.
 |`HWCFG3_en`    |2:2    |R      |IMP       |Indicate if `HWCFG3` is implemented.
-|`rsv`          |22:3   |ZERO   |0         |Must be zero on write, reserved for future.
+|`reserved`     |22:3   |ZERO   |0         |Must be zero on write, reserved for future.
 |`no_err_rec`   |23:23  |R      |IMP       |Indicate if error record (`ERR_INFO.ttype`, `ERR_INFO.etype`, `ERR_REQADDR`, `ERR_REQADDRH`, `ERR_REQID` and `ERR_USER(0)` ~ `ERR_USER(7)`) is not implemented.
 |`md_num`       |29:24  |R      |IMP       |Indicate the supported number of MD in the instance.
 |`addrh_en`     |30:30  |R      |IMP       |Indicate if `ENTRY_ADDRH(_i_)` and `ERR_REQADDRH` are implemented.
@@ -151,12 +151,12 @@ endif::[]
 
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
-|Field     |Bits       |R/W    |Default    |Description
-|`l`       |0:0        |W1SS   |IMP        | `MDCFGLCK.l` lock bit for the `MDCFGLCK` register.
-|`f`       |6:1        |WARL   |IMP        | Indicate the number of locked MDCFG entries - `MDCFG(_m_)` is locked for _m_ < `f`.
+|Field      |Bits       |R/W    |Default    |Description
+|`l`        |0:0        |W1SS   |IMP        | `MDCFGLCK.l` lock bit for the `MDCFGLCK` register.
+|`f`        |6:1        |WARL   |IMP        | Indicate the number of locked MDCFG entries - `MDCFG(_m_)` is locked for _m_ < `f`.
 On write, the field only accepts the value larger than the previous value until the next reset cycle; otherwise, there is no effect.
 If `f` {ge} `HWCFG0.md_num`, all MDCFG entries are locked.
-|`rsv`     |31:7       |ZERO   |0          | Must be zero on write, reserved for future.
+|`reserved` |31:7       |ZERO   |0          | Must be zero on write, reserved for future.
 |===
 
 === Entry Array Lock (`ENTRYLCK`) Register
@@ -164,11 +164,11 @@ If `f` {ge} `HWCFG0.md_num`, all MDCFG entries are locked.
 
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
-|Field   |Bits       |R/W    |Default    |Description
-|`l`     |0:0        |W1SS   |IMP        | `ENTRYLCK.l` lock bit for the `ENTRYLCK` register.
-|`f`     |16:1       |WARL   |IMP        | Indicate the number of locked IOPMP entries - `ENTRY_ADDR(_i_)`, `ENTRY_ADDRH(_i_)`, and `ENTRY_CFG(_i_)` are locked for _i_ < `f`. On write, the field only accepts the value larger than the previous value until the next reset cycle; otherwise, there is no effect.
+|Field      |Bits       |R/W    |Default    |Description
+|`l`        |0:0        |W1SS   |IMP        | `ENTRYLCK.l` lock bit for the `ENTRYLCK` register.
+|`f`        |16:1       |WARL   |IMP        | Indicate the number of locked IOPMP entries - `ENTRY_ADDR(_i_)`, `ENTRY_ADDRH(_i_)`, and `ENTRY_CFG(_i_)` are locked for _i_ < `f`. On write, the field only accepts the value larger than the previous value until the next reset cycle; otherwise, there is no effect.
 If `f` {ge} `HWCFG1.entry_num`, all IOPMP entries are locked.
-|`rsv`   |31:17      |ZERO   |0          | Must be zero on write, reserved for future.
+|`reserved` |31:17      |ZERO   |0          | Must be zero on write, reserved for future.
 |===
 
 == Error Capture Registers
@@ -182,33 +182,34 @@ This convention helps avoid accidentally clearing adjacent status bits during re
 
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
-|Field  |Bits   |R/W    |Default    |Description
-|`l`    |0:0    |W1SS   |IMP        |`ERR_CFG.l` lock bit for the `ERR_CFG` register.
-|`ie`   |1:1    |WARL   |IMP        |Enable the interrupt of the IOPMP rule violation.
-|`rs`   |2:2    |WARL   |IMP       a|
+|Field      |Bits   |R/W    |Default    |Description
+|`l`        |0:0    |W1SS   |IMP        |`ERR_CFG.l` lock bit for the `ERR_CFG` register.
+|`ie`       |1:1    |WARL   |IMP        |Enable the interrupt of the IOPMP rule violation.
+|`rs`       |2:2    |WARL   |IMP       a|
 
 To suppress an error response on an IOPMP rule violation.
 
 * 0x0: respond an implementation-defined error, such as a bus error
 * 0x1: respond a success with an implementation-defined value to the requester instead of an error
-|`rsv`  |31:3   |ZERO   |0          | Must be zero on write, reserved for future.
+|`reserved` |31:3   |ZERO   |0          | Must be zero on write, reserved for future.
 |===
 
 === Error Information (`ERR_INFO`) Register
 `ERR_INFO` captures more detailed error information.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
-|Field     |Bits   |R/W   |Default |Description
-|`v`       |0:0    |RW1C  |0       | Indicates whether the illegal capture recorder (`ERR_REQID`, `ERR_REQADDR`, `ERR_REQADDRH`, `ERR_INFO.ttype`, and `ERR_INFO.etype`) contains valid information. When a violation is captured, `v` is set and remains set until software acknowledges the captured violation. The associated captured error fields are hardware-generated and read-only, so software cannot forge the captured fault context through these registers. An interrupt will be triggered if a violation is detected and related interrupt enable/suppression configure bits are not disabled, and the interrupt will remain asserted until `v` is cleared. +
+|Field      |Bits   |R/W   |Default |Description
+|`v`        |0:0    |RW1C  |0       | Indicates whether the illegal capture recorder (`ERR_REQID`, `ERR_REQADDR`, `ERR_REQADDRH`, `ERR_INFO.ttype`, and `ERR_INFO.etype`) contains valid information. When a violation is captured, `v` is set and remains set until software acknowledges the captured violation. The associated captured error fields are hardware-generated and read-only, so software cannot forge the captured fault context through these registers. An interrupt will be triggered if a violation is detected and related interrupt enable/suppression configure bits are not disabled, and the interrupt will remain asserted until `v` is cleared. +
 Writing 1 to `ERR_INFO.v` acknowledges the captured violation, clears `v`, reactivates the illegal recorder, and deasserts the interrupt if no other interrupt condition remains pending. Writing 0 causes no effect on the bit.
-|`ttype`   |2:1    |R     |0      a|Indicates the transaction type of the first captured violation:
+|`ttype`    |2:1    |R     |0      a|Indicates the transaction type of the first captured violation:
 
 - 0x00 = reserved
 - 0x01 = read access
 - 0x02 = write access/AMO
 - 0x03 = instruction fetch
 
-|`etype`   |7:4    |R     |0      a| Indicates the type of violation, also referred to as the error type.
+|`reserved` |3:3    |ZERO   |0      |Must be zero on write, reserved for future.
+|`etype`    |7:4    |R     |0      a| Indicates the type of violation, also referred to as the error type.
 
 - 0x00 = no error
 - 0x01 = illegal read access
@@ -220,7 +221,7 @@ Writing 1 to `ERR_INFO.v` acknowledges the captured violation, clears `v`, react
 - 0x07 ~ 0x0D = reserved
 - 0x0E ~ 0x0F = user-defined error
 
-| `rsv`    |31:8   |ZERO   |0      |Must be zero on write, reserved for future.
+|`reserved` |31:8   |ZERO   |0      |Must be zero on write, reserved for future.
 |===
 When the bus matrix doesn't have a signal to indicate an instruction fetch, the `ttype` and `etype` can never return "instruction fetch" (0x03) and "illegal instruction fetch" (0x03), respectively.
 
@@ -265,15 +266,15 @@ The MDCFG table is a lookup to specify the IOPMP entry indices that are associat
 
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
-|Field  |Bits       |R/W    |Default    |Description
-|`t`    |15:0       |WARL   |DC/IMP    a| Indicate the encoding of the range of memory domain _m_. An IOPMP entry index _j_ is in the range of MD _m_ if
+|Field      |Bits       |R/W    |Default    |Description
+|`t`        |15:0       |WARL   |DC/IMP    a| Indicate the encoding of the range of memory domain _m_. An IOPMP entry index _j_ is in the range of MD _m_ if
 
 - `MDCFG(_m_-1).t` {le} _j_ < `MDCFG(_m_).t`, where _m_ > 0.
 - _j_ < `MDCFG(0).t`, where _m_ = 0.
 
 If `MDCFG(_k_-1).t` > `MDCFG(_k_).t` for any _k_, the range of MD _k_ is empty. If the ranges of two MDs overlap as a result, the lower-indexed MD takes precedence: an IOPMP entry belongs to the lowest-indexed MD whose range contains its index; see <<terminology_and_concepts.adoc#MDCFG_TABLE, MDCFG Table>>.
 
-|`rsv`  |31:16      |ZERO   |0          |Must be zero on write, reserved for future.
+|`reserved` |31:16      |ZERO   |0          |Must be zero on write, reserved for future.
 |===
 
 
@@ -322,17 +323,17 @@ A complete 64-bit address consists of these two registers, `ENTRY_ADDR` and `ENT
 
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
-|Field   |Bits       |R/W    |Default    |Description
-|`r`     |0:0        |WARL   |DC         |The read permission to protected memory region.
-|`w`     |1:1        |WARL   |DC         |The write permission to the protected memory region.
-|`x`     |2:2        |WARL   |DC         |The instruction fetch permission to the protected memory region.
-|`a`     |4:3        |WARL   |DC        a|The address-matching mode of the IOPMP entry. See <<terminology_and_concepts.adoc#ADDRESS_MATCHING_MODES, Address Matching Modes>>.
+|Field      |Bits       |R/W    |Default    |Description
+|`r`        |0:0        |WARL   |DC         |The read permission to protected memory region.
+|`w`        |1:1        |WARL   |DC         |The write permission to the protected memory region.
+|`x`        |2:2        |WARL   |DC         |The instruction fetch permission to the protected memory region.
+|`a`        |4:3        |WARL   |DC        a|The address-matching mode of the IOPMP entry. See <<terminology_and_concepts.adoc#ADDRESS_MATCHING_MODES, Address Matching Modes>>.
 
 * 0x0: OFF
 * 0x1: TOR
 * 0x2: NA4
 * 0x3: NAPOT
-|`rsv`   |31:5       |ZERO   |0          |Must be zero on write, reserved for future.
+|`reserved` |31:5       |ZERO   |0          |Must be zero on write, reserved for future.
 |===
 
 Bits `r`, `w`, and `x` grant read, write, or instruction fetch permission, respectively. Not every bit needs to be programmable. Some or all of them could be hardwired. Besides, an implementation can optionally impose constraints on their combinations.
