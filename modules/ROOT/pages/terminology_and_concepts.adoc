@@ -21,18 +21,18 @@ This document refers to the term “secure monitor” as the software responsibl
 |MD   | Memory domain.
 |MMIO | Memory mapped input/output devices.
 |N/A  | Not available.
-|NA4  | Naturally aligned four-byte region, one of the address matching mode used in RISC-V PMP cite:[PrivISA] and IOPMP.
-|NAPOT| Naturally aligned power-of-2 region, one of the address matching mode used in RISC-V PMP cite:[PrivISA] and IOPMP.
+|NA4  | Naturally aligned four-byte region, one of the address matching modes used in RISC-V PMP cite:[PrivISA] and IOPMP.
+|NAPOT| Naturally aligned power-of-2 region, one of the address matching modes used in RISC-V PMP cite:[PrivISA] and IOPMP.
 |RRID | Request Role ID.
-|RW1C | Read bit return the status and write 1 clear the status, a behavior of single bit fields.
-|TOR  | Top boundary of an arbitrary range, one of the address matching mode used in RISC-V PMP cite:[PrivISA] and IOPMP.
+|RW1C | Reading the bit returns the status and writing 1 clears the status, a behavior of single bit fields.
+|TOR  | Top boundary of an arbitrary range, one of the address matching modes used in RISC-V PMP cite:[PrivISA] and IOPMP.
 |W1CS | Write 1 clear and sticky to 0, a behavior of single bit fields: writing 1 clears the bit. If the bit is cleared, this state remains fixed until IOPMP registers are reset.
 |W1SS | Write 1 set and sticky to 1, a behavior of single bit fields: writing 1 sets the bit. If the bit is set, this state remains fixed until IOPMP registers are reset.
 |WARL | Write any read legal, a behavior of fields.
 |WID  | World identifier, defined in the RISC-V Worlds specification cite:[Worlds].
 |X( _n_ )| The _n_-th register in the register array X, which starts from 0.
 |X[ _n_ ]| The _n_-th bit of a register X or register field X.
-|X( _n_ : _m_ )| The _n_-th to _m_-th registers of a register X.
+|X( _n_ : _m_ )| The _n_-th to _m_-th registers in the register array X.
 |X[ _n_ : _m_ ]| The _n_-th to _m_-th bits of a register X or register field X.
 |===
 
@@ -166,7 +166,7 @@ Changing a value in the MDCFG table changes the MD that some IOPMP entries belon
 == Transaction Checking
 When a transaction arrives at an IOPMP, the IOPMP first checks whether the RRID carried by the transaction is legal. If the RRID is illegal, the transaction is illegal with error type = "Unknown RRID" (0x06); see <<#ERROR_REPORTING,Error Reporting>> for the error types.
 
-NOTE: Whether an RRID is legal is implementation-defined, even though it < `HWCFG1.rrid_num`.
+NOTE: Whether an RRID is legal is implementation-defined, even if it is less than `HWCFG1.rrid_num`.
 
 For a legal RRID, the IOPMP checks the transaction in the following steps:
 
@@ -202,7 +202,7 @@ Finally, if no matching entry exists, the transaction is illegal with error type
 
 [NOTE]
 ====
-To grant an AMO transaction permission, both read access permission and write access  permission must be permitted.
+To grant an AMO transaction permission, both read access permission and write access permission must be granted.
 ====
 
 [NOTE]
