@@ -40,10 +40,10 @@ If an optional register is not implemented, the behavior is implementation-defin
 
 3+|SRCMD table, _s_ = 0...`HWCFG1.rrid_num`-1
 |0x1000 + (_s_) × 32 |`SRCMD_EN(_s_)` |
- The bitmapped MD enabling register of the RRID _s_ that `SRCMD_EN(_s_)[_m_]` indicates if the RRID is associated with MD _m_.
+ The bitmapped MD enabling register of the RRID _s_ that `SRCMD_EN(_s_).md[_m_]` indicates if the RRID is associated with MD _m_.
 
 |0x1004 + (_s_) × 32 |`SRCMD_ENH(_s_)`|
- (Optional) The bitmapped MD enabling register of the RRID _s_ that `SRCMD_ENH(_s_)[_m_]` indicates if the RRID is associated with MD (_m_+31).
+ (Optional) The bitmapped MD enabling register of the RRID _s_ that `SRCMD_ENH(_s_).mdh[_m_]` indicates if the RRID is associated with MD (_m_+31).
 
 3+|Entry array, _i_ = 0...`HWCFG1.entry_num`-1
 |`ENTRYOFFSET` + (_i_) × 16 | `ENTRY_ADDR(_i_)`| Bit 33:2 of address (region) for entry _i_.
