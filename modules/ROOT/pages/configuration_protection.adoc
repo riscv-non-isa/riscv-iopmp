@@ -15,9 +15,9 @@ The term 'lock' refers to a hardware feature that renders one or more fields or 
 Every `SRCMD_EN(_s_)` register has a bit `l` at bit 0, which is used to lock registers `SRCMD_EN(_s_)`, and `SRCMD_ENH(_s_)` if any.
 
 The two fields `MDLCK.md` and `MDLCKH.mdh` have 63 bits together.
-Every bit is used to lock the MD association bits in the corresponding SRCMD table entry.
+Every bit locks the association bit of the corresponding MD in the SRCMD table entries of all existing RRIDs.
 For MD 0 {le} _m_ {le} 30, `MDLCK.md[_m_]` locks `SRCMD_EN(_s_).md[_m_]` for all existing RRID _s_.
-For MD 31 {le} _m_ {le} 62, `MDLCKH.mdh[_m_]` locks `SRCMD_ENH(_s_).mdh[_m_]` for all existing RRID _s_.
+For MD 31 {le} _m_ {le} 62, `MDLCKH.mdh[_m_-31]` locks `SRCMD_ENH(_s_).mdh[_m_-31]` for all existing RRID _s_.
 
 Bit `MDLCK.l` is sticky to 1 and indicates if `MDLCK` and `MDLCKH` are locked.
 
