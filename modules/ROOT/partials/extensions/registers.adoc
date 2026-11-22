@@ -98,7 +98,7 @@ If `HWCFG2.non_prio_en` is 0, the default value of `prio_entry` is DC.
 |`prio_ent_prog`  |16:16  |W1CS |IMP     |A write-1-clear bit is sticky to 0 and indicates if `HWCFG2.prio_entry` is programmable. Reset to 1 if the implementation supports programmable `prio_entry`, otherwise, hardwired to 0.
 If `HWCFG2.non_prio_en` is 0, the default value of `prio_ent_prog` is DC.
 |`non_prio_en`    |17:17  |R    |IMP     |Indicates whether the IOPMP supports non-priority entries.
-|`rsv`            |25:18  |ZERO |IMP     |Must be zero on write, reserved for future.
+|`rsv`            |25:18  |ZERO |0       |Must be zero on write, reserved for future.
 |`msi_en`         |26:26  |R    |IMP     |Indicates whether the IOPMP supports MSI extension.
 |`peis`           |27:27  |R    |IMP     |Indicate if the IOPMP implements interrupt suppression per entry, including fields `sire`, `siwe`, and `sixe` in `ENTRY_CFG(_i_)`, _i_ = 0...`HWCFG1.entry_num`-1.
 |`pees`           |28:28  |R    |IMP     |Indicate if the IOPMP implements the error suppression per entry, including fields `sere`, `sewe`, and `sexe` in `ENTRY_CFG(_i_)`, _i_ = 0...`HWCFG1.entry_num`-1.
