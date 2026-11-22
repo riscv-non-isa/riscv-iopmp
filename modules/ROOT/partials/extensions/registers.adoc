@@ -164,7 +164,7 @@ Please refer to <<#STALL_TRANSACTIONS, Stall transactions>> for detailed operati
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field                |Bits   |R/W    |Default    |Description
-|`l`                  |0:0    |W1SS   |IMP        |`ERR_CFG.l` lock bit for the `ERR_CFG` register.
+|`l`                  |0:0    |W1SS   |IMP        |`ERR_CFG.l` lock bit for the `ERR_CFG` register, and for the `ERR_MSIADDR` and `ERR_MSIADDRH` registers if implemented.
 |`ie`                 |1:1    |WARL   |IMP        |Enable the interrupt of the IOPMP rule violation.
 |`rs`                 |2:2    |WARL   |IMP       a|
 
