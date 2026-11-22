@@ -1,6 +1,6 @@
 == Instruction Fetch Protection Devices
 
-The `no_x` bit in the `HWCFG3` register (<<#REG_EXT_HWCFG3,Hardware Configuration 3>>) enables global instruction fetch protection, which is particularly useful for protecting data-only memory regions such as peripherals which don't have any instruction of processors. This feature simplifies implementations by reducing the need for programming individual permission bits and minimizing the overhead of per-entry rule lookups.
+The `no_x` bit in the `HWCFG3` register (<<#REG_EXT_HWCFG3,Hardware Configuration 3>>) enables global instruction fetch protection, which is particularly useful for protecting data-only memory regions such as peripherals, which hold no instructions for processors. This feature simplifies implementations by reducing the need for programming individual permission bits and minimizing the overhead of per-entry rule lookups.
 
 The global instruction fetch behavior is controlled by the `xinr` and `no_x` bits in the `HWCFG3` register:
 

@@ -1,6 +1,6 @@
 == Data Only Devices and Buses
 
-IOPMPs may only protect from data only device such as general DMA.
+Some IOPMPs only check transactions from data-only devices, such as a general DMA.
 The IOPMP under the general DMA in <<IOPMP_SE_Example>> illustrates an example integration.
 In this scenario, instruction fetch permission checking is not required.
 Therefore, all fields related to instruction fetch can be hardwired to 0, or not implemented.
