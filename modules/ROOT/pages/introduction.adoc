@@ -6,7 +6,7 @@ On a RISC-V platform, there may be requesters other than RISC-V harts that are a
 <<IOPMP_SYSTEM_POSITION>> conceptually illustrates the integration of IOPMP into a system as an example.
 
 [#IOPMP_SYSTEM_POSITION]
-.example integrations of IOPMP(s) in a system. {figure-caption} (a) shows a system deploying two IOPMPs. The IOPMPs take three inputs: RRID, the transaction type (read/write/instruction fetch), and the request range (address/len). {figure-caption} (b) shows a system deploying multiple IOPMPs. In this deployment, IOPMPs are at each resource, final destination.
+.example integrations of IOPMP(s) in a system. {figure-caption} (a) shows a system deploying two IOPMPs. The IOPMPs take three inputs: RRID, the transaction type (read/write/instruction fetch), and the request range (address/len). {figure-caption} (b) shows a system deploying multiple IOPMPs. In this deployment, an IOPMP is placed at each resource, that is, at the final destination.
 image::iopmp_system_position.png[align="center"]
 
 == Target System Scaling
