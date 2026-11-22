@@ -226,7 +226,7 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 |===
 |Field      |Bits     |R/W    |Default    |Description
 |`svw`      |15:0     |R      |DC         | Subsequent violations in the window indexed by `svi`. `svw[_j_]`=1 indicates at least one subsequent violation issued from RRID `svi` * 16 + _j_.
-|`svi`      |27:16    |WARL   |0          | Window's index to search subsequent violations. When read, IOPMP sequentially scans all windows from `svi` until one subsequent violation is found. Once the last implemented window is scanned, the next window to be scanned is the first record window (index is 0). `svi` indexes the found subsequent violation or `svi` has been rounded back to the same value. After read, the window's content, `svw`, should be clean.
+|`svi`      |27:16    |WARL   |0          | Window's index to search subsequent violations. When read, IOPMP sequentially scans all windows from `svi` until one subsequent violation is found. Once the last implemented window is scanned, the next window to be scanned is the first record window (index is 0). `svi` indexes the found subsequent violation or `svi` has been rounded back to the same value. After a read, all bits in the record window returned in `svw` are cleared.
 |`reserved` |30:28    |ZERO   |0         |Must be zero on write, reserved for future.
 |`svs`      |31:31    |R      |0        a|The status of this window's content:
 
