@@ -5,7 +5,7 @@ The extension can trigger message-signaled interrupts (MSI) by writing a word of
 
 The bit `msi_en` in register `HWCFG2` (<<#REG_EXT_HWCFG2,Hardware Configuration 2>>) indicates whether the IOPMP supports MSI extension.
 
-The address is MSI address and is specified by `ERR_MSIADDR` and `ERR_MSIADDRH` (<<#REG_EXT_ERR_MSIADDR,MSI Message Address>>), while the content to write is stored in the field `msidata` in the register `ERR_CFG` (<<#REG_EXT_ERR_CFG,Error Configuration with All Extensions>>). The `ERR_MSIADDR`, `ERR_MSIADDRH`, and `ERR_CFG` are locked by the `ERR_CFG.l`.
+The address is MSI address and is specified by `ERR_MSIADDR` and `ERR_MSIADDRH` (<<#REG_EXT_ERR_MSIADDR,MSI Message Address>>), while the content to write is stored in the field `msidata` in the register `ERR_CFG` (<<#REG_EXT_ERR_CFG,Error Configuration with All Extensions>>). The registers `ERR_MSIADDR`, `ERR_MSIADDRH`, and `ERR_CFG` are locked by `ERR_CFG.l`.
 
 When `HWCFG0.addrh_en` = 0, `ERR_MSIADDR` encodes bit 33 to bit 2 of the MSI address. When `HWCFG0.addrh_en` = 1, `ERR_MSIADDR` encodes bit 31 to bit 0 of the address, while `ERR_MSIADDRH` encodes bit 63 to bit 32. `ERR_MSIADDRH` is implemented only when `HWCFG0.addrh_en` = 1 and `HWCFG2.msi_en` = 1. If `ERR_MSIADDRH` is implemented but the MSI address is always lower than 0x1_0000_0000, `ERR_MSIADDRH` can be hardwired to zero.
 

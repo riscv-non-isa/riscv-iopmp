@@ -24,7 +24,7 @@ For systems requiring a large number of entries, a hybrid model using both types
 
 [NOTE]
 ====
-Priority entries safeguard the most sensitive data, even in the event of secure software being compromised. However, implementing a large number of priority entries results in higher latency and increased area usage. In contrast,non-priority entries are treated equally and can be cached in smaller numbers. A mix of entry types provides flexibility in balancing security and performance.
+Priority entries safeguard the most sensitive data, even in the event of secure software being compromised. However, implementing a large number of priority entries results in higher latency and increased area usage. In contrast, non-priority entries are treated equally and can be cached in smaller numbers. A mix of entry types provides flexibility in balancing security and performance.
 ====
 
 An entry qualifies as a matching entry with the extension for an incoming transaction if:
