@@ -120,7 +120,7 @@ Stall transactions from selected RRIDs:
 * 0: the RRIDs are associated with a selected MD
 * 1: the RRIDs are not associated with any selected MD
 
-Please refer <<#STALL_TRANSACTIONS, Stall transactions>> for detailed operations.
+Please refer to <<#STALL_TRANSACTIONS, Stall transactions>> for detailed operations.
 |`is_busy`   |0:0    |R      |0         a|Indicates the status of previous writing `MDSTALL` and `RRIDSCP`:
 
 * 0: the write has taken effect or no previous write
@@ -225,7 +225,7 @@ Implemented only for `HWCFG2.mfr_en`=1, otherwise, ZERO.
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
 |Field  |Bits     |R/W    |Default    |Description
-|`svw`  |15:0     |R      |DC         | Subsequent violations in the window indexed by `svi`. `svw[_j_]`=1 for the at least one subsequent violation issued from RRID= `svi` * 16 + _j_.
+|`svw`  |15:0     |R      |DC         | Subsequent violations in the window indexed by `svi`. `svw[_j_]`=1 indicates at least one subsequent violation issued from RRID `svi` * 16 + _j_.
 |`svi`  |27:16    |WARL   |0          | Window's index to search subsequent violations. When read, IOPMP sequentially scans all windows from `svi` until one subsequent violation is found. Once the last implemented window is scanned, the next window to be scanned is the first record window (index is 0). `svi` indexes the found subsequent violation or `svi` has been rounded back to the same value. After read, the window's content, `svw`, should be clean.
 |`rsv`   |30:28    |ZERO   |0         |Must be zero on write, reserved for future.
 |`svs`   |31:31    |R      |0        a|The status of this window's content:

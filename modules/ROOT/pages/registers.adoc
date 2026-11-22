@@ -113,7 +113,7 @@ endif::[]
 
 
 === User-defined Hardware Configuration (`HWCFG_USER`) Register
-`HWCFG_USER` is an optional register to provide users to define their own configurations.
+`HWCFG_USER` is an optional register that allows users to define their own configurations.
 
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
@@ -250,7 +250,7 @@ When the bus matrix doesn't have a signal to indicate an instruction fetch, the 
 |===
 
 === User-defined Error Information (`ERR_USER(0)` ~ `ERR_USER(7)`) Registers
-`ERR_USER(0)` ~ `ERR_USER(7)` are optional registers to provide users to define their own error capture information.
+`ERR_USER(0)` ~ `ERR_USER(7)` are optional registers that allow users to define their own error capture information.
 
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
@@ -259,7 +259,7 @@ When the bus matrix doesn't have a signal to indicate an instruction fetch, the 
 |===
 
 == MDCFG Table Registers
-The MDCFG table is a lookup to specify the number of IOPMP entries that is associated with each MD.
+The MDCFG table is a lookup to specify the IOPMP entry indices that are associated with each MD.
 
 === MD _m_ Configuration (`MDCFG(_m_)`) Register
 
@@ -335,10 +335,10 @@ A complete 64-bit address consists of these two registers, `ENTRY_ADDR` and `ENT
 |`rsv`   |31:5       |ZERO   |0          |Must be zero on write, reserved for future.
 |===
 
-Bits `r`, `w`, and `x`, grant read, write, or instruction fetch permission, respectively. Not each bit should be programmable. Some or all of them could be hardwired. Besides, an implementation can optionally impose constraints on their combinations.
+Bits `r`, `w`, and `x` grant read, write, or instruction fetch permission, respectively. Not every bit needs to be programmable. Some or all of them could be hardwired. Besides, an implementation can optionally impose constraints on their combinations.
 
 === User-defined Entry _i_ Configuration (`ENTRY_USER_CFG(_i_)`) Register
-`ENTRY_USER_CFG` are implementation-defined registers that allows users to define their own additional IOPMP check rules beside the rules.
+`ENTRY_USER_CFG` are implementation-defined registers that allow users to define their own IOPMP check rules in addition to those defined by `ENTRY_CFG`.
 
 [cols="<2,<1,<1,<1,<6",options="header"]
 |===
