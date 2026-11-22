@@ -100,8 +100,8 @@ If `HWCFG2.non_prio_en` is 0, the default value of `prio_ent_prog` is DC.
 |`non_prio_en`    |17:17  |R    |IMP     |Indicates whether the IOPMP supports non-priority entries.
 |`rsv`            |25:18  |ZERO |IMP     |Must be zero on write, reserved for future.
 |`msi_en`         |26:26  |R    |IMP     |Indicates whether the IOPMP supports MSI extension.
-|`peis`           |27:27  |R    |IMP     |Indicate if the IOPMP implements interrupt suppression per entry, including fields `sire` and `siwe` in `ENTRY_CFG(_i_)`, _i_ = 0...`HWCFG1.entry_num`-1.
-|`pees`           |28:28  |R    |IMP     |Indicate if the IOPMP implements the error suppression per entry, including fields `sere` and `sewe` in `ENTRY_CFG(_i_)`, _i_ = 0...`HWCFG1.entry_num`-1.
+|`peis`           |27:27  |R    |IMP     |Indicate if the IOPMP implements interrupt suppression per entry, including fields `sire`, `siwe`, and `sixe` in `ENTRY_CFG(_i_)`, _i_ = 0...`HWCFG1.entry_num`-1.
+|`pees`           |28:28  |R    |IMP     |Indicate if the IOPMP implements the error suppression per entry, including fields `sere`, `sewe`, and `sexe` in `ENTRY_CFG(_i_)`, _i_ = 0...`HWCFG1.entry_num`-1.
 |`sps_en`         |29:29  |R    |IMP     |Indicates secondary permission settings are supported; which are `SRCMD_R/RH(_s_)`, `SRCMD_W/WH(_s_)`, and `SRCMD_X/XH(_s_)` registers, _s_ = 0 ... `HWCFG1.rrid_num` - 1.
 |`stall_en`       |30:30  |R    |IMP     |Indicate if the IOPMP implements stall-related features, which are `MDSTALL`, `MDSTALLH`, `RRIDSCP`, and `ERR_CFG.stall_violation_en`.
 |`mfr_en`         |31:31  |R    |IMP     |Indicate if the IOPMP implements Multi Faults Record, that is `ERR_MFR` and `ERR_INFO.svc`.
