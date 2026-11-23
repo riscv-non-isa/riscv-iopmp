@@ -29,11 +29,12 @@ The Rapid-k Model simplifies MDCFG table lookup by implementing a fixed allocati
 .Block diagram of the Rapid-4 model implementation. The MDCFG table is simplified to a constant mapping where each memory domain is assigned exactly four IOPMP entry indices.
 image::iopmp_unit_block_diagram_rapid_4.png[]
 
+[#dynamic-k-model]
 === Dynamic-_k_ Model
 
 *Configuration*: *srcmd_fmt*=0, *mdcfg_fmt*=2, where _k_ = (*md_entry_num* + 1)
 
-The Dynamic-k Model provides runtime-programmable entry allocation similar to the Full Model but with a different MDCFG table format. This format enables efficient dynamic reconfiguration of memory domain boundaries while maintaining full SRCMD table capabilities.
+The Dynamic-k Model is similar to the Full Model but has no MDCFG table: every memory domain has exactly _k_ IOPMP entry indices, where _k_ is programmable until the IOPMP is enabled. This format enables efficient dynamic reconfiguration of memory domain boundaries while maintaining full SRCMD table capabilities.
 
 *Characteristics*:
 
