@@ -62,7 +62,7 @@ INFO registers are used to indicate the IOPMP instance configuration info.
 |===
 |Field      |Bits   |R/W   |Default    |Description
 | `vendor`  |23:0   |R     |IMP        |The JEDEC manufacturer ID.
-| `specver` |31:24  |R     |IMP        |The specification version. Bits 27:24 hold the major version and bits 31:28 hold the minor version. For example, version 1.0 is reported as 0x10.
+| `specver` |31:24  |R     |IMP        |The specification version. Bits 31:28 hold the major version and bits 27:24 hold the minor version. For example, version 1.0 is reported as 0x10.
 |===
 
 === Implementation ID (`IMPLEMENTATION`) Register
