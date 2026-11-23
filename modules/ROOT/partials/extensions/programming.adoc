@@ -31,7 +31,7 @@ Stalling a transaction means the IOPMP stops checking its permission until it is
 
 [NOTE]
 ====
-In some cases, Step 1 and Step 3 may be skipped as long as no transaction check is performed within Step 2. Writing the SRCMD of an RRID is an example because it involves a single write.
+In some cases, Step 1 and Step 3 may be skipped as long as no transaction check is performed within Step 2. Updating `SRCMD_EN(_s_)` alone is an example because it involves a single write.
 ====
 
 NOTE: Stalling a transaction could be implemented in the following ways but not limited to: (1) the IOPMP enqueues the transactions to stall without checking them, (2) the IOPMP asks the requester to retry the transaction by a retry message, and (3) the IOPMP enqueues them first and asks for a retry if the queue is full.
@@ -42,10 +42,10 @@ For Step 1, it's possible to postpone all transactions until all updates are fin
 
 In Step 2, the decision of whether a transaction should be stalled cannot reference the current settings because these settings are under updating. Therefore, the only reliable information for this decision is the RRID carried by the transaction. To simplify the following descriptions, we use _rrid_stall_ to represent an abstract bit array, where _rrid_stall_[_s_] = 1 indicates that transactions with RRID _s_ must be stalled. The IOPMP stalls a transaction based on its corresponding _rrid_stall_. Please note that it may not be an actual bit array in practice just for easier expression and is not directly accessible by software.
 
-Register `MDSTALL` and `MDSTALLH` (<<#REG_EXT_MDSTALL,MD-Based Stall Control>>) control _rrid_stall_. `MDSTALL.md` and `MDSTALLH.mdh` are used to select MDs. Denote _stall_by_md_ to represent the concatenation of `MDSTALLH.mdh` and `MDSTALL.md`. That is, _stall_by_md_[30:0] is `MDSTALL.md[30:0]`, and _stall_by_md_[62:31] is `MDSTALLH.mdh[31:0]` if any. An MD _m_ is selected when _stall_by_md_[_m_] = 1. `MDSTALL.exempt` controls the polarity of the selection. An IOPMP updates _rrid_stall_ only when `MDSTALL.exempt` is written. When `MDSTALL.exempt` is written to 0, _rrid_stall_[_s_] is set if RRID _s_ is associated with a selected MD _m_ (_stall_by_md_[_m_] = 1). The SRCMD table defines the association of RRID _s_ and MD _m_. Conversely, when `MDSTALL.exempt` is written to 1, _rrid_stall_[_s_] must be set if RRID _s_ is not associated with any selected MD. This relation can be formulated as follows:
+Register `MDSTALL` and `MDSTALLH` (<<#REG_EXT_MDSTALL,MD-Based Stall Control>>) control _rrid_stall_. `MDSTALL.md` and `MDSTALLH.mdh` are used to select MDs. Denote _stall_by_md_ to represent the concatenation of `MDSTALLH.mdh` and `MDSTALL.md`. That is, _stall_by_md_[30:0] is `MDSTALL.md[30:0]`, and _stall_by_md_[62:31] is `MDSTALLH.mdh[31:0]` if any. An MD _m_ is selected when _stall_by_md_[_m_] = 1. `MDSTALL.exempt` controls the polarity of the selection. An IOPMP updates _rrid_stall_ only when `MDSTALL.exempt` is written. When `MDSTALL.exempt` is written to 0, _rrid_stall_[_s_] is set if RRID _s_ is associated with a selected MD _m_ (_stall_by_md_[_m_] = 1). The SRCMD table defines the association of RRID _s_ and MD _m_. Conversely, when `MDSTALL.exempt` is written to 1, _rrid_stall_[_s_] must be set if RRID _s_ is not associated with any selected MD. Denote _srcmd_md_(_s_) to represent the MDs associated with RRID _s_, where _srcmd_md_(_s_)[_m_] = 1 if RRID _s_ is associated with MD _m_. In the baseline SRCMD table format, _srcmd_md_(_s_) is the concatenation of `SRCMD_ENH(_s_).mdh` and `SRCMD_EN(_s_).md`. This relation can be formulated as follows:
 
 [.text-center]
-`_rrid_stall_[_s_] <= MDSTALL.exempt ^ ( Reduction_OR (SRCMD(_s_).md & _stall_by_md_));`
+`_rrid_stall_[_s_] <= MDSTALL.exempt ^ ( Reduction_OR (_srcmd_md_(_s_) & _stall_by_md_));`
 
 Where:
 
@@ -60,7 +60,7 @@ _rrid_stall_ should be updated only when `MDSTALL.exempt` is written, that is, w
 
 NOTE: Although _rrid_stall_ is derived from the SRCMD table, it should be updated only when `MDSTALL.exempt` is written. We cannot use the table when stalling transactions because the table updates may still be in progress when the IOPMP decides if a transaction should be stalled. Writing `MDSTALL` is just like capturing a snapshot of the table at the moment right before updating any settings. The _rrid_stall_ reflects the SRCMD table before any updates.
 
-NOTE: When writing `MDSTALL`, the specification only defines the transactions with RRID=_s_ must be stalled for all _rrid_stall_[_s_] = 1. It doesn't request the rest of the transactions to stall or not. It only asks that all transactions be resumed when writing `MDSTALL` with a zero.
+NOTE: When writing `MDSTALL`, the specification only defines the transactions with RRID=_s_ must be stalled for all _rrid_stall_[_s_] = 1. It doesn't request the rest of the transactions to stall or not. It only asks that all transactions be resumed when `MDSTALLH` and then `MDSTALL` are written with zero.
 
 === Cherry Pick
 Writing `RRIDSCP` register (<<#REG_EXT_RRIDSCP,RRID Cherry Pick Stall Control>>) is an optional substep after writing `MDSTALL` within Step 1 of <<#PROGRAMMING_STEPS, Programming Steps>>. Software can select or deselect the transactions with specific RRIDs to stall if the previous writing `MDSTALL`/`MDSTALLH` doesn't stall all the desired transactions. Software can write the register zero or multiple times in the substep.
@@ -89,7 +89,7 @@ This function also can prevent the risk of deadlock in some systems. If an imple
 
 To resume all stalled transactions, write 0 to `MDSTALLH`, then write 0 to `MDSTALL`.
 This corresponds to Step 3 of <<#PROGRAMMING_STEPS, Programming Steps>>.
-After `MDSTALL` is written with zero, an IOPMP should clear `MDSTALL.is_busy` within some time, at which point all transactions have been resumed.
+After `MDSTALLH` and `MDSTALL` are written with zero, an IOPMP should clear `MDSTALL.is_busy` within some time, at which point all transactions have been resumed.
 
 === The Order to Stall
 In Step 1 of <<#PROGRAMMING_STEPS, Programming Steps>>, `MDSTALL` can be written at most once and before a resume. Writing a non-zero value to `MDSTALL` multiple times after a resume leads to RRIDs' stall states being undefined.
