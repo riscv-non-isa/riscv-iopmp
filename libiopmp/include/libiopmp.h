@@ -2527,7 +2527,7 @@ enum iopmp_error iopmp_clear_entries_in_md(IOPMP_t *iopmp, uint32_t mdidx);
  * \param[in] idx_start         The global start index of target entries
  * \param[in] num_entry         The number of entries to be cleared
  *
- * \retval IOPMP_OK on success
+ * \retval IOPMP_OK on success, or if \p num_entry is 0
  * \retval IOPMP_ERR_OUT_OF_BOUNDS if given \p idx_start or \p num_entry is out
  *         of bounds
  * \retval IOPMP_ERR_REG_IS_LOCKED if some of entries have been locked by

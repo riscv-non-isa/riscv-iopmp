@@ -2581,6 +2581,10 @@ enum iopmp_error iopmp_clear_entries(IOPMP_t *iopmp, uint32_t idx_start,
 {
     iopmp_assert(iopmp_is_initialized(iopmp));
 
+    if (num_entry == 0U) {
+        return IOPMP_OK;
+    }
+
     if (num_entry > iopmp->entry_num) {
         return IOPMP_ERR_OUT_OF_BOUNDS;
     }

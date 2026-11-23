@@ -2735,6 +2735,17 @@ int main(void)
     FAIL_IF(iopmp_clear_entries_in_md(&iopmp, CFG_MD_NUM) != IOPMP_ERR_OUT_OF_BOUNDS);
     END_TEST();
 
+    START_TEST("Clearing no entry succeeds wherever it starts");
+    FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
+    {
+        uint32_t tops[3] = {CFG_ENTRY_NUM, 0, 0};
+        FAIL_IF(libiopmp_setup_preinit_mdcfg(&iopmp, tops, 3) != IOPMP_OK);
+    }
+    /* MD(2) owns no entry and starts at entry CFG_ENTRY_NUM */
+    FAIL_IF(iopmp_clear_entries_in_md(&iopmp, 2) != IOPMP_OK);
+    FAIL_IF(iopmp_clear_entries(&iopmp, CFG_ENTRY_NUM, 0) != IOPMP_OK);
+    END_TEST();
+
     START_TEST("Lock entries and reject later writes");
     FAIL_IF(libiopmp_setup(&iopmp, &cfg) != IOPMP_OK);
     FAIL_IF(program_full_mdcfg_table(&iopmp) != 0);
