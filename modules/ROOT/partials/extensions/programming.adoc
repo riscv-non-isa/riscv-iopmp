@@ -1,5 +1,4 @@
 [[Program_IOPMPs]]
-:numbered:
 == Safe Runtime Configuration
 
 This section introduces an extension to stall transactions by RRIDs and describes how to use the extension to update IOPMP's settings safely in runtime.
