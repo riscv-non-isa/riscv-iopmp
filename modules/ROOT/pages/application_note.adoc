@@ -8,7 +8,7 @@ include::{partialsdir}/application_note/intro.adoc[]
 
 include::{partialsdir}/application_note/application_note_registers.adoc[]
 
-:sectnums:
+ifndef::env-site[:sectnums:]
 
 // Data Only Devices and Buses
 include::{partialsdir}/application_note/data_devices_buses.adoc[]
