@@ -4,6 +4,7 @@ ifndef::ge[:ge: &#8805;]
 [[IOPMP_Tables_and_Configuration_Protection]]
 [#CONF_PROTECTION]
 = Configuration Protection
+
 Unauthorized alteration, even partial, of the IOPMP configuration poses a critical security threat, potentially leading to consequences ranging from Denial-of-Service (DoS) attacks to the wholesale compromise and leakage of sensitive data. Consequently, robust hardware mechanisms are indispensable for securing the integrity and content of the configuration registers.
 
 This chapter details the configuration protection mechanisms provided by the IOPMP specification. These mechanisms allow implementations to prohibit modification of the configuration, either wholly or partially, based on the security requirements of the application scenario. Specifically, the IOPMP defines distinct write-protection controls for the SRCMD table, the MDCFG table, and the Entry Array.
