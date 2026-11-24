@@ -97,7 +97,7 @@ static iopmpMatchStatus_t iopmpMatchAddr(uint64_t trans_start,
                                          uint64_t trans_end,
                                          uint64_t lo, uint64_t hi) {
     // Validate range
-    if (hi < lo) { return ENTRY_NOTMATCH; }  // Invalid range, no match
+    if (hi <= lo) { return ENTRY_NOTMATCH; }  // Empty or invalid range, no match
 
     // Check if transaction falls outside the IOPMP entry range
     if (trans_end <= lo || trans_start >= hi) { return ENTRY_NOTMATCH; } // No match, transaction outside range
