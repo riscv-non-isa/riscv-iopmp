@@ -8,6 +8,7 @@ Placing multiple IOPMP instances in parallel is a strategy to address two distin
 
 By partitioning the system, multiple IOPMPs can operate concurrently. This arrangement is highly beneficial for complex SoCs that must handle a large number of simultaneous transactions. A routing mechanism must be placed in front of the parallel IOPMPs to direct an incoming transaction to its designated IOPMP for checking. This routing can be based on the transaction's address (address-based routing) or its RRID (RRID-based routing).
 
+[#cascading-iopmp]
 === Cascading IOPMP
 
 The cascading model is a powerful architecture for enabling *hierarchical security* in large, modular systems. It is particularly well-suited for integrating multiple, independently developed SoCs or subsystems, where each subsystem manages its own internal security policies.

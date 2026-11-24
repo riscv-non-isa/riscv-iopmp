@@ -5,30 +5,24 @@ ifndef::ge[:ge: &#8805;]
 
 This section summarizes the additional registers and fields required when implementing any of the application variants. Detailed register definitions are provided in their respective sections.
 
-:xrefstyle_bak: {xrefstyle}
-:xrefstyle: full
-
 .Register and field summary
 [%autowidth, options="header"]
 |===
    |Offset    |Register |Field              |Bits     |Related section(s)
-.9+|0x0014 .9+|`HWCFG3` |`mdcfg_fmt`        |1:0      |<<mdcfg-table-formats>>
-                        |`srcmd_fmt`        |3:2      |<<srcmd-table-formats>>
-                        |`md_entry_num`     |10:4     |<<mdcfg-table-formats>>
-                        |`xinr`             |11:11    |<<Data Only Devices and Buses>>
-                        |`no_x`             |12:12    |<<Instruction Fetch Protection Devices>>
-                        |`no_w`             |13:13    |<<Write Protection Devices>>
-                        |`rrid_transl_en`   |14:14 .3+|<<Cascading IOPMP>>
+.9+|0x0014 .9+|`HWCFG3` |`mdcfg_fmt`        |1:0      |xref:mdcfg-table-formats[xrefstyle=full]
+                        |`srcmd_fmt`        |3:2      |xref:srcmd-table-formats[xrefstyle=full]
+                        |`md_entry_num`     |10:4     |xref:mdcfg-table-formats[xrefstyle=full]
+                        |`xinr`             |11:11    |xref:data-only-devices-and-buses[xrefstyle=full]
+                        |`no_x`             |12:12    |xref:instruction-fetch-protection-devices[xrefstyle=full]
+                        |`no_w`             |13:13    |xref:write-protection-devices[xrefstyle=full]
+                        |`rrid_transl_en`   |14:14 .3+|xref:cascading-iopmp[xrefstyle=full]
                         |`rrid_transl_prog` |15:15
                         |`rrid_transl`      |31:16
   |0x1000 + +
-  (_m_) × 32 |`SRCMD_PERM(_m_)` 2+|All .2+|<<SRCMD-MD-indexed>>
+  (_m_) × 32 |`SRCMD_PERM(_m_)` 2+|All .2+|xref:SRCMD-MD-indexed[xrefstyle=full]
   |0x1004 + +
   (_m_) × 32 |`SRCMD_PERMH(_m_)` 2+|All
 |===
-
-:xrefstyle: {xrefstyle_bak}
-:xrefstyle_bak!:
 
 [#REG_EXT_HWCFG3]
 === Hardware Configuration 3 (`HWCFG3`) Register
