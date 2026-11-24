@@ -6,35 +6,32 @@
 This chapter also introduces an additional error type (`ERR_INFO.etype`).
 <<EXT_ETYPE>> lists all error types defined in both the baseline specification and the extensions.
 
-:xrefstyle_bak: {xrefstyle}
-:xrefstyle: full
-
 [#EXT_REGS_SUMMARY]
 .Register and field summary of extensions between offset 0x0000 and 0x07FF.
 [%autowidth, options="header"]
 |===
    |Offset    |Register    |Field            |Bits     |Related section(s)
-.10+|0x0010 .10+|`HWCFG2`  |`prio_entry`     |15:0  .3+|<<NON_PRIORITY_ENTRIES>>
+.10+|0x0010 .10+|`HWCFG2`  |`prio_entry`     |15:0  .3+|xref:NON_PRIORITY_ENTRIES[xrefstyle=full]
                            |`prio_ent_prog`  |16:16
                            |`non_prio_en`    |17:17
                            |`reserved`       |25:18    |(Must be zero on write, reserved for future)
-                           |`msi_en`         |26:26    |<<MSI>>
-                           |`peis`           |27:27 .2+|<<PEIS_PEES>>
+                           |`msi_en`         |26:26    |xref:MSI[xrefstyle=full]
+                           |`peis`           |27:27 .2+|xref:PEIS_PEES[xrefstyle=full]
                            |`pees`           |28:28
-                           |`sps_en`         |29:29    |<<SPS_EXT>>
-                           |`stall_en`       |30:30    |<<Program_IOPMPs>>
-                           |`mfr_en`         |31:31    |<<MFR>>
-   |0x0030    |`MDSTALL`   2+|All                   .3+|<<Program_IOPMPs>>
+                           |`sps_en`         |29:29    |xref:SPS_EXT[xrefstyle=full]
+                           |`stall_en`       |30:30    |xref:Program_IOPMPs[xrefstyle=full]
+                           |`mfr_en`         |31:31    |xref:MFR[xrefstyle=full]
+   |0x0030    |`MDSTALL`   2+|All                   .3+|xref:Program_IOPMPs[xrefstyle=full]
    |0x0034    |`MDSTALLH`  2+|All
    |0x0038    |`RRIDSCP`   2+|All
-.3+|0x0060 .3+|`ERR_CFG`   |`msi_sel`         |3:3      |<<MSI>>
-                           |`stall_violation_en` |4:4      |<<Program_IOPMPs>>
-                           |`msidata`        |18:8     |<<MSI>>
-.3+|0x0064 .3+|`ERR_INFO`  |`msi_werr`       |3:3      |<<MSI>>
-                           |`etype`          |7:4      |<<Program_IOPMPs>>
-                           |`svc`            |8:8      |<<MFR>>
-   |0x0074 |`ERR_MFR`       2+|All                      |<<MFR>>
-   |0x0078 |`ERR_MSIADDR`   2+|All                   .2+|<<MSI>>
+.3+|0x0060 .3+|`ERR_CFG`   |`msi_sel`         |3:3      |xref:MSI[xrefstyle=full]
+                           |`stall_violation_en` |4:4      |xref:Program_IOPMPs[xrefstyle=full]
+                           |`msidata`        |18:8     |xref:MSI[xrefstyle=full]
+.3+|0x0064 .3+|`ERR_INFO`  |`msi_werr`       |3:3      |xref:MSI[xrefstyle=full]
+                           |`etype`          |7:4      |xref:Program_IOPMPs[xrefstyle=full]
+                           |`svc`            |8:8      |xref:MFR[xrefstyle=full]
+   |0x0074 |`ERR_MFR`       2+|All                      |xref:MFR[xrefstyle=full]
+   |0x0078 |`ERR_MSIADDR`   2+|All                   .2+|xref:MSI[xrefstyle=full]
    |0x007C |`ERR_MSIADDRH`  2+|All
 |===
 
@@ -44,7 +41,7 @@ This chapter also introduces an additional error type (`ERR_INFO.etype`).
 |===
 3+h|SRCMD table, _s_ = 0...`HWCFG1.rrid_num`-1
   h|Offset             h|Register          h|Related section(s)
-   |0x1008 + (_s_) × 32 |`SRCMD_R(_s_)`  .6+|<<SPS_EXT>>
+   |0x1008 + (_s_) × 32 |`SRCMD_R(_s_)`  .6+|xref:SPS_EXT[xrefstyle=full]
    |0x100C + (_s_) × 32 |`SRCMD_RH(_s_)`
    |0x1010 + (_s_) × 32 |`SRCMD_W(_s_)`
    |0x1014 + (_s_) × 32 |`SRCMD_WH(_s_)`
@@ -59,7 +56,7 @@ This chapter also introduces an additional error type (`ERR_INFO.etype`).
 5+h|Entry array, _i_ = 0...`HWCFG1.entry_num`-1
   h|Offset                h|Register           h|Field  h|Bits  h|Related section(s)
 .6+|`ENTRYOFFSET` +
-    + 0x8 + (_i_) × 16  .6+| `ENTRY_CFG(_i_)`   |`sire`  |5:5 .6+|<<PEIS_PEES>>
+    + 0x8 + (_i_) × 16  .6+| `ENTRY_CFG(_i_)`   |`sire`  |5:5 .6+|xref:PEIS_PEES[xrefstyle=full]
                                                 |`siwe`  |6:6
                                                 |`sixe`  |7:7
                                                 |`sere`  |8:8
@@ -79,13 +76,10 @@ This chapter also introduces an additional error type (`ERR_INFO.etype`).
    |0x04        | Partial hit on a priority rule
    |0x05        | Not hit any rule
    |0x06        | Unknown RRID
-   |0x07        | Error due to a stalled transaction   |<<Program_IOPMPs>>
+   |0x07        | Error due to a stalled transaction   |xref:Program_IOPMPs[xrefstyle=full]
    |0x08 ~ 0x0D | Reserved                          .2+|(baseline specification)
    |0x0E ~ 0x0F | User-defined error
 |===
-
-:xrefstyle: {xrefstyle_bak}
-:xrefstyle_bak!:
 
 [#REG_EXT_HWCFG2]
 === Hardware Configuration 2 (`HWCFG2`) Register
