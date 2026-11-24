@@ -35,14 +35,14 @@
   * @brief Computes the address range based on the IOPMP entry configuration.
   *
   * @param iopmp The IOPMP instance.
-  * @param startAddr Pointer to store the start address of the range
-  * @param endAddr Pointer to store the end address of the range
+  * @param startAddr Pointer to store the first address of the range, in 4-byte units
+  * @param lastAddr Pointer to store the last address of the range, in 4-byte units
   * @param prev_iopmpaddr Previous IOPMP address (used in TOR mode)
   * @param iopmpaddr Current IOPMP address
   * @param iopmpcfg IOPMP entry configuration
-  * @return 0 on success, 1 if the IOPMP entry is disabled
+  * @return 0 on success, 1 if the IOPMP entry is disabled or its range is empty
  **/
-static int iopmpAddrRange(iopmp_dev_t *iopmp, uint64_t *startAddr, uint64_t *endAddr, uint64_t prev_iopmpaddr, uint64_t iopmpaddr, entry_cfg_t iopmpcfg) {
+static int iopmpAddrRange(iopmp_dev_t *iopmp, uint64_t *startAddr, uint64_t *lastAddr, uint64_t prev_iopmpaddr, uint64_t iopmpaddr, entry_cfg_t iopmpcfg) {
     uint64_t napot_mask;
     // Check if IOPMP entry is OFF
     if (iopmpcfg.a == IOPMP_OFF) { return 1; }
@@ -52,7 +52,7 @@ static int iopmpAddrRange(iopmp_dev_t *iopmp, uint64_t *startAddr, uint64_t *end
     switch (iopmpcfg.a) {
         case IOPMP_NA4:  // Address range covers a single 4-byte address
             *startAddr = iopmpaddr;
-            *endAddr   = iopmpaddr + 1;
+            *lastAddr  = iopmpaddr;
             break;
 
         case IOPMP_TOR: // Address range specified by top-of-range mode
@@ -62,8 +62,12 @@ static int iopmpAddrRange(iopmp_dev_t *iopmp, uint64_t *startAddr, uint64_t *end
                 prev_iopmpaddr &= ~G_mask;
                 iopmpaddr      &= ~G_mask;
             }
+            /* Empty range, no match */
+            if (iopmpaddr <= prev_iopmpaddr) {
+                return 1;
+            }
             *startAddr = prev_iopmpaddr;
-            *endAddr   = iopmpaddr;
+            *lastAddr  = iopmpaddr - 1;
             break;
 
         default:  // Assume NAPOT (Naturally Aligned Power-of-Two) mode
@@ -74,7 +78,7 @@ static int iopmpAddrRange(iopmp_dev_t *iopmp, uint64_t *startAddr, uint64_t *end
             }
             napot_mask = iopmpaddr ^ (iopmpaddr + 1);
             *startAddr = iopmpaddr & ~napot_mask;
-            *endAddr   = *startAddr + napot_mask + 1;
+            *lastAddr  = *startAddr + napot_mask;
             break;
     }
 
@@ -83,27 +87,25 @@ static int iopmpAddrRange(iopmp_dev_t *iopmp, uint64_t *startAddr, uint64_t *end
 
 /**
   * @brief Determine the matching status of transaction request address against IOPMP entry range.
+  *        All addresses are in 4-byte units.
   *
-  * @param trans_start Start address of the transaction
-  * @param trans_end End address of the transaction
-  * @param lo Lower bound of the IOPMP range
-  * @param hi Upper bound of the IOPMP range
+  * @param trans_start First address of the transaction
+  * @param trans_last Last address of the transaction
+  * @param lo First address of the IOPMP range
+  * @param hi Last address of the IOPMP range
   * @return iopmpMatchStatus_t Status of the match:
   *         - ENTRY_MATCH: Entry matches all bytes of a transaction
   *         - ENTRY_PARTIAL_MATCH: Entry matches partial bytes of a transation
   *         - ENTRY_NOTMATCH: Entry doesn't cover any byte of the transaction
  **/
 static iopmpMatchStatus_t iopmpMatchAddr(uint64_t trans_start,
-                                         uint64_t trans_end,
+                                         uint64_t trans_last,
                                          uint64_t lo, uint64_t hi) {
-    // Validate range
-    if (hi <= lo) { return ENTRY_NOTMATCH; }  // Empty or invalid range, no match
-
     // Check if transaction falls outside the IOPMP entry range
-    if (trans_end <= lo || trans_start >= hi) { return ENTRY_NOTMATCH; } // No match, transaction outside range
+    if (trans_last < lo || trans_start > hi) { return ENTRY_NOTMATCH; } // No match, transaction outside range
 
     // Determine if there's a full match
-    if (trans_start >= lo && trans_end <= hi) { return ENTRY_MATCH; }
+    if (trans_start >= lo && trans_last <= hi) { return ENTRY_MATCH; }
 
     return ENTRY_PARTIAL_MATCH;
 }
@@ -210,19 +212,20 @@ void iopmpRuleAnalyzer(iopmp_dev_t *iopmp,
                        iopmp_rule_analyzer_input_t *input,
                        iopmp_rule_analyzer_output_t *output)
 {
-    uint64_t start_addr, end_addr;
+    uint64_t start_addr, last_addr;
 
     // Set up the address range; if range setup fails, return not matched
-    if (iopmpAddrRange(iopmp, &start_addr, &end_addr, input->prev_iopmpaddr,
+    if (iopmpAddrRange(iopmp, &start_addr, &last_addr, input->prev_iopmpaddr,
                        input->iopmpaddr, input->iopmpcfg)) {
         output->match_status = ENTRY_NOTMATCH;
         return;
     }
 
-    // Match transaction address to the IOPMP address range
-    // Multiply the addresses with 4 is equivalent to (Address << 2)
-    output->match_status = iopmpMatchAddr(input->trans_start, input->trans_end,
-                                          (start_addr * 4), (end_addr * 4));
+    // Match transaction address to the IOPMP address range in 4-byte units.
+    // The byte address of an entry, bits 65:0, does not fit in 64 bits.
+    output->match_status = iopmpMatchAddr(input->trans_start >> 2,
+                                          (input->trans_end - 1) >> 2,
+                                          start_addr, last_addr);
     if (output->match_status == ENTRY_NOTMATCH ||
         output->match_status == ENTRY_PARTIAL_MATCH) {
         // It's unnecessary to check entry permissions in these two cases
