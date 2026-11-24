@@ -1,3 +1,4 @@
+[#data-only-devices-and-buses]
 == Data Only Devices and Buses
 
 Some IOPMPs only check transactions from data-only devices, such as a general DMA.
