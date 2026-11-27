@@ -1,6 +1,6 @@
 # IOPMP Reference Model Documentation
 
-The **Input/Output Physical Memory Protection (IOPMP)** is a hardware component designed to control and validate accesses issued from bus initiators. It checks the validity of these accesses in real-time. The **IOPMP Reference Model** is developed in compliance with the **RISC-V IOPMP Specification Version 0.8.2, 2026**. This model will be updated with future specification revisions.
+The **Input/Output Physical Memory Protection (IOPMP)** is a hardware component designed to control and validate accesses issued from bus initiators. It checks the validity of these accesses in real-time. The **IOPMP Reference Model** is developed in compliance with the **RISC-V IOPMP Specification v0.86**. This model will be updated with future specification revisions.
 
 ## IOPMP Model Overview
 
@@ -19,7 +19,7 @@ The IOPMP Reference Model includes several distinct configurations, each offerin
 | **Unnamed Model 4** | 2                   | 2             | Same as **Unnamed Model 3**, but the value of *k* is programmable. |
 
 ## Supported Features
-The **IOPMP Reference Model** incorporates all IOPMP Models and each model can be configured based upon SRCMD_FMT and MDCFG_FMT flags at compilation time. All features outlined in the **RISC-V IOPMP Specification Version 0.8.1, 2025**. You could find the key feature configurations under `iopmp_cfg_t` structure and `config.h`.
+The **IOPMP Reference Model** incorporates all IOPMP Models and each model can be configured based upon SRCMD_FMT and MDCFG_FMT flags at compilation time. It supports all features outlined in the **RISC-V IOPMP Specification v0.86**. You could find the key feature configurations under `iopmp_cfg_t` structure and `config.h`.
 
 ### Key feature configuration parameters in `iopmp_cfg_t` include:
 | **Feature**  | **Possible Values** | **Description**                                                                                                                                                                                                                    |
@@ -46,9 +46,9 @@ The **IOPMP Reference Model** incorporates all IOPMP Models and each model can b
 | mdcfg_fmt          | 0 - 2                     | Indicate the MDCFG format:<br />**0**: Format 0. MDCFG Table is implemented. <br />**1**: Format 1. No MDCFG Table. HWCFG3.md_entry_num is fixed. <br />**2**: Format 2. No MDCFG Table. HWCFG3.md_entry_num is programmable.                                                                          |
 | srcmd_fmt          | 0 - 2                     | Indicate the SRCMD Table format:<br />**0**: Format 0 (baseline). SRCMD_EN(s) and SRCMD_ENH(s) are available. <br />**1**: Exclusive Format. No SRCMD Table. RRID i associates exclusively with memory domain i, i = 0 … HWCFG0.md_num-1. <br />**2**: MD-indexed Format. SRCMD_PERM(m) and SRCMD_PERMH(m) are available.                                                                             |
 | md_entry_num       | 0 - IMP                   | Indicates the number of entries associated with each Memory Domain (MD) when `mdcfg_fmt` is not 0.<br />Implementation defined value                                                                                                   |
-| xinr               | 0/1                       | Indicates whether the IOPMP treats the instruction fetch accesses as data read accesses.<br />**0**: Fields of instruction fetches are not ignored<br />**1**: Fields of instruction fetches are ignored |
-| no_x               | 0/1                       | Valid only if `xinr` = 0. <br />**0**: Instruction fetch checks are permissive. <br />**1**: Instruction fetches are always denied.                                                                                       |
-| no_w               | 0/1                       | Indicates if write accesses are always denied.<br />**0**: Write accesses are allowed based on permissions. <br />**1**: Write accesses are always denied.                                                                   |
+| xinr               | 0/1                       | Indicates whether the IOPMP treats the instruction fetch accesses as data read accesses.<br />**0**: Instruction fetches are checked with the instruction fetch permissions.<br />**1**: Instruction fetches are checked as read accesses, and the fields related to instruction fetch read as zero. |
+| no_x               | 0/1                       | Indicates if instruction fetches are always denied. It has no effect if `xinr` = 1.<br />**0**: Instruction fetches are allowed based on permissions. <br />**1**: Instruction fetches are always denied, and the fields related to instruction fetch read as zero. |
+| no_w               | 0/1                       | Indicates if write accesses are always denied.<br />**0**: Write accesses are allowed based on permissions. <br />**1**: Write accesses are always denied, and the fields related to write access read as zero. |
 | rrid_transl_en     | 0/1                       | Indicates if tagging a new Requestor ID (RRID) on the initiator port is supported.<br />**0**: Tagging not supported. <br />**1**: New RRID tagging is supported.                                                            |
 | rrid_transl_prog   | 0/1                       | Indicates if the `rrid_transl` field is programmable. <br />**0**: Field is fixed. <br />**1**: Field is programmable                                                                                                      |
 | rrid_transl        | IMP                       | The RRID tagged to outgoing transactions. Supported only for `rrid_transl_en`=1. It is writable only when `rrid_transl_prog`=1.                                                                                                      |
@@ -109,7 +109,7 @@ These functions are designed for use within a testbench to input stimuli and obt
    This function is used for Entry Table Configurations. entry_idx could be any legal Entry table index, data contains the value that you want to write in this register. The IOPMP instance to be configured is specified by `iopmp`. The number of bytes to write is specified by `num_bytes`. It could be 4-Byte write or 8-Byte Write.
 
 13. **`void receiver_port(uint16_t rrid, uint64_t addr, uint32_t length, uint32_t size, perm_type_e perm, bool is_amo, iopmp_trans_req_t *iopmp_trans_req)`**
-   This function contains receiver port signals, that will be passed to the iopmp, where rrid is RRID Of the Bus Initiator, addr is Address to be checked, length is length Number of transfers, size is It should be 0 for 1-byte, 1 for 2-byte, 2 for 4-byte access, perm is the permissions required for this transcation, is_amo indicates whether this transaction is AMO or not, iopmp_trans_req is a pointer, pass it as it is.
+   Fills `iopmp_trans_req` with the receiver port signals of a transaction. `rrid` is the RRID of the bus initiator and `addr` is the start address. The transaction has `length` + 1 transfers of 2<sup>`size`</sup> bytes each, so `size` is 0 for 1-byte, 1 for 2-byte, and 2 for 4-byte transfers. `perm` is the permission the transaction requires, and `is_amo` indicates whether it is an AMO. The checker asserts that `size` is below 32, that the transaction does not cross address 2<sup>64</sup>, and that an instruction fetch is not an AMO.
 
 14. **`int error_record_chk(iopmp_dev_t *iopmp, uint8_t err_type, uint8_t req_perm, uint64_t req_addr, bool err_rcd)`**
    This could be used to check the error record register data. The IOPMP instance to be checked is specified by `iopmp`. err_type is the type of Error, req_perm contains the Requested permissions, req_addr contains the requested address, err_rcd indicated if Set if error should be recorded
@@ -119,14 +119,15 @@ These functions are designed for use within a testbench to input stimuli and obt
 The **IOPMP Reference Model** is written in C and requires a GCC compiler for compilation. Follow these steps to compile and simulate:
 
 1. Adjust the `config.h` and `iopmp_cfg_t` as needed to customize IOPMP configurations.
-2. Use the following commands to compile:
+2. Use the following commands to compile and run:
 
-   - **Compile All Models**:
+   - **Compile and Run All Models**:
      ```bash
      make all
      ```
-   - **Compile Specific Models**:
+   - **Compile All Models, or a Specific Model**:
      ```bash
+     make build
      make build model=full_model        # Full Model
      make build model=rapid_k_model     # Rapid-k Model
      make build model=dynamic_k_model   # Dynamic-k Model
@@ -137,17 +138,28 @@ The **IOPMP Reference Model** is written in C and requires a GCC compiler for co
      make build model=unnamed_model_3   # Unnamed Model 3
      make build model=unnamed_model_4   # Unnamed Model 4
      ```
-   - **Compile Specific Models with libiopmp**:
+   - **Run the Compiled Models**:
      ```bash
+     make run
+     ```
+   - **Compile and Run the libiopmp Test Programs**: build `libiopmp` with the host compiler first, keeping `CFG_IOPMP_REF_MODEL` on in its `config.mk`, because this Makefile does not build it. `LIBIOPMP_DIR` points to a `libiopmp` built elsewhere, and is `../libiopmp` by default.
+     ```bash
+     make -C ../libiopmp
      make all libiopmp=1
-     make build libiopmp=1
+     make build libiopmp=1 model=libiopmp_full_model
+     make all libiopmp=1 LIBIOPMP_DIR=/path/to/libiopmp
+     ```
+   - **Options**: `sharedLib=1` builds a shared library instead of a static one, `cov=1` enables code coverage, and `asan=1` enables AddressSanitizer. `make help` lists every model and libiopmp test program.
+   - **Clean**:
+     ```bash
+     make clean
      ```
 
 3. After compilation, binaries are generated in the `bin` folder and the library files are generated in `lib` folder.
 
 ## IOPMP Reference Model Test Files
 
-The `verif` directory contains a `test` folder that includes test files for each of the 9 models. You can add custom tests to the relevant test file for your preferred model.
+The `verif/tests` folder includes a test file for each of the 9 models, and the libiopmp test programs `libiopmp_*.c`, which run `libiopmp` against the models. You can add custom tests to the relevant test file for your preferred model.
 
 ---
 
