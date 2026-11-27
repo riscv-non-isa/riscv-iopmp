@@ -383,18 +383,12 @@ DECLARE_FUNC_WRITE_SRCMD_64(srcmd_r);
 DECLARE_FUNC_WRITE_SRCMD_64(srcmd_w);
 DECLARE_FUNC_WRITE_SRCMD_64(srcmd_x);
 
-/* Helper functions to get base address of ENTRY registers */
-#define DECLARE_FUNC_GET_ADDR_OF_ENTRY(name, base)                      \
-static inline uintptr_t get_addr_of_ ## name(IOPMP_t *iopmp,            \
-                                             uint32_t idx)              \
-{                                                                       \
-    return iopmp->addr_entry_array + (base) +                           \
-           ((uintptr_t)(idx) * IOPMP_ENTRY_STRIDE);                     \
+/* Helper function to get base address of ENTRY registers */
+static inline uintptr_t get_addr_of_entry(IOPMP_t *iopmp, uint32_t idx)
+{
+    return iopmp->addr_entry_array + IOPMP_ENTRY_ADDR_BASE +
+           ((uintptr_t)idx * IOPMP_ENTRY_STRIDE);
 }
-DECLARE_FUNC_GET_ADDR_OF_ENTRY(entry,       IOPMP_ENTRY_ADDR_BASE);
-DECLARE_FUNC_GET_ADDR_OF_ENTRY(entry_addr,  IOPMP_ENTRY_ADDR_BASE);
-DECLARE_FUNC_GET_ADDR_OF_ENTRY(entry_addrh, IOPMP_ENTRY_ADDRH_BASE);
-DECLARE_FUNC_GET_ADDR_OF_ENTRY(entry_cfg,   IOPMP_ENTRY_CFG_BASE);
 
 /******************************************************************************/
 /* Internal functions to read/write value from/to IOPMP instance              */
