@@ -180,9 +180,11 @@ void iopmp_check_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iopmp_
     rule_analyzer_i.rrid         = rrid;
     // At most 2^63 bytes, so the size fits in 64 bits
     assert(trans_req->size < 32);
+    uint64_t trans_size = ((uint64_t)trans_req->length + 1) << trans_req->size;
+    // The last byte of a transaction is below address 2^64
+    assert(trans_req->addr + (trans_size - 1) >= trans_req->addr);
     rule_analyzer_i.trans_start  = trans_req->addr;
-    rule_analyzer_i.trans_end    = trans_req->addr +
-                                   (((uint64_t)trans_req->length + 1) << trans_req->size);
+    rule_analyzer_i.trans_end    = trans_req->addr + trans_size;
     rule_analyzer_i.perm         = trans_perm;
     rule_analyzer_i.is_amo       = trans_req->is_amo;
     rule_analyzer_o.match_status = ENTRY_NOTMATCH;
