@@ -178,9 +178,11 @@ void iopmp_check_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iopmp_
     iopmp_rule_analyzer_input_t rule_analyzer_i;
     iopmp_rule_analyzer_output_t rule_analyzer_o;
     rule_analyzer_i.rrid         = rrid;
+    // At most 2^63 bytes, so the size fits in 64 bits
+    assert(trans_req->size < 32);
     rule_analyzer_i.trans_start  = trans_req->addr;
     rule_analyzer_i.trans_end    = trans_req->addr +
-                                   ((int)pow(2, trans_req->size) * (trans_req->length + 1));
+                                   (((uint64_t)trans_req->length + 1) << trans_req->size);
     rule_analyzer_i.perm         = trans_perm;
     rule_analyzer_i.is_amo       = trans_req->is_amo;
     rule_analyzer_o.match_status = ENTRY_NOTMATCH;
