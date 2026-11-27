@@ -142,7 +142,7 @@ The **IOPMP Reference Model** is written in C and requires a GCC compiler for co
      ```bash
      make run
      ```
-   - **Compile and Run the libiopmp Test Programs**: build `libiopmp` with the host compiler first, keeping `CFG_IOPMP_REF_MODEL` on in its `config.mk`, because this Makefile does not build it. `LIBIOPMP_DIR` points to a `libiopmp` built elsewhere, and is `../libiopmp` by default.
+   - **Compile and Run the libiopmp Test Programs**: build `libiopmp` with the host GCC first, keeping `CFG_IOPMP_REF_MODEL` on in its `config.mk`, because this Makefile does not build it and links it with GCC and `-lgcov`. `LIBIOPMP_DIR` points to a `libiopmp` built elsewhere, and is `../libiopmp` by default.
      ```bash
      make -C ../libiopmp
      make all libiopmp=1

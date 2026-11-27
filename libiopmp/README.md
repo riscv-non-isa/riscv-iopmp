@@ -24,8 +24,9 @@ and assert() macro will be enabled
 * `CFG_IOPMP_REF_MODEL`: Turn on this option to enable compiling of register
 read/write interface as weak functions. This is useful if the IOPMP you operate
 is simulated by the reference model. It also builds `libiopmp` with coverage
-instrumentation, so a program that links it needs `-lgcov`. If you want to
-control real IOPMP you just turn off this option.
+instrumentation, so a program that links it needs the coverage runtime of the
+same compiler: `-lgcov` with GCC, or linking through `clang --coverage` with
+LLVM. If you want to control real IOPMP you just turn off this option.
 * `CFG_IOPMP_DRV_VENDOR_EXAMPLE`: Turn on this option to build the worked
 example of a vendor driver in `src/iopmp_drv_vendor_example.c`. It is not part
 of the default build; see [Vendor drivers](#vendor-drivers) below
