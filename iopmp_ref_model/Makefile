@@ -36,7 +36,7 @@ endif
 
 # Compiler and flags
 CC := gcc
-CFLAGS := -Wall -Werror $(COVFLAGS) $(ASAN_FLAGS) $(LIBIOPMP_CFLAGS) -I./include -Iverif/ -fPIC
+CFLAGS := -Wall -Werror $(COVFLAGS) $(ASAN_CFLAGS) $(LIBIOPMP_CFLAGS) -I./include -Iverif/ -fPIC
 LDFLAGS := -lm $(ASAN_LDFLAGS) $(LIBIOPMP_LDFLAGS)
 
 # Common source files
