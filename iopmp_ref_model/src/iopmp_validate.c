@@ -75,8 +75,8 @@ void iopmp_check_access(iopmp_dev_t *iopmp, iopmp_trans_req_t *trans_req, iopmp_
 
     int lwr_entry, upr_entry;
 
-    srcmd_en_t  srcmd_en;
-    srcmd_enh_t srcmd_enh;
+    srcmd_en_t  srcmd_en = {0};
+    srcmd_enh_t srcmd_enh = {0};
 
     bool gen_intrpt_nonPrio = false;
     bool gen_buserr_nonPrio = false;
