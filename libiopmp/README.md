@@ -1,13 +1,17 @@
 # libiopmp - A Library to Program RISC-V IOPMP
 
 The `libiopmp` is intended to be driver of RISC-V IOPMP which:
-* Complies with IOPMP specification **v0.8.2, 2026**
+* Complies with IOPMP specification **v0.86**
 * Operates one or multiple IOPMPs
 * Supports several IOPMP models and configurations
 * Extensible for adding vendor-customized IOPMP driver
 * Supports IOPMP with Multi-Faults Record (MFR) extension
 * Supports IOPMP with Secondary Permission Setting (SPS) extension
 * Supports IOPMP with Message-Signaled Interrupts (MSI) extension
+* Supports IOPMP with non-priority entries
+* Supports IOPMP with per-entry interrupt and bus error suppression
+* Updates the MDCFG table without overlapping MD ranges in between, and reports
+the MDs that an update affects
 
 ## Adjust `config.mk`
 
@@ -19,8 +23,9 @@ here:
 and assert() macro will be enabled
 * `CFG_IOPMP_REF_MODEL`: Turn on this option to enable compiling of register
 read/write interface as weak functions. This is useful if the IOPMP you operate
-is simulated by the reference model. If you want to control real IOPMP you just
-turn off this option.
+is simulated by the reference model. It also builds `libiopmp` with coverage
+instrumentation, so a program that links it needs `-lgcov`. If you want to
+control real IOPMP you just turn off this option.
 * `CFG_IOPMP_DRV_VENDOR_EXAMPLE`: Turn on this option to build the worked
 example of a vendor driver in `src/iopmp_drv_vendor_example.c`. It is not part
 of the default build; see [Vendor drivers](#vendor-drivers) below
@@ -60,6 +65,17 @@ For RV64 target:
 ~/libiopmp$ make
 ```
 
+### Compiled by LLVM
+
+Set `LLVM` to build with `clang`, `llvm-ar` and `ld.lld` instead, for the
+default target of that `clang`:
+
+```shell
+~/libiopmp$ make LLVM=1                    # clang in $PATH
+~/libiopmp$ make LLVM=/path/to/llvm/bin/   # /path/to/llvm/bin/clang
+~/libiopmp$ make LLVM=-17                  # clang-17
+```
+
 ## Usage
 
 Assume the directory path to libiopmp is `$(LIBIOPMP_DIR)`, the output library
@@ -91,7 +107,16 @@ call `iopmp_init()` again.
 
 ## Documentation
 
-Please check the `libiopmp.pdf` under `docs` folder.
+The APIs are documented in `include/libiopmp.h`. To generate the HTML and PDF
+documentation from it with Doxygen and pdfLaTeX:
+
+```shell
+~/libiopmp$ doxygen docs/Doxyfile
+~/libiopmp$ make -C docs/latex
+```
+
+The HTML pages are in `docs/html`, and the PDF is `docs/latex/refman.pdf`.
+`docs/libiopmp.pdf` is a copy of that PDF and may lag behind the header.
 
 ## Vendor drivers
 
