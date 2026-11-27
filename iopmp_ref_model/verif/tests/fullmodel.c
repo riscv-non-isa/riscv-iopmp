@@ -1639,6 +1639,20 @@ int main()
     iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
     CHECK_IOPMP_TRANS(&iopmp, IOPMP_ERROR, NOT_HIT_ANY_RULE);
     END_TEST();)
+
+    START_TEST_IF(iopmp.reg_file.hwcfg0.tor_en, "A transaction of 4 GiB is checked in full",
+    FAIL_IF((reset_iopmp(&iopmp, &cfg) != 0));
+    configure_mdcfg_n(&iopmp, 0, 2, 4);
+    configure_srcmd_n(&iopmp, SRCMD_EN, 5, 0x2, 4);     // RRID(5) has MD(0)
+    configure_srcmd_n(&iopmp, SRCMD_R, 5, 0x2, 4);
+    configure_entry_n(&iopmp, ENTRY_ADDR, 0, 0xffc >> 2, 4);
+    configure_entry_n(&iopmp, ENTRY_ADDR, 1, 0x1004 >> 2, 4);   // 0xffc ~ 0x1003
+    configure_entry_n(&iopmp, ENTRY_CFG, 1, (TOR | R), 4);
+    set_hwcfg0_enable(&iopmp);
+    receiver_port(5, 0x1000, 1, 31, READ_ACCESS, 0, &iopmp_trans_req);  // 0x1000 ~ 2^32 + 0xfff
+    iopmp_validate_access(&iopmp, &iopmp_trans_req, &iopmp_trans_rsp, &intrpt);
+    CHECK_IOPMP_TRANS(&iopmp, IOPMP_ERROR, PARTIAL_HIT_ON_PRIORITY);
+    END_TEST();)
 #endif
 
     free(memory);
